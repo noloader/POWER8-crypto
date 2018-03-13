@@ -14,4 +14,5 @@ $ source ~/.bash_profile
 $ echo $JAVA_HOME
 /usr/lib/jvm/java-8-openjdk-amd64
 </programlisting>
+  <para>At the time of this writing Ubuntu's Java 9 is unstable. It could cause unexplained crashes. You should not use the <systemitem>openjdk-9-jdk</systemitem> package.</para>
 </section>
