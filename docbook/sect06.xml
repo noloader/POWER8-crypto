@@ -5,4 +5,5 @@
   <para>The XML processor translates XML source and produces Formatted Object (FO). It is provided by the <systemitem>xsltproc</systemitem> package. To install the package issue the following.</para>
   <programlisting>$ sudo apt-get install xsltproc
 </programlisting>
+  <para>After you install the program you should run <systemitem>hash -r</systemitem> to clear Bash's program cache.</para>
 </section>

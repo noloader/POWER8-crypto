@@ -21,5 +21,5 @@ JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 CLASSPATH=/usr/local/bin/fop-2.2:/usr/local/bin/fop-2.2/lib \
     /usr/local/bin/fop-2.2/fop/fop $*
 </programlisting>
-  <para>After you manually install the new processor you should run <systemitem>hash -r</systemitem> to clear Bash's program cache.</para>
+  <para>After you install the processor you should run <systemitem>hash -r</systemitem> to clear Bash's program cache.</para>
 </section>

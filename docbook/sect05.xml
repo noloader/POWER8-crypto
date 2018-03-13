@@ -5,4 +5,5 @@
   <para>The XML lint provides validation and formatting. It is provided by the <systemitem>libxml2-utils</systemitem> package. To install the package issue the following.</para>
   <programlisting>$ sudo apt-get install libxml2-utils
 </programlisting>
+  <para>After you install the program you should run <systemitem>hash -r</systemitem> to clear Bash's program cache.</para>
 </section>
