@@ -10,4 +10,9 @@ $ command -v xsltproc
 $ command -v fop
 /usr/local/bin/fop
 </programlisting>
+  <para>You should also verify the version of <systemitem>fop</systemitem>.</para>
+  <programlisting>$ fop -version
+FOP Version 2.2
+</programlisting>
+  <para>If the version is unexpected then verify the shell script located in <systemitem>/usr/local/bin/fop</systemitem>, and ensure it is executable. If the script is correct then run <systemitem>hash -r</systemitem> to clear the Bash program cache.</para>
 </section>
