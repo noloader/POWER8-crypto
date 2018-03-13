@@ -3,6 +3,6 @@
 <section id="introduction">
   <title>Introduction</title>
   <para>This document is a guide to installing <ulink url="https://docbook.org/whatis">DocBook</ulink> on Ubuntu 16.04. The installation requires six components. A seventh component is optional. The optional component is <systemitem>fop-hyphenate</systemitem>.</para>
-  <para>The guide installs DockBook 4 and not version 5. If you want DockBook v5 then install <systemitem>docbook5</systemitem> and <systemitem>docbook-xsl-ns</systemitem> instead of <systemitem>docbook</systemitem> and <systemitem>docbook-xsl</systemitem>.</para>
+  <para>The guide installs DockBook 4.5 and not version 5. If you want DockBook v5 then install <systemitem>docbook5</systemitem> and <systemitem>docbook-xsl-ns</systemitem> instead of <systemitem>docbook</systemitem> and <systemitem>docbook-xsl</systemitem>. You will also need to change some URI's to use version 5 paths.</para>
   <para>Be careful when copying and pasting from this document. If you copy and paste commands from the document to the terminal then the dash used in commands may be translated into hyphens used in typesetting. They are not the same thing in the terminal, and it usually leads to obscure failures when installing packages.</para>
 </section>
