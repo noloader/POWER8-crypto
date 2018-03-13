@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section id="docbook_jre">
+  <title>Java runtime</title>
+  <para>The Java runtime enviroment is needed by Apache FOP. It is provided by the <systemitem>openjdk-8-jdk</systemitem> package. To install the package issue the following.</para>
+  <programlisting>$ sudo apt-get install openjdk-8-jdk
+</programlisting>
+  <para>After installing the JRE you can export <systemitem>JAVA_HOME</systemitem> from your login script:</para>
+  <programlisting># User .bashrc or .bash_profile
+$ export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+$ source ~/.bash_profile
+
+$ echo $JAVA_HOME
+/usr/lib/jvm/java-8-openjdk-amd64
+</programlisting>
+</section>

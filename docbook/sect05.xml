@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section id="docbook_xmllint">
+  <title>XML lint</title>
+  <para>The XML lint provides validation and formatting. It is provided by the <systemitem>libxml2-utils</systemitem> package. To install the package issue the following.</para>
+  <programlisting>$ sudo apt-get install libxml2-utils
+</programlisting>
+</section>

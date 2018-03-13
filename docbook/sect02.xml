@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section id="components">
+  <title>Components</title>
+  <para>DocBook requires a DTD, XSLTPROC, and FOP. In addition, Apache's FOP requires a Java subsystem. The components are as follows:</para>
+  <orderedlist numeration="arabic">
+    <listitem>
+      <para>DocBook DTD – DocBook entity definitions</para>
+    </listitem>
+    <listitem>
+      <para>DocBook XSL – DocBook stylesheets</para>
+    </listitem>
+    <listitem>
+      <para>XMLLINT – XML validator and formatter</para>
+    </listitem>
+    <listitem>
+      <para>XSLTPROC – XML processor which reads the XML source and produces Formatted Objects
+(FOs)</para>
+    </listitem>
+    <listitem>
+      <para>Java – Runtime environment for Apache FOP</para>
+    </listitem>
+    <listitem>
+      <para>FOP – Apache's Formatted Object Processor which transforms FOs to output file types such as HTML, PS, and PDF</para>
+    </listitem>
+    <listitem>
+      <para>FOP-HYPH – used by FOP to hyphenate words in a DocBook</para>
+    </listitem>
+  </orderedlist>
+</section>

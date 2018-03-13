@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section id="docbook_xsltproc">
+  <title>XML processor</title>
+  <para>The XML processor translates XML source and produces Formatted Object (FO). It is provided by the <systemitem>xsltproc</systemitem> package. To install the package issue the following.</para>
+  <programlisting>
+$ sudo apt-get install xsltproc
+</programlisting>
+</section>
