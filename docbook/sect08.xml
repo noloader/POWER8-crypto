@@ -5,7 +5,8 @@
   <para>The Formatted Object Processor (FOP) is provided by Apache. It is provided by the <systemitem>fop</systemitem> and <systemitem>fop-doc</systemitem> packages. To install the packages issue the following.</para>
   <programlisting>$ sudo apt-get install fop fop-doc
 </programlisting>
-  <para>Alternatively, you can install the latest Apache FOP by downloading the binary from the Apache website. This can be useful if Ubuntu's version has trouble. To manually install FOP perform the following.</para>
+  <para>If you are happy with Ubuntu's version of FOP then you are finished. You can move on to the next section.</para>
+  <para>Alternatively, you can install the latest Apache FOP by downloading the binary from the Apache website. This can be useful if Ubuntu's version of FOP has trouble. To manually install FOP perform the following.</para>
   <programlisting>$ wget https://mirror.cogentco.com/pub/apache/xmlgraphics/
   fop/binaries/fop-2.2-bin.tar.gz
 $ tar -xzf fop-2.2-bin.tar.gz
