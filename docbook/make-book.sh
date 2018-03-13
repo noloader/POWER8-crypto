@@ -35,7 +35,6 @@ then
     xmllint --xinclude --noout --postvalid book.xml 
 fi
 
-
 XSL=/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
 if [[ ! -e "$XSL" ]]
 then
