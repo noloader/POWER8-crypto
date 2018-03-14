@@ -6,7 +6,7 @@
   <para>Several topics need to be discussed leading to trouble free loads and stores. They include PowerPC compilers and options, Altivec headers, machine endianness, vector datatypes and then finally the loads and stores.</para>
   <section id="power8_compilers">
     <title>PowerPC compilers</title>
-    <para>This documents uses two compilers for testing. The first is GCC and the scond is IBM XL C/C++. Each compiler is slightly different with its options.</para>
+    <para>This documents uses two compilers for testing. The first is GCC and the second is IBM XL C/C++. Each compiler is slightly different with its options.</para>
     <para>Compiling a test program with GCC will generally look like below. The important part is <systemitem>-mcpu=power8</systemitem> which selects the POWER8 Instruction Set Architecture (ISA).</para>
     <programlisting>$ g++ -mcpu=power8 test.cxx -o test.exe
 </programlisting>
@@ -63,18 +63,36 @@
 #define _BIG_ENDIAN 1
 #define __THW_BIG_ENDIAN__ 1
 #define __HHW_BIG_ENDIAN__ 1
-
 </programlisting>
   </section>
   <section id="power8_alloc">
     <title>Malloc and new</title>
     <para>The system calls <systemitem>malloc</systemitem> and <systemitem>new</systemitem> (and friends) are used to acquire memory from the heap. The system calls <emphasis>do not</emphasis> guarantee aligment to any particular boundary on all platforms. Linux generally returns a pointer that is at least 16-byte aligned on all platforms, including ARM, PPC, MIPS and x86. AIX does not provide the same alignment behavior.</para>
     <para>To avoid unexpected surprises when using heap allocations you should use <systemitem>posix_memalign</systemitem> to acquire heap memory aligned to a particular address.</para>
-    <para>TODO: I believe AIX or XLC has another function to call for vector programming.</para>
+    <para>TODO: I believe AIX or XLC has another function to call for memory used with vector programming.</para>
   </section>
   <section id="power8_datatypes">
     <title>Vector datatypes</title>
-    <para>Three vector datatypes are used for in-core programming. They are .</para>
+    <para>Three vector datatypes are used for in-core programming. The three types are listed below.</para>
+    <itemizedlist mark="bullet">
+      <listitem>
+        <para>
+          <systemitem>__vector unsigned char</systemitem>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <systemitem>__vector unsigned int</systemitem>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <systemitem>__vector unsigned long</systemitem>
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para><systemitem>__vector unsigned char</systemitem> is 16 each 8-bit bytes, and it is typedef'd as <systemitem>uint8x16_p8</systemitem>. <systemitem>__vector unsigned int</systemitem> is 4 each 32-bit words, and it is typedef'd as <systemitem>uint32x4_p8</systemitem>.</para>
+    <para><systemitem>__vector unsigned long</systemitem> is new to POWER8. <systemitem>__vector unsigned long</systemitem> is 2 each 64-bit double words, and it is typedef'd as <systemitem>uint64x2_p8</systemitem>.</para>
   </section>
   <section id="power8_ld_st">
     <title>Loads and stores</title>
