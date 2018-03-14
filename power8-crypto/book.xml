@@ -16,6 +16,13 @@
         <surname>Schmidt</surname>
       </author>
     </authorgroup>
+    <othercredit>
+      <firstname>Segher</firstname>
+      <surname>Boessenkool</surname>
+      <contrib>Extensive review and rough drafts</contrib>
+    </othercredit>
+    <edition>Version 1.0 built using DocBook v4.5</edition>
+    <pubdate>1 April 2018</pubdate>
   </bookinfo>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch01.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch02.xml"/>

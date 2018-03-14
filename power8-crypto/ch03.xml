@@ -5,7 +5,7 @@
   <para>Runtime feature detections allows code to switch to a faster implementation when the hardware permits. This chapter shows you how to determine in-core crypto availability at runtime on AIX and Linux PowerPC platforms.</para>
   <section>
     <title>AIX features</title>
-    <para>TODO: find out how to perform runtime feature detection on AIX. We checked <systemitem>sysconf</systemitem> for ISA 2.07, polynomial multiply, AES and SHA (and crypto) bits but they are missing.</para>
+    <para>TODO: find out how to perform runtime feature detection on AIX. We checked <systemitem>getsystemcfg</systemitem> and <systemitem>sysconf</systemitem> for ISA 2.07, polynomial multiply, AES and SHA (and crypto) bits but they are missing.</para>
     <para>The only thing we have found is <systemitem>SIGILL</systemitem> probes and signal handlers. It would be nice to avoid the nastiness.</para>
   </section>
   <section>
@@ -84,6 +84,6 @@ int cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
 if (cacheLineSize) &lt;= 0)
     cacheLineSize = DEFAULT_L1_CACHE_LINE_SIZE;
 </programlisting>
-    <para>It is important to check the return value from <systemitem>sysconf</systemitem> on Linux. <systemitem>gcc112</systemitem> runs CentOS 7.4 and the machine returns 0 for the L1 cache line query.</para>
+    <para>It is important to check the return value from <systemitem>sysconf</systemitem> on Linux. <systemitem>gcc112</systemitem> runs CentOS 7.4 and the machine returns 0 for the L1 cache line query. Also see <ulink url="https://lists.centos.org/pipermail/centos/2017-September/166236.html">sysconf and _SC_LEVEL1_DCACHE_LINESIZE returns 0?</ulink> on the CentOS mailing list.</para>
   </section>
 </chapter>

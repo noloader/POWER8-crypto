@@ -5,12 +5,12 @@
     <primary>SHA</primary>
   </indexterm>
   <title>Secure Hash Standard</title>
-  <para>SHA is the Secure Hash Standard. SHA is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>. You should read the standard if you are not familiar with the hash.</para>
+  <para>SHA is the Secure Hash Standard. SHA is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>. You should read the standard if you are not familiar with the hash family.</para>
   <indexterm>
     <primary>SHA</primary>
     <secondary>Sigma functions</secondary>
   </indexterm>
-  <section id="sha_sigma">
+  <section id="sha_insn">
     <title>Sigma functions</title>
     <para>POWER8 provides a <systemitem>sigma</systemitem> instruction to accelrate SHA calculations. The instruction takes two integer arguments and the constants are used to select among <systemitem>Sigma0</systemitem>, <systemitem>Sigma1</systemitem>, <systemitem>sigma0</systemitem> and <systemitem>sigma1</systemitem>.</para>
   </section>
@@ -20,7 +20,7 @@
   </indexterm>
   <section id="sha_ch">
     <title>Ch function</title>
-    <para>POWER8 provides the <systemitem>vsel</systemitem> instruction and it is SHA's <systemitem>Ch</systemitem> function. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x</systemitem> is used as the selector.</para>
+    <para>POWER8 provides the <systemitem>vsel</systemitem> instruction and it is SHA's <systemitem>Ch</systemitem> function. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x</systemitem> used as the selector.</para>
     <programlisting>uint32x4_p8
 VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
 {
@@ -33,7 +33,7 @@ VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
   </indexterm>
   <section id="sha_maj">
     <title>Maj function</title>
-    <para>POWER8 provides the <systemitem>vsel</systemitem> instruction and it can be used for SHA's <systemitem>Maj</systemitem> function. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x^y</systemitem> is used as the selector.</para>
+    <para>POWER8 provides the <systemitem>vsel</systemitem> instruction and it can be used for SHA's <systemitem>Maj</systemitem> function. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x^y</systemitem> used as the selector.</para>
     <programlisting>uint32x4_p8
 VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
 {

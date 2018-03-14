@@ -2,7 +2,7 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="ch02">
   <title>Vector programming</title>
-  <para>AES, SHA-256 and SHA-512 acceleration occurs in the VSX unit. Data must be moved from main memory into a vector register, the data must be transformed, and then data must be written back to main memory. Data is moved to and from main memory using vector loads and stores.</para>
+  <para>Polynomial multiplies, AES, SHA-256 and SHA-512 acceleration occurs in the VSX unit. Data must be moved from main memory into a vector register, the data must be transformed, and then data must be written back to main memory. Data is moved to and from main memory using vector loads and stores.</para>
   <para>Several topics need to be discussed to ensure trouble free loads and stores. They include PowerPC compilers and options, Altivec headers, machine endianness, vector datatypes and then finally the loads and stores.</para>
   <section id="power8_compilers">
     <title>PowerPC compilers</title>
