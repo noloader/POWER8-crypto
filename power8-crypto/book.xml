@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<book>
+  <title>POWER8 in-core Cryptography</title>
+  <subtitle>The Unofficial Guide</subtitle>
+  <bookinfo>
+    <edition>1</edition>
+    <authorgroup>
+      <author>
+        <firstname>Jeffrey</firstname>
+        <surname>Walton</surname>
+      </author>
+      <author>
+        <honorific>Dr</honorific>
+        <firstname>William</firstname>
+        <surname>Schmidt</surname>
+      </author>
+    </authorgroup>
+  </bookinfo>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch01.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch02.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch03.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch04.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch05.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch06.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch07.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch08.xml"/>
+  <index/>
+</book>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter id="ch06">
+  <title>Assembly language</title>
+  <indexterm>
+    <primary>Cryptogams</primary>
+  </indexterm>
+  <para>XXX.</para>
+  <section id="asm_cryptogams">
+    <title>Cryptogams</title>
+    <para><ulink url="https://www.openssl.org/~appro/cryptogams/">Cryptogams</ulink> is Andy Polyakov's incubator to develop assembly language routines for OpenSSL. Andy dual licenses his implementations, so a more permissive license is available for the assembly language source code. This chapter will show you how to build Andy's software.</para>
+  </section>
+</chapter>

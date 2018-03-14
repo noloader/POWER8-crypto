@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter id="ch01">
+  <title>Introduction</title>
+  <para>This document is a guide to using IBM's <ulink url="https://www.ibm.com/developerworks/learn/security/index.html">POWER8 in-core cryptography</ulink>. The purpose of the book is to document in-core cryptography more completely for developers and quality assurance personnel.</para>
+  <para>POWER8 in-core cryptography includes CPU instructions to acclerate AES, SHA-256, SHA-512 and polynomial multiplication. This document includes treatments of AES, SHA-256 and SHA-512. It does not include a discussion of polynomial multiplication at the moment, but the chapter is stubbed-out (and waiting for a contributor).</para>
+  <para>The POWER8 extensions for in-core cryptography find its ancestry in Altivec SIMD coprocessor. The POWER8 vector unit includes Vector Multimedia Extension (VSX) and the instruction set for in-core cryptography are part it. You can find additional information on VSX at IBM's website at <ulink url="https://www.ibm.com/developerworks/">TODO</ulink>.</para>
+  <section id="organization">
+    <title>Organization</title>
+    <para>The book proceeds in six parts. First, administriva is discussed, like how to determine machine endianness and how to load and store a vector from memory. A full treatment of vector programming is its own book, but the discussion should be adequate to move on to the more interesting tasks.</para>
+    <para>Second, AES is discussed. AES is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.197.pdf">FIPS 197, Advanced Encryption Standard (AES)</ulink>. You should read the standard if you are not familiar with the block cipher.</para>
+    <para>Third, SHA is discussed. SHA is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>. You should read the standard if you are not familiar with the hash.</para>
+    <para>Fourth, polynomial multiplication is discussed. Polynomial multiplications is important for CRC-32, CRC-32C and GCM mode of operation for AES.</para>
+    <para>Fifth, performance is discussed. The implementations are compared against C and C++ routines and assembly language routines from OpenSSL. The OpenSSL routines are high quality and written by Andy Polyakov.</para>
+    <para>Finally, assembly language integration is discussed. Andy Polyakov dual licenses his cryptographic implementations and you can use his routines once you know how to integrate them.</para>
+  </section>
+  <section id="cfarm">
+    <title>Compile Farm</title>
+    <para>If you are a free and open software developer then you are eligible for a free <ulink url="https://cfarm.tetaneutral.net/">GCC Compile Farm</ulink> account. The Compile Farm provides machines for diffenrt architectures, inlcuding MIPS64, Aarch64 and PowerPC64. Access is provided through SSH.</para>
+    <para>The Compile Farm offers four 64-bit PowerPC machines, and two of them can be used for POWER8 testing. The two machines are <systemitem>gcc112.fsffrance.org</systemitem> and <systemitem>gcc119.fsffrance.org</systemitem>. The first machine is <systemitem>gcc112</systemitem>, and it is a Linux ppc64-le machine (PowerPC, 64-bit, little-endian). The second machine is <systemitem>gcc119</systemitem>, and it is a AIX ppc64-be machine (PowerPC, 64-bit, big-endian). Both machines are IBM POWER System S822 with two CPU cards. <systemitem>gcc112</systemitem> has 160 logical CPUs, and <systemitem>gcc119</systemitem> has 64 logical CPUs.</para>
+    <para>TODO: This book is free software. If you see an opportunity for improvement, and error or an omission then submit a pull request or open a bug report.</para>
+  </section>
+</chapter>

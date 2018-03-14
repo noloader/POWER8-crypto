@@ -43,23 +43,23 @@ then
 fi
 
 echo "Translating document..."
-if ! xsltproc --xinclude "$XSL" book.xml > docbook.fo
+if ! xsltproc --xinclude "$XSL" book.xml > power8-crypto.fo
 then
     echo "Failed to create Formatted Object."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
 echo "Creating PDF..."
-if ! fop -fo docbook.fo -pdf docbook.pdf
+if ! fop -fo power8-crypto.fo -pdf power8-crypto.pdf
 then
     echo "Failed to create PDF."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 else
-    rm docbook.fo &>/dev/null
+    rm power8-crypto.fo &>/dev/null
 fi
 
-echo "Created PDF docbook.pdf."
-cp docbook.pdf ../
+echo "Created PDF power8-crypto.pdf."
+cp power8-crypto.pdf ../
 
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
 

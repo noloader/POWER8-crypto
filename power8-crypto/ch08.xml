@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter id="ch08">
+  <title>Revision History</title>
+  <revhistory>
+    <revision>
+      <revnumber>1</revnumber>
+      <date>1 April 2018</date>
+      <authorinitials>jww</authorinitials>
+      <authorinitials>ws</authorinitials>
+      <revremark>Initial release</revremark>
+    </revision>
+  </revhistory>
+</chapter>
