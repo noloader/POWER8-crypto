@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter id="ch03">
+  <title>Runtime features</title>
+  <para>Runtime feature detections allows code to switch to a faster implementation when the hardware permits. This chapter shows you how to determine in-core crypto availability at runtime on AIX and Linux PowerPC platforms.</para>
+  <section>
+    <title>AIX</title>
+    <para>TODO: find out how to perform runtime feature detection on AIX. We checked <systemitem>sysconf</systemitem> for ISA 2.07, polynomial multiply, AES and SHA (and crypto) bits but they are missing.</para>
+    <para>The only thing we have found is <systemitem>SIGILL</systemitem> probes and signal handlers. It would be nice to avoid the nastiness.</para>
+  </section>
+  <section>
+    <title>Linux</title>
+    <para>Some versions of Glibc and the kernel provide ELF auxiliary vectors with the information. <systemitem>AT_HWCAP2</systemitem> will show the <systemitem>vcrypto</systemitem> flag when in-core crypto is available. TODO: which versions?</para>
+    <programlisting>$ LD_SHOW_AUXV=1 /bin/true
+AT_DCACHEBSIZE:  0x80
+AT_ICACHEBSIZE:  0x80
+AT_UCACHEBSIZE:  0x0
+AT_SYSINFO_EHDR: 0x3fff877c0000
+AT_HWCAP:        ppcle true_le  archpmu vsx arch_2_06 dfp ic_snoop
+                 smt mmu fpu altivec ppc64 ppc32
+AT_PAGESZ:       65536
+AT_CLKTCK:       100
+AT_PHDR:         0x10000040
+AT_PHENT:        56
+AT_PHNUM:        9
+AT_BASE:         0x3fff877e0000
+AT_FLAGS:        0x0
+AT_ENTRY:        0x1000145c
+AT_UID:          10455
+AT_EUID:         10455
+AT_GID:          10455
+AT_EGID:         10455
+AT_SECURE:       0
+AT_RANDOM:       0x3fffeaeaa872
+AT_HWCAP2:       vcrypto tar isel ebb dscr htm arch_2_07
+AT_EXECFN:       /bin/true
+AT_PLATFORM:     power8
+AT_BASE_PLATFORM:power8
+</programlisting>
+    <para>Linux systems with Glibc version 2.16 can use <systemitem>getauxval</systemitem> to determine CPU features. Runtime code to perform the check should look similar to below. The defines were taken from the Linux kernel's <ulink url="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/powerpc/include/asm/cputable.h">cputable.h</ulink>.</para>
+    <programlisting>#ifndef AT_HWCAP2
+# define AT_HWCAP2 26
+#endif
+#ifndef PPC_FEATURE2_ARCH_2_07
+# define PPC_FEATURE2_ARCH_2_07   0x80000000
+#endif
+#ifndef PPC_FEATURE2_VEC_CRYPTO
+# define PPC_FEATURE2_VEC_CRYPTO  0x02000000
+#endif
+
+bool HasPower8()
+{
+    if (getauxval(AT_HWCAP2) &amp; PPC_FEATURE2_ARCH_2_07 != 0)
+        return true;
+    return false;
+}
+
+bool HasPower8Crypto()
+{
+    if (getauxval(AT_HWCAP2) &amp; PPC_FEATURE2_VEC_CRYPTO != 0)
+        return true;
+    return false;
+}
+</programlisting>
+  </section>
+  <section>
+    <title>SIGILL probes</title>
+    <para>TODO: show this nasty technique.</para>
+  </section>
+  <section>
+    <title>L1 Data Cache</title>
+    <para>The L1 data cache line size is an important security parameter that can be used to avoid leaking information through timing attacks. IBM POWER System S822, like <systemitem>gcc112</systemitem> and <systemitem>gcc119</systemitem>, have a 128-byte L1 data cache line size.</para>
+    <para><systemitem>gcc119</systemitem> runs AIX allows and a program can query the L1 data cache line size as shown below.</para>
+    <programlisting>#include &lt;sys/systemcfg.h&gt;
+
+int cacheLineSize = getsystemcfg(SC_L1C_DLS);
+if (cacheLineSize) &lt;= 0)
+    cacheLineSize = DEFAULT_L1_CACHE_LINE_SIZE;
+</programlisting>
+    <para>It is important to check the return value from <systemitem>getsystemcfg</systemitem>. <systemitem>gcc112</systemitem> runs CentOS 7.4 and the machine returns 0 for the L1 cache line query.</para>
+  </section>
+</chapter>
