@@ -181,6 +181,7 @@ void VectorStore(T* mem_addr, int offset)
     vec_st(offset, (uint8_t*)mem_addr);
 }
 </programlisting>
+    <para>Casting away the <systemitem>const</systemitem>-ness on <systemitem>mem_addr</systemitem> is discussed in <link linkend="power8_const_ptr"><systemitem>const</systemitem> pointers</link> below.</para>
   </section>
   <section id="power8_unaligned_ld_st">
     <title>Unaligned loads</title>
@@ -208,6 +209,7 @@ void VectorStoreu(T* mem_addr, int offset)
 #endif
 }
 </programlisting>
+    <para>Casting away the <systemitem>const</systemitem>-ness on <systemitem>mem_addr</systemitem> is discussed in <link linkend="power8_const_ptr"><systemitem>const</systemitem> pointers</link> below.</para>
   </section>
   <section id="power8_vec_ld_be">
     <title>Big-endian loads</title>
