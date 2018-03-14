@@ -2,7 +2,7 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="ch02">
   <title>Vector programming</title>
-  <para>Polynomial multiplies, AES, SHA-256 and SHA-512 acceleration occurs in the VSX unit. Data must be moved from main memory into a vector register, the data must be transformed, and then data must be written back to main memory. Data is moved to and from main memory using vector loads and stores.</para>
+  <para>Polynomial multiplies, AES, SHA-256 and SHA-512 acceleration occur in the VSX unit. Data must be moved from main memory into a vector register, the data must be transformed, and then data must be written back to main memory. Data is moved to and from main memory using vector loads and stores.</para>
   <para>Several topics need to be discussed to ensure trouble free loads and stores. They include PowerPC compilers and options, Altivec headers, machine endianness, vector datatypes and then finally the loads and stores. It is enough information to get to the point you can use AES and SHA but not much more.</para>
   <section id="power8_compilers">
     <title>PowerPC compilers</title>
@@ -120,18 +120,18 @@
   <section id="power8_shift">
     <title>Vector shifts</title>
     <para>Altivec shifts and rotates are performed using <emphasis>Vector Shift Left Double by Octet Immediate</emphasis>. The vector shift and rotate built-in is <systemitem>vec_sld</systemitem> and it compiles/assembles to <systemitem>vsldoi</systemitem>.</para>
-    <para>Vector shifts and rotates perform as expected on big-endian machines. Both shift and rotate operate on a concatenation of two vectors, and bytes are shifted out on the left and shifted in on the right. The instructions need an integral constant in the range 0 - 15, inclusive.</para>
-    <para>Little-endian machines need a special sauce to produce correct results and the <ulink url="https://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>. If you are like many other developers then you will literally waste hours trying to figure it out the first time it happens.</para>
+    <para>Both shift and rotate operate on a concatenation of two vectors. Bytes are shifted out on the left and shifted in on the right. The instructions need an integral constant in the range 0 - 15, inclusive.</para>
+    <para>Vector shifts and rotates perform as expected on big-endian machines. Little-endian machines need a special handling to produce correct results and the <ulink url="https://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>. If you are like many other developers then you will literally waste hours trying to figure it out the first time it happens.</para>
     <para>The problem is shift and rotates are endian sensitive, and you have to use <systemitem>16-n</systemitem> and swap vector arguments on little-endian systems. The C++ source code provides the following template function to handle the behavior.</para>
     <programlisting>template &lt;unsigned int N, class T&gt;
 inline T VectorShiftLeft(const T val1, const T val2)
 {
 #if __LITTLE_ENDIAN__
     enum {R = (16-N)&amp;0xf};
-    return (T)vec_sld((uint8x16_p)val2, (uint8x16_p)val1, R);
+    return vec_sld(val2, val1, R);
 #else
     enum {R = N&amp;0xf};
-    return (T)vec_sld((uint8x16_p)val1, (uint8x16_p)val2, R);
+    return vec_sld(val1, val2, R);
 #endif
 }
 </programlisting>
@@ -141,10 +141,10 @@ inline T VectorShiftLeft(const T val)
 {
 #if __LITTLE_ENDIAN__
     enum {R = (16-N)&amp;0xf};
-    return (T)vec_sld((uint8x16_p)val, (uint8x16_p)val, R);
+    return vec_sld(val, val, R);
 #else
     enum {R = N&amp;0xf};
-    return (T)vec_sld((uint8x16_p)val, (uint8x16_p)val, R);
+    return vec_sld(val, val, R);
 #endif
 }
 </programlisting>
