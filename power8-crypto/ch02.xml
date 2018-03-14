@@ -119,7 +119,8 @@
   </section>
   <section id="power8_shift">
     <title>Vector shifts</title>
-    <para>Altivec shifts and rotates are performed using <emphasis>Vector Shift Left Double by Octet Immediate</emphasis>. It perform as expected on big-endian machines by shifting out bytes on the left and shifting in bytes on the right. Both shift and rotate operate on a concatenation of two vectors. The instruction needs an integral constant in the range 0 - 15, inclusive. The vector shift and rotate built-in is <systemitem>vec_sld</systemitem> and it compiles/assembles to <systemitem>vsldoi</systemitem>.</para>
+    <para>Altivec shifts and rotates are performed using <emphasis>Vector Shift Left Double by Octet Immediate</emphasis>. The vector shift and rotate built-in is <systemitem>vec_sld</systemitem> and it compiles/assembles to <systemitem>vsldoi</systemitem>.</para>
+    <para>Vector shifts and rotates perform as expected on big-endian machines. Both shift and rotate operate on a concatenation of two vectors, and bytes are shifted out on the left and shifted in on the right. The instructions need an integral constant in the range 0 - 15, inclusive.</para>
     <para>Little-endian machines need a special sauce to produce correct results and the <ulink url="https://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>. If you are like many other developers then you will literally waste hours trying to figure it out the first time it happens.</para>
     <para>The problem is shift and rotates are endian sensitive, and you have to use <systemitem>16-n</systemitem> and swap vector arguments on little-endian systems. The C++ source code provides the following template function to handle the behavior.</para>
     <programlisting>template &lt;unsigned int N, class T&gt;
