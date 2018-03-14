@@ -46,7 +46,7 @@ VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
   </indexterm>
   <section id="sha_sha256">
     <title>SHA-256</title>
-    <para>XXX</para>
+    <para>TODO</para>
   </section>
   <indexterm>
     <primary>SHA</primary>
@@ -54,6 +54,6 @@ VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
   </indexterm>
   <section id="sha_sha512">
     <title>SHA-512</title>
-    <para>XXX</para>
+    <para>TODO</para>
   </section>
 </chapter>

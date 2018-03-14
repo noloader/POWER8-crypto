@@ -6,14 +6,14 @@
   <para>Three topics are discussed for AES. The first is encryption, the second is decryption, and the third is keying. Keying is discussed last because encryption and decryption uses the golden key schedule from FIPS 197.</para>
   <section id="aes_encryption">
     <title>AES encryption</title>
-    <para>XXX</para>
+    <para>TODO</para>
   </section>
   <section id="aes_decryption">
     <title>AES decryption</title>
-    <para>XXX</para>
+    <para>TODO</para>
   </section>
   <section id="aes_keying">
     <title>AES key scheduling</title>
-    <para>XXX</para>
+    <para>TODO</para>
   </section>
 </chapter>
