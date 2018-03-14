@@ -156,5 +156,6 @@ inline T VectorShiftLeft(const T val)
     <para>POWER7 introduced unaligned loads and stores that avoid the aligned memory address requirement. The instructions to use for unaligned loads and stores are <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> when using GCC; and <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem> when using XLC.</para>
     <para>TODO: talk about <systemitem>vec_xl_be</systemitem> when using XLC, and the inline assembly replacement <systemitem>VEC_XL_BE</systemitem> when using GCC.</para>
     <para>TODO: talk about <systemitem>VectorLoad</systemitem> and <systemitem>VectorStore</systemitem> used in the source code.</para>
+    <para>TODO: talk about casting away <systemitem>const</systemitem>-ness to improve performance.</para>
   </section>
 </chapter>
