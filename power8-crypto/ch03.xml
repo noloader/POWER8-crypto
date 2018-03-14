@@ -70,13 +70,20 @@ bool HasPower8Crypto()
   <section>
     <title>L1 Data Cache</title>
     <para>The L1 data cache line size is an important security parameter that can be used to avoid leaking information through timing attacks. IBM POWER System S822, like <systemitem>gcc112</systemitem> and <systemitem>gcc119</systemitem>, have a 128-byte L1 data cache line size.</para>
-    <para><systemitem>gcc119</systemitem> runs AIX allows and a program can query the L1 data cache line size as shown below.</para>
+    <para><systemitem>gcc119</systemitem> runs AIX and a program can query the L1 data cache line size as shown below.</para>
     <programlisting>#include &lt;sys/systemcfg.h&gt;
 
 int cacheLineSize = getsystemcfg(SC_L1C_DLS);
 if (cacheLineSize) &lt;= 0)
     cacheLineSize = DEFAULT_L1_CACHE_LINE_SIZE;
 </programlisting>
-    <para>It is important to check the return value from <systemitem>getsystemcfg</systemitem>. <systemitem>gcc112</systemitem> runs CentOS 7.4 and the machine returns 0 for the L1 cache line query.</para>
+    <para><systemitem>gcc112</systemitem> runs Linux and a program can query the L1 data cache line size as shown below.</para>
+    <programlisting>#include &lt;sys/sysconf.h&gt;
+
+int cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
+if (cacheLineSize) &lt;= 0)
+    cacheLineSize = DEFAULT_L1_CACHE_LINE_SIZE;
+</programlisting>
+    <para>It is important to check the return value from <systemitem>sysconf</systemitem> on Linux. <systemitem>gcc112</systemitem> runs CentOS 7.4 and the machine returns 0 for the L1 cache line query.</para>
   </section>
 </chapter>
