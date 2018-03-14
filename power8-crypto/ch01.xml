@@ -2,7 +2,7 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="ch01">
   <title>Introduction</title>
-  <para>This document is a guide to using IBM's <ulink url="https://www.ibm.com/developerworks/learn/security/index.html">POWER8 in-core cryptography</ulink>. The purpose of the book is to document in-core cryptography more completely for developers and quality assurance personnel.</para>
+  <para>This document is a guide to using IBM's <ulink url="https://www.ibm.com/developerworks/learn/security/index.html">POWER8 in-core cryptography</ulink>. The purpose of the book is to document in-core cryptography more completely for developers and quality assurance personnel who wish to take advantage of the features.</para>
   <para>POWER8 in-core cryptography includes CPU instructions to acclerate AES, SHA-256, SHA-512 and polynomial multiplication. This document includes treatments of AES, SHA-256 and SHA-512. It does not include a discussion of polynomial multiplication at the moment, but the chapter is stubbed-out (and waiting for a contributor).</para>
   <para>The POWER8 extensions for in-core cryptography find its ancestry in Altivec SIMD coprocessor. The POWER8 vector unit includes Vector Multimedia Extension (VSX) and the instruction set for in-core cryptography are part it. You can find additional information on VSX at IBM's website at <ulink url="https://www.ibm.com/developerworks/">TODO</ulink>.</para>
   <section id="organization">

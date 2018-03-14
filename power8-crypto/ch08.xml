@@ -33,6 +33,11 @@
           <ulink url="https://github.com/antonblanchard/crc32-vpmsum">CRC32/vpmsum</ulink>
         </para>
       </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://github.com/PPC64/sha2-le">sha2-le</ulink>
+        </para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="ibm">

@@ -4,12 +4,12 @@
   <title>Runtime features</title>
   <para>Runtime feature detections allows code to switch to a faster implementation when the hardware permits. This chapter shows you how to determine in-core crypto availability at runtime on AIX and Linux PowerPC platforms.</para>
   <section>
-    <title>AIX</title>
+    <title>AIX features</title>
     <para>TODO: find out how to perform runtime feature detection on AIX. We checked <systemitem>sysconf</systemitem> for ISA 2.07, polynomial multiply, AES and SHA (and crypto) bits but they are missing.</para>
     <para>The only thing we have found is <systemitem>SIGILL</systemitem> probes and signal handlers. It would be nice to avoid the nastiness.</para>
   </section>
   <section>
-    <title>Linux</title>
+    <title>Linux features</title>
     <para>Some versions of Glibc and the kernel provide ELF auxiliary vectors with the information. <systemitem>AT_HWCAP2</systemitem> will show the <systemitem>vcrypto</systemitem> flag when in-core crypto is available. TODO: which versions?</para>
     <programlisting>$ LD_SHOW_AUXV=1 /bin/true
 AT_DCACHEBSIZE:  0x80
