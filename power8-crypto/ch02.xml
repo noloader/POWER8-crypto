@@ -119,8 +119,7 @@
   </section>
   <section id="power8_shift">
     <title>Vector shifts</title>
-    <para>Altivec shifts and rotates are performed using <emphasis>Vector Shift Left Double by Octet Immediate</emphasis>. The vector shift and rotate built-in is <systemitem>vec_sld</systemitem> and it compiles/assembles to <systemitem>vsldoi</systemitem>.</para>
-    <para>Both shift and rotate operate on a concatenation of two vectors. Bytes are shifted out on the left and shifted in on the right. The instructions need an integral constant in the range 0 - 15, inclusive.</para>
+    <para>Altivec shifts and rotates are performed using <emphasis>Vector Shift Left Double by Octet Immediate</emphasis>. The vector shift and rotate built-in is <systemitem>vec_sld</systemitem> and it compiles/assembles to <systemitem>vsldoi</systemitem>. Both shift and rotate operate on a concatenation of two vectors. Bytes are shifted out on the left and shifted in on the right. The instructions need an integral constant in the range 0 - 15, inclusive.</para>
     <para>Vector shifts and rotates perform as expected on big-endian machines. Little-endian machines need a special handling to produce correct results and the <ulink url="https://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>. If you are like many other developers then you will literally waste hours trying to figure it out the first time it happens.</para>
     <para>The problem is shift and rotates are endian sensitive, and you have to use <systemitem>16-n</systemitem> and swap vector arguments on little-endian systems. The C++ source code provides the following template function to handle the behavior.</para>
     <programlisting>template &lt;unsigned int N, class T&gt;
@@ -137,7 +136,7 @@ inline T VectorShiftLeft(const T val1, const T val2)
 </programlisting>
     <para>A <systemitem>VectorRoatetLeft</systemitem> would be similar to the code below, if needed. Rotate is a special case of shift where both vector arguments are the same value.</para>
     <programlisting>template &lt;unsigned int N, class T&gt;
-inline T VectorShiftLeft(const T val)
+inline T VectorRotateLeft(const T val)
 {
 #if __LITTLE_ENDIAN__
     enum {R = (16-N)&amp;0xf};
