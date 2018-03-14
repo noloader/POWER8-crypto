@@ -47,6 +47,10 @@
         <para><systemitem>_AIX</systemitem>, and <systemitem>_AIX32</systemitem> through <systemitem>_AIX72</systemitem> on AIX
         </para>
       </listitem>
+      <listitem>
+        <para><systemitem>__xlc__</systemitem> and <systemitem>__xlC__</systemitem> when using IBM XL C/C++
+        </para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="power8_endianess">
@@ -114,8 +118,8 @@
         </para>
       </listitem>
     </itemizedlist>
-    <para><systemitem>__vector unsigned char</systemitem> is 16 each 8-bit bytes, and it is typedef'd as <systemitem>uint8x16_p8</systemitem>. <systemitem>__vector unsigned int</systemitem> is 4 each 32-bit words, and it is typedef'd as <systemitem>uint32x4_p8</systemitem>.</para>
-    <para><systemitem>__vector unsigned long</systemitem> is new to POWER8. <systemitem>__vector unsigned long</systemitem> is 2 each 64-bit double words, and it is typedef'd as <systemitem>uint64x2_p8</systemitem>.</para>
+    <para><systemitem>__vector unsigned char</systemitem> is arranged as 16 each 8-bit bytes, and it is typedef'd as <systemitem>uint8x16_p8</systemitem>. <systemitem>__vector unsigned int</systemitem> is arranged as 4 each 32-bit words, and it is typedef'd as <systemitem>uint32x4_p8</systemitem>.</para>
+    <para><systemitem>__vector unsigned long</systemitem> is new to POWER8. <systemitem>__vector unsigned long</systemitem> is arranged as 2 each 64-bit double words, and it is typedef'd as <systemitem>uint64x2_p8</systemitem>.</para>
     <para>The typedef naming was selected to convey the arrangement, like <systemitem>32x4</systemitem> and <systemitem>64x2</systemitem>. The trailing <systemitem>_p8</systemitem> was selected to avoid collisions with ARM NEON vector data types. The suffix <systemitem>_p</systemitem> (for POWER architecture) or <systemitem>_v</systemitem> (for Vector) would work just as well.</para>
   </section>
   <section id="power8_shift">
@@ -153,12 +157,13 @@ T VectorRotateLeft(const T val)
     <title>Aligned loads</title>
     <para>Altivec loads and stores have traditionally been performed using <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> since at least the POWER4 days in the early 2000s. <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive to alignment of the memory address and the offset int the address. The effective address is the <systemitem>address+offset</systemitem> rounded down or masked to a multiple of 16.</para>
     <para>The effective address used for <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> must be aligned to a 16-byte boundary or incorrect results will arise. Altivec <emphasis>does not</emphasis> raise a <systemitem>SIGBUS</systemitem>. Instead, the bottom 4 bits of the address are masked-off and then the memory at the effective address is loaded.</para>
+    <para>You can use the Altivec loads and stores whenever you <emphasis>control</emphasis> buffers and their alignments, like AES key schedule table. Otherwise just use <link linkend="power8_unaligned_ld_st">unaligned loads and stores</link> to avoid trouble.</para>
     <para>The C/C++ code to perform a load using <systemitem>vec_ld</systemitem> should look similar to below. Notice the <systemitem>assert</systemitem> to warn you of problems in debug builds.</para>
     <programlisting>template &lt;class T&gt;
 uint32x4_p8 VectorLoad(const T* mem_addr, int offset)
 {
 #ifndef NDEBUG
-    uintptr_t maddr = (uintptr_t)mem_addr+offset;
+    uintptr_t maddr = ((uintptr_t)mem_addr)+offset;
     uintptr_t mask = ~(uintptr_t)0xf;
     uintptr_t eaddr = maddr &amp; mask;
     assert(maddr == eaddr);
@@ -172,7 +177,7 @@ uint32x4_p8 VectorLoad(const T* mem_addr, int offset)
 void VectorStore(T* mem_addr, int offset)
 {
 #ifndef NDEBUG
-    uintptr_t maddr = (uintptr_t)mem_addr+offset;
+    uintptr_t maddr = ((uintptr_t)mem_addr)+offset;
     uintptr_t mask = ~(uintptr_t)0xf;
     uintptr_t eaddr = maddr &amp; mask;
     assert(maddr == eaddr);
@@ -185,7 +190,7 @@ void VectorStore(T* mem_addr, int offset)
   </section>
   <section id="power8_unaligned_ld_st">
     <title>Unaligned loads</title>
-    <para>POWER7 introduced unaligned loads and stores that avoid the aligned memory requirement. The instructions to use for unaligned loads and stores are <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> for GCC; and <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem> for XLC.</para>
+    <para>POWER7 introduced unaligned loads and stores that avoid the aligned memory requirements. The instructions for unaligned loads and stores are <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> for GCC; and <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem> for XLC.</para>
     <para>You should use the POWER7 loads and stores whenever you <emphasis>do not</emphasis> control buffers or their alignments, like messages supplied by user code.</para>
     <para>The C/C++ code to perform a load using <systemitem>vec_xl</systemitem> and <systemitem>vec_vsx_ld</systemitem> should look similar to below. An <systemitem>assert</systemitem> is no longer needed for debug builds, and the function name has a <systemitem>u</systemitem> added to indicate unaligned.</para>
     <programlisting>template &lt;class T&gt;
@@ -203,9 +208,9 @@ uint32x4_p8 VectorLoadu(const T* mem_addr, int offset)
 void VectorStoreu(T* mem_addr, int offset)
 {
 #if defined(__xlc__) || defined(__xlC__)
-    vec_xst((uint8x16_p8)val, offset, (uint8_t*)data);
+    vec_xst((uint8x16_p8)val, offset, (uint8_t*)mem_addr);
 #else
-    vec_vsx_st((uint8x16_p8)val, offset, (uint8_t*)data);
+    vec_vsx_st((uint8x16_p8)val, offset, (uint8_t*)mem_addr);
 #endif
 }
 </programlisting>
@@ -217,7 +222,7 @@ void VectorStoreu(T* mem_addr, int offset)
   </section>
   <section id="power8_const_ptr">
     <title>Const pointers</title>
-    <para>The Altivec built-ins have an unusual behavior when it comes to <systemitem>const</systemitem> pointers used during a load operation. A program runs slower when the memory is marked as <systemitem>const</systemitem>. The behavior has been witnessed in two libraries and the decrease in perfromance is measurable. For example, <ulink url="https://github.com/randombit/botan/pull/1459">AES runs 0.3 to 0.5 cycles per byte (cpb) faster</ulink> when using <systemitem>non-const</systemitem> pointers for loads. 0.3 may not sound like much but it equates to 200 MiB/s for AES-128 on <systemitem>gcc112</systemitem>.</para>
+    <para>The Altivec built-ins have an unusual behavior when it comes to <systemitem>const</systemitem> pointers used during a load operation. A program runs slower when the memory is marked as <systemitem>const</systemitem>. The behavior has been witnessed in two libraries and the decrease in perfromance is measurable. For example, <ulink url="https://github.com/randombit/botan/pull/1459">AES runs 0.3 to 0.5 cycles per byte (cpb) faster</ulink> when <systemitem>non-const</systemitem> pointers are used for loads. 0.3 cpb may not sound like much but it equates to 200 MiB/s for AES-128 on <systemitem>gcc112</systemitem>.</para>
     <para>Source code using the <systemitem>non-const</systemitem> pointers should look similar to below:</para>
     <programlisting>template &lt;class T&gt;
 uint32x4_p8 VectorLoad(const T* mem_addr, int offset)
