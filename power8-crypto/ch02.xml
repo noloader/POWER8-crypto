@@ -2,8 +2,8 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="ch02">
   <title>Vector programming</title>
-  <para>Polynomial multiplies, AES, SHA-256 and SHA-512 acceleration occur in the VSX unit. Data must be moved from main memory into a vector register, the data must be transformed, and then data must be written back to main memory. Data is moved to and from main memory using vector loads and stores.</para>
-  <para>Several topics need to be discussed to ensure trouble free loads and stores. They include PowerPC compilers and options, Altivec headers, machine endianness, vector datatypes and then finally the loads and stores. It is enough information to get to the point you can use AES and SHA but not much more.</para>
+  <para>Several topics need to be discussed to minimize trouble when using the Ativec and POWER8 extensions. They include PowerPC compilers and options, Altivec headers, machine endianness, vector datatypes, memory and alignment, and loads and stores. It is enough information to get to the point you can use AES and SHA but not much more.</para>
+  <para>Memory alignment, loads, stores and shifts will probably cause the most trouble for someone new to PowerPC vector programming. If you are new to the platform you may want to read this chapter twice. If you are expereinced with the platform then you probbably want to skip this chapter.</para>
   <section id="power8_compilers">
     <title>PowerPC compilers</title>
     <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++. The compilers are mostly the same but slightly different with its options.</para>
@@ -116,14 +116,15 @@
     </itemizedlist>
     <para><systemitem>__vector unsigned char</systemitem> is 16 each 8-bit bytes, and it is typedef'd as <systemitem>uint8x16_p8</systemitem>. <systemitem>__vector unsigned int</systemitem> is 4 each 32-bit words, and it is typedef'd as <systemitem>uint32x4_p8</systemitem>.</para>
     <para><systemitem>__vector unsigned long</systemitem> is new to POWER8. <systemitem>__vector unsigned long</systemitem> is 2 each 64-bit double words, and it is typedef'd as <systemitem>uint64x2_p8</systemitem>.</para>
+    <para>The typedef naming was selected to convey the arrangement, like <systemitem>32x4</systemitem> and <systemitem>64x2</systemitem>. The trailing <systemitem>_p8</systemitem> was selected to avoid collisions with ARM NEON vector data types. The suffix <systemitem>_p</systemitem> (for POWER architecture) or <systemitem>_v</systemitem> (for Vector) would work just as well.</para>
   </section>
   <section id="power8_shift">
     <title>Vector shifts</title>
     <para>Altivec shifts and rotates are performed using <emphasis>Vector Shift Left Double by Octet Immediate</emphasis>. The vector shift and rotate built-in is <systemitem>vec_sld</systemitem> and it compiles/assembles to <systemitem>vsldoi</systemitem>. Both shift and rotate operate on a concatenation of two vectors. Bytes are shifted out on the left and shifted in on the right. The instructions need an integral constant in the range 0 - 15, inclusive.</para>
-    <para>Vector shifts and rotates perform as expected on big-endian machines. Little-endian machines need a special handling to produce correct results and the <ulink url="https://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>. If you are like many other developers then you will literally waste hours trying to figure it out the first time it happens.</para>
-    <para>The problem is shift and rotates are endian sensitive, and you have to use <systemitem>16-n</systemitem> and swap vector arguments on little-endian systems. The C++ source code provides the following template function to handle the behavior.</para>
+    <para>Vector shifts and rotates perform as expected on big-endian machines. Little-endian machines need a special handling to produce correct results and the <ulink url="https://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>. If you are like many other developers then you will literally waste hours trying to figure it out what happened the first time you experience it.</para>
+    <para>The issue is <ulink url="https://stackoverflow.com/q/46341923/608639">shifts and rotates are endian sensitive</ulink>, and you have to use <systemitem>16-n</systemitem> and swap vector arguments on little-endian systems. The C++ source code provides the following template function to compensate for the little-endian behavior.</para>
     <programlisting>template &lt;unsigned int N, class T&gt;
-inline T VectorShiftLeft(const T val1, const T val2)
+T VectorShiftLeft(const T val1, const T val2)
 {
 #if __LITTLE_ENDIAN__
     enum {R = (16-N)&amp;0xf};
@@ -136,7 +137,7 @@ inline T VectorShiftLeft(const T val1, const T val2)
 </programlisting>
     <para>A <systemitem>VectorRoatetLeft</systemitem> would be similar to the code below, if needed. Rotate is a special case of shift where both vector arguments are the same value.</para>
     <programlisting>template &lt;unsigned int N, class T&gt;
-inline T VectorRotateLeft(const T val)
+T VectorRotateLeft(const T val)
 {
 #if __LITTLE_ENDIAN__
     enum {R = (16-N)&amp;0xf};
@@ -153,8 +154,21 @@ inline T VectorRotateLeft(const T val)
     <para>Altivec loads and stores have traditionally been performed using <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> since at least the POWER4 days in the early 2000s. <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive to alignment of the effective memory address. The effective address is the <systemitem>address+offset</systemitem> rounded down or masked to a multiple of 16.</para>
     <para>The effective address used for <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> must be aligned to a 16-byte boundary or incorrect results will arise. Altivec <emphasis>does not</emphasis> raise a <systemitem>SIGBUS</systemitem>. Instead, the bottom 3 bits of the address are masked-off and then the memory at the effective address is loaded.</para>
     <para>POWER7 introduced unaligned loads and stores that avoid the aligned memory address requirement. The instructions to use for unaligned loads and stores are <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> when using GCC; and <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem> when using XLC.</para>
-    <para>TODO: talk about <systemitem>vec_xl_be</systemitem> when using XLC, and the inline assembly replacement <systemitem>VEC_XL_BE</systemitem> when using GCC.</para>
-    <para>TODO: talk about <systemitem>VectorLoad</systemitem> and <systemitem>VectorStore</systemitem> used in the source code.</para>
-    <para>TODO: talk about casting away <systemitem>const</systemitem>-ness to improve performance.</para>
+  </section>
+  <section id="power8_vec_ld_be">
+    <title>Big-endian loads</title>
+    <para>TODO: talk about <systemitem>vec_xl_be</systemitem> when using XLC, and the assembly replacement <systemitem>VEC_XL_BE</systemitem> when using GCC.</para>
+  </section>
+  <section id="power8_const_ptr">
+    <title>Const pointers</title>
+    <para>The Altivec built-ins have an unusual behavior when it comes to <systemitem>const</systemitem> pointers used during a load operation. A program runs slower when the memory is marked as <systemitem>const</systemitem>. The behavior has been witnessed in two libraries and the decrease in perfromance is measurable. For example, <ulink url="https://github.com/randombit/botan/pull/1459">AES runs 0.3 to 0.5 cycles per byte (cpb) faster</ulink> when using <systemitem>non-const</systemitem> pointers for loads. 0.3 may not sound like much but it equates to 200 MiB/s for AES-128 on <systemitem>gcc112</systemitem>.</para>
+    <para>Source code using the <systemitem>non-const</systemitem> pointers should look similar to below:</para>
+    <programlisting>template &lt;class T&gt;
+uint32x4_p8 VectorLoad(const T* mem_addr, int offset)
+{
+    // mem_addr must be aligned to 16-byte boundary
+    return (uint32x4_p8)vec_ld(offset, (uint8_t*)mem_addr);
+}
+</programlisting>
   </section>
 </chapter>
