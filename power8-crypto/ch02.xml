@@ -149,11 +149,65 @@ T VectorRotateLeft(const T val)
 }
 </programlisting>
   </section>
-  <section id="power8_ld_st">
-    <title>Loads and stores</title>
-    <para>Altivec loads and stores have traditionally been performed using <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> since at least the POWER4 days in the early 2000s. <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive to alignment of the effective memory address. The effective address is the <systemitem>address+offset</systemitem> rounded down or masked to a multiple of 16.</para>
-    <para>The effective address used for <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> must be aligned to a 16-byte boundary or incorrect results will arise. Altivec <emphasis>does not</emphasis> raise a <systemitem>SIGBUS</systemitem>. Instead, the bottom 3 bits of the address are masked-off and then the memory at the effective address is loaded.</para>
-    <para>POWER7 introduced unaligned loads and stores that avoid the aligned memory address requirement. The instructions to use for unaligned loads and stores are <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> when using GCC; and <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem> when using XLC.</para>
+  <section id="power8_aligned_ld_st">
+    <title>Aligned loads</title>
+    <para>Altivec loads and stores have traditionally been performed using <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> since at least the POWER4 days in the early 2000s. <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive to alignment of the memory address and the offset int the address. The effective address is the <systemitem>address+offset</systemitem> rounded down or masked to a multiple of 16.</para>
+    <para>The effective address used for <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> must be aligned to a 16-byte boundary or incorrect results will arise. Altivec <emphasis>does not</emphasis> raise a <systemitem>SIGBUS</systemitem>. Instead, the bottom 4 bits of the address are masked-off and then the memory at the effective address is loaded.</para>
+    <para>The C/C++ code to perform a load using <systemitem>vec_ld</systemitem> should look similar to below. Notice the <systemitem>assert</systemitem> to warn you of problems in debug builds.</para>
+    <programlisting>template &lt;class T&gt;
+uint32x4_p8 VectorLoad(const T* mem_addr, int offset)
+{
+#ifndef NDEBUG
+    uintptr_t maddr = (uintptr_t)mem_addr+offset;
+    uintptr_t mask = ~(uintptr_t)0xf;
+    uintptr_t eaddr = maddr &amp; mask;
+    assert(maddr == eaddr);
+#endif
+
+    return (uint32x4_p8)vec_ld(offset, (uint8_t*)mem_addr);
+}
+</programlisting>
+    <para>The C/C++ code to perform a store using <systemitem>vec_st</systemitem> should look similar to below.</para>
+    <programlisting>template &lt;class T&gt;
+void VectorStore(T* mem_addr, int offset)
+{
+#ifndef NDEBUG
+    uintptr_t maddr = (uintptr_t)mem_addr+offset;
+    uintptr_t mask = ~(uintptr_t)0xf;
+    uintptr_t eaddr = maddr &amp; mask;
+    assert(maddr == eaddr);
+#endif
+
+    vec_st(offset, (uint8_t*)mem_addr);
+}
+</programlisting>
+  </section>
+  <section id="power8_unaligned_ld_st">
+    <title>Unaligned loads</title>
+    <para>POWER7 introduced unaligned loads and stores that avoid the aligned memory requirement. The instructions to use for unaligned loads and stores are <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> for GCC; and <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem> for XLC.</para>
+    <para>You should use the POWER7 loads and stores whenever you <emphasis>do not</emphasis> control buffers or their alignments, like messages supplied by user code.</para>
+    <para>The C/C++ code to perform a load using <systemitem>vec_xl</systemitem> and <systemitem>vec_vsx_ld</systemitem> should look similar to below. An <systemitem>assert</systemitem> is no longer needed for debug builds, and the function name has a <systemitem>u</systemitem> added to indicate unaligned.</para>
+    <programlisting>template &lt;class T&gt;
+uint32x4_p8 VectorLoadu(const T* mem_addr, int offset)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    return (uint32x4_p8)vec_xl(offset, (uint8_t*)mem_addr);
+#else
+    return (uint32x4_p8)vec_vsx_ld(offset, (uint8_t*)mem_addr);
+#endif
+}
+</programlisting>
+    <para>The C/C++ code to perform a store using <systemitem>vec_xst</systemitem> and <systemitem>vec_vsx_st</systemitem> should look similar to below.</para>
+    <programlisting>template &lt;class T&gt;
+void VectorStoreu(T* mem_addr, int offset)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    vec_xst((uint8x16_p8)val, offset, (uint8_t*)data);
+#else
+    vec_vsx_st((uint8x16_p8)val, offset, (uint8_t*)data);
+#endif
+}
+</programlisting>
   </section>
   <section id="power8_vec_ld_be">
     <title>Big-endian loads</title>
