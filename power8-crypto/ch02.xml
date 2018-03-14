@@ -6,7 +6,7 @@
   <para>Several topics need to be discussed to ensure trouble free loads and stores. They include PowerPC compilers and options, Altivec headers, machine endianness, vector datatypes and then finally the loads and stores. It is enough information to get to the point you can use AES and SHA but not much more.</para>
   <section id="power8_compilers">
     <title>PowerPC compilers</title>
-    <para>This documents uses two compilers for testing. The first is GCC and the second is IBM XL C/C++. Each compiler is slightly different with its options.</para>
+    <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++. The compilers are mostly the same but slightly different with its options.</para>
     <para>Compiling a test program with GCC will generally look like below. The important part is <systemitem>-mcpu=power8</systemitem> which selects the POWER8 Instruction Set Architecture (ISA).</para>
     <programlisting>$ g++ -mcpu=power8 test.cxx -o test.exe
 </programlisting>
