@@ -36,7 +36,7 @@
 # error "Big-endian system"
 #endif
 </programlisting>
-    <para>If you are in doubt about the endianness preprocessor macros you can ask the compiler to tell what they are. Below is from GCC on <systemitem>gcc112</systemitem>, which is ppc64-le on the compile farm.</para>
+    <para>The compilers can show the endian related preprocessor macros available on a platform. Below is from GCC on <systemitem>gcc112</systemitem> from the compile farm, which is ppc64-le.</para>
     <programlisting>$ g++ -dM -E test.cxx | grep -i endian
 #define __ORDER_LITTLE_ENDIAN__ 1234
 #define _LITTLE_ENDIAN 1
@@ -46,7 +46,7 @@
 #define __ORDER_BIG_ENDIAN__ 4321
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
 </programlisting>
-    <para>And the complimentary view from IBM XL C/C++ on <systemitem>gcc112</systemitem>, which is ppc64-le on the compile farm.</para>
+    <para>And the complimentary view from IBM XL C/C++ on <systemitem>gcc112</systemitem> from the compile farm, which is ppc64-le.</para>
     <programlisting>$ xlC -qshowmacros -E test.cxx | grep -i endian
 #define _LITTLE_ENDIAN 1
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
@@ -57,7 +57,7 @@
 #define __ORDER_PDP_ENDIAN__ 3412
 #define __VEC_ELEMENT_REG_ORDER__ __ORDER_LITTLE_ENDIAN__
 </programlisting>
-    <para>However, below is <systemitem>gcc119</systemitem> from the compile farm, which is ppc64-be. It runs AIX and notice <systemitem>__BYTE_ORDER__</systemitem>, <systemitem>___ORDER_BIG_ENDIAN__</systemitem> and <systemitem>__ORDER_LITTLE_ENDIAN__</systemitem> are not defined.</para>
+    <para>However, below is <systemitem>gcc119</systemitem> from the compile farm, which is ppc64-be. It runs AIX and notice <systemitem>__BYTE_ORDER__</systemitem>, <systemitem>___ORDER_BIG_ENDIAN__</systemitem> and <systemitem>__ORDER_LITTLE_ENDIAN__</systemitem> are not present.</para>
     <programlisting>$ xlC -qshowmacros -E test.cxx | grep -i endian
 #define __BIG_ENDIAN__ 1
 #define _BIG_ENDIAN 1
@@ -79,7 +79,7 @@
   <section id="power8_ld_st">
     <title>Loads and stores</title>
     <para>Altivec loads and stores have traditionally been performed using <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> since at least the POWER4 days in the 1990s. <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive to alignment of the effective memory address. The effective address is the <systemitem>address+offset</systemitem> rounded down or masked to a multiple of 16.</para>
-    <para>The effective address passed to <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> must be aligned to a 16-byte boundary or incorrect results will arise. Altivec <emphasis>does not</emphasis> raise a <systemitem>SIGBUS</systemitem>. Instead, the bottom 4 bits of the address are masked-off and the value at the effective address is read.</para>
+    <para>The effective address used for <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> must be aligned to a 16-byte boundary or incorrect results will arise. Altivec <emphasis>does not</emphasis> raise a <systemitem>SIGBUS</systemitem>. Instead, the bottom 3 bits of the address are masked-off and then the memory at the effective address is loaded.</para>
     <para>POWER7 introduced unaligned loads and stores that avoid the aligned memory address requirement. The instructions to use for unaligned loads and stores are <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> when using GCC; and <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem> when using XLC.</para>
   </section>
 </chapter>
