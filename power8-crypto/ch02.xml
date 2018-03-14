@@ -80,7 +80,7 @@
 #define __ORDER_PDP_ENDIAN__ 3412
 #define __VEC_ELEMENT_REG_ORDER__ __ORDER_LITTLE_ENDIAN__
 </programlisting>
-    <para>However, below is <systemitem>gcc119</systemitem> from the <link linkend="cfarm">compile farm</link>, which is ppc64-be. It runs AIX and notice <systemitem>__BYTE_ORDER__</systemitem>, <systemitem>___ORDER_BIG_ENDIAN__</systemitem> and <systemitem>__ORDER_LITTLE_ENDIAN__</systemitem> are not present.</para>
+    <para>However, below is <systemitem>gcc119</systemitem> from the <link linkend="cfarm">compile farm</link>, which is ppc64-be. It runs AIX and notice <systemitem>__BYTE_ORDER__</systemitem>, <systemitem>__ORDER_BIG_ENDIAN__</systemitem> and <systemitem>__ORDER_LITTLE_ENDIAN__</systemitem> are not present.</para>
     <programlisting>$ xlC -qshowmacros -E test.cxx | grep -i endian
 #define __BIG_ENDIAN__ 1
 #define _BIG_ENDIAN 1
@@ -96,7 +96,7 @@
   </section>
   <section id="power8_datatypes">
     <title>Vector datatypes</title>
-    <para>Three vector datatypes are used for in-core programming. The three types are listed below.</para>
+    <para>Three vector datatypes are needed for in-core programming. The three types used for crypto are listed below.</para>
     <itemizedlist mark="bullet">
       <listitem>
         <para>
