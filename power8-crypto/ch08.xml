@@ -5,13 +5,11 @@
   <indexterm>
     <primary>References</primary>
   </indexterm>
-  <para>The following is a list of references we are aware of.</para>
   <section id="cryptogams">
     <title>Cryptogams</title>
     <indexterm>
       <primary>Cryptogams</primary>
     </indexterm>
-    <para>The folowing is a list of Cryptogams references.</para>
     <itemizedlist mark="bullet">
       <listitem>
         <para>
@@ -25,7 +23,6 @@
     <indexterm>
       <primary>GitHub</primary>
     </indexterm>
-    <para>The folowing is a list of GitHub references.</para>
     <itemizedlist mark="bullet">
       <listitem>
         <para>
@@ -54,7 +51,6 @@
     <indexterm>
       <primary>IBM website</primary>
     </indexterm>
-    <para>The folowing is a list of IBM references.</para>
     <itemizedlist mark="bullet">
       <listitem>
         <para>
@@ -78,7 +74,6 @@
     <indexterm>
       <primary>NIST website</primary>
     </indexterm>
-    <para>The folowing is a list of NIST references.</para>
     <itemizedlist mark="bullet">
       <listitem>
         <para>
@@ -97,7 +92,6 @@
     <indexterm>
       <primary>Stack Exchange</primary>
     </indexterm>
-    <para>The folowing is a list of Stack Exchange references.</para>
     <itemizedlist mark="bullet">
       <listitem>
         <para>
