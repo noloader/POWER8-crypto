@@ -11,7 +11,7 @@
   <section>
     <title>Linux features</title>
     <para>Some versions of Glibc and the kernel provide ELF auxiliary vectors with the information. <systemitem>AT_HWCAP2</systemitem> will show the <systemitem>vcrypto</systemitem> flag when in-core crypto is available. TODO: which versions?</para>
-    <programlisting>$ LD_SHOW_AUXV=1 /bin/true
+    <screen>$ LD_SHOW_AUXV=1 /bin/true
 AT_DCACHEBSIZE:  0x80
 AT_ICACHEBSIZE:  0x80
 AT_UCACHEBSIZE:  0x0
@@ -36,7 +36,7 @@ AT_HWCAP2:       vcrypto tar isel ebb dscr htm arch_2_07
 AT_EXECFN:       /bin/true
 AT_PLATFORM:     power8
 AT_BASE_PLATFORM:power8
-</programlisting>
+</screen>
     <para>Linux systems with Glibc version 2.16 can use <systemitem>getauxval</systemitem> to determine CPU features. Runtime code to perform the check should look similar to below. The defines were taken from the Linux kernel's <ulink url="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/powerpc/include/asm/cputable.h">cputable.h</ulink>.</para>
     <programlisting>#ifndef AT_HWCAP2
 # define AT_HWCAP2 26

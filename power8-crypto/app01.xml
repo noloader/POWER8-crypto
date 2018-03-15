@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE appendix PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<appendix id="app01">
+  <title>C++ API</title>
+  <para>The table below presents a C++ that can be used to wrap Altivec vector operations. Other APIs are available but they are not listed here. A good example of one is <ulink url="https://botan.randombit.net/">Jack Lloyd's Botan</ulink>.</para>
+  <section id="app01_typedef">
+    <title>typedefs</title>
+    <programlisting>typedef __vector unsigned char uint8x16_p;
+typedef __vector unsigned  int uint32x4_p;
+typedef __vector unsigned long uint64x2_p;
+</programlisting>
+  </section>
+  <section id="app01_loads">
+    <title>Loads</title>
+    <section id="app01_vld_8x16">
+      <title>VectorLoad8x16</title>
+      <programlisting>template &lt;class T&gt;
+uint8x16_p VectorLoad8x16(const T* mem_addr, int offset);
+</programlisting>
+      <para>Loads an <emphasis>aligned</emphasis> memory location specified by <systemitem>mem_addr</systemitem> and <systemitem>offset</systemitem> into a vector and returns <systemitem>uint8x16_p</systemitem>.</para>
+    </section>
+    <section id="app01_vld_8x16u">
+      <title>VectorLoad8x16u</title>
+      <programlisting>template &lt;class T&gt;
+uint8x16_p VectorLoad8x16u(const T* mem_addr, int offset);
+</programlisting>
+      <para>Loads an <emphasis>unaligned</emphasis> memory location specified by <systemitem>mem_addr</systemitem> and <systemitem>offset</systemitem> into a vector and returns <systemitem>uint8x16_p</systemitem>.</para>
+    </section>
+    <section id="app01_vld_32x4">
+      <title>VectorLoad32x4</title>
+      <programlisting>template &lt;class T&gt;
+uint32x4_p VectorLoad32x4(const T* mem_addr, int offset);
+</programlisting>
+      <para>Loads an <emphasis>aligned</emphasis> memory location specified by <systemitem>mem_addr</systemitem> and <systemitem>offset</systemitem> into a vector and returns <systemitem>uint32x4_p</systemitem>.</para>
+    </section>
+    <section id="app01_vld_32x4u">
+      <title>VectorLoad32x4u</title>
+      <programlisting>template &lt;class T&gt;
+uint32x4_p VectorLoad32x4(const T* mem_addr, int offset);
+</programlisting>
+      <para>Loads an <emphasis>unaligned</emphasis> memory location specified by <systemitem>mem_addr</systemitem> and <systemitem>offset</systemitem> into a vector and returns <systemitem>uint32x4_p</systemitem>.</para>
+    </section>
+    <section id="app01_vld_64x2">
+      <title>VectorLoad64x2</title>
+      <programlisting>template &lt;class T&gt;
+uint64x2_p VectorLoad64x2(const T* mem_addr, int offset);
+</programlisting>
+      <para>Loads an <emphasis>aligned</emphasis> memory location specified by <systemitem>mem_addr</systemitem> and <systemitem>offset</systemitem> into a vector and returns <systemitem>uint64x2_p</systemitem>.</para>
+    </section>
+    <section id="app01_vld_64x2u">
+      <title>VectorLoad64x2u</title>
+      <programlisting>template &lt;class T&gt;
+uint64x2_p VectorLoad64x2u(const T* mem_addr, int offset);
+</programlisting>
+      <para>Loads an <emphasis>unaligned</emphasis> memory location specified by <systemitem>mem_addr</systemitem> and <systemitem>offset</systemitem> into a vector and returns <systemitem>uint64x2_p</systemitem>.</para>
+    </section>
+  </section>
+  <!-- Loads -->
+  <section id="app01_stores">
+    <title>Stores</title>
+  </section>
+  <!-- Stores -->
+</appendix>

@@ -33,6 +33,9 @@
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch07.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch08.xml"/>
   <!--
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="app01.xml"/>
+-->
+  <!--
   Revision is still not quie rght....
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ch09.xml"/>
 -->
