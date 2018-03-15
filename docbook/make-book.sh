@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Name without extensions. The final artifact include PDF.
+BOOKNAME=docbook
+
 if [[ ! $(command -v xmllint) ]]
 then
     echo "xmllint is not installed. Skipping validation."
@@ -9,7 +12,7 @@ fi
 if [[ ! $(command -v xsltproc) ]]
 then
     echo "xsltproc is not installed. Exiting."
-    echo "  You must install xsltproc for the program."
+    echo "  You must install libxml2-util for the program."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi 
 
@@ -48,23 +51,23 @@ then
 fi
 
 echo "Translating document..."
-if ! xsltproc --xinclude "$XSL" book.xml > docbook.fo
+if ! xsltproc --xinclude "$XSL" book.xml > "$BOOKNAME.fo"
 then
     echo "Failed to create Formatted Object."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
 echo "Creating PDF..."
-if ! fop -fo docbook.fo -pdf docbook.pdf
+if ! fop -fo "$BOOKNAME.fo" -pdf "$BOOKNAME.pdf"
 then
     echo "Failed to create PDF."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 else
-    rm docbook.fo &>/dev/null
+    rm "$BOOKNAME.fo" &>/dev/null
 fi
 
-echo "Created PDF docbook.pdf."
-cp docbook.pdf ../
+echo "Created PDF $BOOKNAME.pdf."
+cp "$BOOKNAME.pdf" ../
 
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
 

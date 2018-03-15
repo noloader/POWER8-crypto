@@ -3,10 +3,10 @@
 <chapter id="ch02">
   <title>Vector programming</title>
   <para>Several topics need to be discussed to minimize trouble when using the Ativec and POWER8 extensions. They include PowerPC compilers and options, Altivec headers, machine endianness, vector datatypes, memory and alignment, and loads and stores. It is enough information to get to the point you can use AES and SHA but not much more.</para>
-  <para>Memory alignment, loads, stores and shifts will probably cause the most trouble for someone new to PowerPC vector programming. If you are new to the platform you may want to read this chapter twice. If you are expereinced with the platform then you probbably want to skip this chapter.</para>
+  <para>Memory alignment, loads, stores and shifts will probably cause the most trouble for someone new to PowerPC vector programming. If you are new to the platform you may want to read this chapter twice. If you are expereinced with the platform then you probably want to skip this chapter.</para>
   <section id="power8_compilers">
     <title>PowerPC compilers</title>
-    <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++. The compilers are mostly the same but slightly different with its options.</para>
+    <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++. The compilers are mostly the same but slightly different with their options.</para>
     <para>Compiling a test program with GCC will generally look like below. The important part is <systemitem>-mcpu=power8</systemitem> which selects the POWER8 Instruction Set Architecture (ISA).</para>
     <programlisting>$ g++ -mcpu=power8 test.cxx -o test.exe
 </programlisting>
