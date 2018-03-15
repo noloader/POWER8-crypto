@@ -222,7 +222,7 @@ void VectorStoreu(T* mem_addr, int offset)
   </section>
   <section id="power8_vec_ld_deref">
     <title>Vector dereferences</title>
-    <para>The <ulink url="http://openpowerfoundation.org/wp-content/uploads/resources/leabi/content/dbdoclet.50655244_39970.html">OpenPOWER manual states</ulink> use vector pointers and dereferences to perform loads and stores: <quote>The preferred way to access vectors at an application-defined address is by using vector pointers and the C/C+⁠+ dereference operator *.</quote> The example from the manual is shown below.</para>
+    <para>The OpenPOWER manual recommends using <ulink url="http://openpowerfoundation.org/wp-content/uploads/resources/leabi/content/dbdoclet.50655244_39970.html">vector pointers and dereferences to perform loads and stores</ulink>. According to the manual, <quote>the preferred way to access vectors at an application-defined address is by using vector pointers and the C/C+⁠+ dereference operator *.</quote> The manual then provides the following example.</para>
     <programlisting>vector char vca;
 vector char vcb;
 vector int via;
@@ -235,11 +235,11 @@ vcb = vca;
 vca = *(vector char *)vp;
 *(vector char *)&amp;a[0] = vca;
 </programlisting>
-    <para>The technique requires aligned memory addresses so you should use it with care. The easiest way to ensure trouble free loads and stores is to perform <link linkend="power8_unaligned_ld_st">unaligned loads and stores</link>.</para>
+    <para>The technique requires aligned memory addresses so use it with care. The easiest way to ensure trouble free vector programming is <link linkend="power8_unaligned_ld_st">POWER7 unaligned loads and stores</link>.</para>
   </section>
   <section id="power8_const_ptr">
     <title>Const pointers</title>
-    <para>The Altivec built-ins have an unusual behavior when it comes to <systemitem>const</systemitem> pointers used during a load operation. A program runs slower when the memory is marked as <systemitem>const</systemitem>. The behavior has been witnessed in two libraries and the decrease in perfromance is measurable. For example, <ulink url="https://github.com/randombit/botan/pull/1459">AES runs 0.3 to 0.5 cycles per byte (cpb) faster</ulink> when non-<systemitem>const</systemitem> pointers are used for loads. 0.3 cpb may not sound like much but it equates to 200 MiB/s for AES-128 on <systemitem>gcc112</systemitem>.</para>
+    <para>The Altivec built-ins have unusual behavior when using <systemitem>const</systemitem> pointers during a load operation. A program runs slower when the memory is marked as <systemitem>const</systemitem>. The behavior has been witnessed in two libraries on different machines and the decrease in perfromance is measurable. For example, <ulink url="https://github.com/randombit/botan/pull/1459">AES runs 0.3 cycles per byte (cpb) faster</ulink> when non-<systemitem>const</systemitem> pointers are used for loads. 0.3 cpb may not sound like much but it equates to 200 MiB/s for AES-128 on <systemitem>gcc112</systemitem>.</para>
     <para>Source code using the <systemitem>non-const</systemitem> pointers should look similar to below:</para>
     <programlisting>template &lt;class T&gt;
 uint32x4_p8 VectorLoad(const T* mem_addr, int offset)
