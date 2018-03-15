@@ -2,13 +2,30 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="ch06">
   <title>Polynomial multiplication</title>
+  <indexterm>
+    <primary>Polynomial multiplication</primary>
+  </indexterm>
   <para>The chapter of the document should discuss polynomial multiplcation used with CRC codes and the GCM mode of operation for AES. However we have no experience with polynomial multiplication. Please refer to <ulink url="https://github.com/antonblanchard/crc32-vpmsum">GitHub CRC32/vpmsum</ulink>.</para>
   <section id="poly_crc">
     <title>CRC-32 and CRC-32C</title>
+    <indexterm>
+      <primary>CRC-32</primary>
+    </indexterm>
+    <indexterm>
+      <primary>Polynomial multiplication</primary>
+      <secondary>CRC-32</secondary>
+    </indexterm>
     <para>No content.</para>
   </section>
   <section id="poly_gcm">
     <title>GCM mode</title>
+    <indexterm>
+      <primary>GCM mode</primary>
+    </indexterm>
+    <indexterm>
+      <primary>Polynomial multiplication</primary>
+      <secondary>GCM mode</secondary>
+    </indexterm>
     <para>No content.</para>
   </section>
 </chapter>

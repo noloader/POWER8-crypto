@@ -2,9 +2,15 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="ch08">
   <title>References</title>
+  <indexterm>
+    <primary>References</primary>
+  </indexterm>
   <para>The following is a list of references we are aware of.</para>
   <section id="cryptogams">
     <title>Cryptogams</title>
+    <indexterm>
+      <primary>Cryptogams</primary>
+    </indexterm>
     <para>The folowing is a list of Cryptogams references.</para>
     <itemizedlist mark="bullet">
       <listitem>
@@ -16,6 +22,9 @@
   </section>
   <section id="github">
     <title>GitHub</title>
+    <indexterm>
+      <primary>GitHub</primary>
+    </indexterm>
     <para>The folowing is a list of GitHub references.</para>
     <itemizedlist mark="bullet">
       <listitem>
@@ -41,7 +50,10 @@
     </itemizedlist>
   </section>
   <section id="ibm">
-    <title>IBM</title>
+    <title>IBM website</title>
+    <indexterm>
+      <primary>IBM website</primary>
+    </indexterm>
     <para>The folowing is a list of IBM references.</para>
     <itemizedlist mark="bullet">
       <listitem>
@@ -62,7 +74,10 @@
     </itemizedlist>
   </section>
   <section id="nist">
-    <title>NIST</title>
+    <title>NIST website</title>
+    <indexterm>
+      <primary>NIST website</primary>
+    </indexterm>
     <para>The folowing is a list of NIST references.</para>
     <itemizedlist mark="bullet">
       <listitem>
@@ -79,11 +94,19 @@
   </section>
   <section id="stack">
     <title>Stack Exchange</title>
+    <indexterm>
+      <primary>Stack Exchange</primary>
+    </indexterm>
     <para>The folowing is a list of Stack Exchange references.</para>
     <itemizedlist mark="bullet">
       <listitem>
         <para>
           <ulink url="https://stackoverflow.com/q/46144668/608639">Detect Power8 in-core crypto through getauxval?</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://stackoverflow.com/q/46341923/608639">Is vec_sld endian sensitive?</ulink>
         </para>
       </listitem>
     </itemizedlist>

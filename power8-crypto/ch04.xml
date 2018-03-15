@@ -2,18 +2,33 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="ch04">
   <title>Advanced Encryption Standard</title>
+  <indexterm>
+    <primary>AES</primary>
+  </indexterm>
   <para>AES is the Advanced Encryption Standard. AES is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.197.pdf">FIPS 197, Advanced Encryption Standard (AES)</ulink>. You should read the standard if you are not familiar with the block cipher.</para>
   <para>Three topics are discussed for AES. The first is encryption, the second is decryption, and the third is keying. Keying is discussed last because encryption and decryption uses the golden key schedule from FIPS 197.</para>
   <section id="aes_encryption">
     <title>AES encryption</title>
+    <indexterm>
+      <primary>AES</primary>
+      <secondary>Encryption</secondary>
+    </indexterm>
     <para>TODO</para>
   </section>
   <section id="aes_decryption">
     <title>AES decryption</title>
+    <indexterm>
+      <primary>AES</primary>
+      <secondary>Decryption</secondary>
+    </indexterm>
     <para>TODO</para>
   </section>
   <section id="aes_keying">
-    <title>AES key scheduling</title>
+    <title>AES key schedule</title>
+    <indexterm>
+      <primary>AES</primary>
+      <secondary>Key schedule</secondary>
+    </indexterm>
     <para>TODO</para>
   </section>
 </chapter>

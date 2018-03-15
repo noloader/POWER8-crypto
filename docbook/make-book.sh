@@ -22,6 +22,14 @@ fi
 
 if [[ $(command -v xmllint) ]]
 then
+
+    echo "Validating book..."
+    if ! xmllint --xinclude --noout --postvalid book.xml
+    then
+        echo "Validation failed. Exiting."
+        [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+    fi
+
     echo "Foramtting source code..."
     for file in *.xml
     do
@@ -30,9 +38,6 @@ then
             mv "$file.format" "$file"
         fi
     done
-
-    echo "Validating book..."
-    xmllint --xinclude --noout --postvalid book.xml 
 fi
 
 XSL=/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl

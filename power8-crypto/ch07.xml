@@ -8,6 +8,16 @@
   <para>TODO.</para>
   <section id="asm_cryptogams">
     <title>Cryptogams</title>
+    <indexterm>
+      <primary>Cryptogams</primary>
+    </indexterm>
+    <indexterm>
+      <primary>Andy Polyakov</primary>
+    </indexterm>
+    <indexterm>
+      <primary>Cryptogams</primary>
+      <secondary>Andy Polyakov</secondary>
+    </indexterm>
     <para><ulink url="https://www.openssl.org/~appro/cryptogams/">Cryptogams</ulink> is Andy Polyakov's incubator to develop assembly language routines for OpenSSL. Andy dual licenses his implementations, so a more permissive license is available for the assembly language source code. This chapter will show you how to build Andy's software.</para>
   </section>
 </chapter>
