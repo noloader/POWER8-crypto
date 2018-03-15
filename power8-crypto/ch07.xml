@@ -26,8 +26,8 @@
       <primary>sha2-le</primary>
     </indexterm>
     <para>The <ulink url="https://github.com/PPC64/sha2-le/">PPC64 team on GitHub</ulink> has a SHA-256 assembly implementation built using <systemitem>m4</systemitem> macros. This section explains how to build the assembly source file, create a test program and link against the assembly-based object file.</para>
-    <para>PPC64 team only provided little-endian so you will need to mod the source files for big-endian. There is a <ulink url="https://github.com/PPC64/sha2-le/pull/6">pull request</ulink> that may be useful if you want both little-endian and big-endian support.</para>
-    <para>Clone the project, build the sources and test the program as shown below.</para>
+    <para>The team only provides little-endian so you will need to modify the source files for big-endian. There is a <ulink url="https://github.com/PPC64/sha2-le/pull/6">pull request</ulink> that will be useful if you want both little-endian and big-endian support.</para>
+    <para>To begin clone the project, build the sources and test the program as shown below.</para>
     <screen>$ git clone https://github.com/PPC64/sha2-le.git
 $ cd sha2-le
 ...
@@ -51,7 +51,7 @@ Test #3:        sha2-le is Ok   libcrypto is Ok c is Ok
 Test #4:        sha2-le is Ok   libcrypto is Ok c is Ok
 ...
 </screen>
-    <para>Perform the following to create an assembly language source file and object file.</para>
+    <para>Next, create an assembly language source file and object file.</para>
     <screen>$ make clean
 ...
 
@@ -80,13 +80,13 @@ Disassembly of section .text:
  16c:   80 40 07 12     vadduwm v16,v7,v8
  ...
 </screen>
-    <para>The comments in <systemitem>sha256_compress.s</systemitem> state the public API for the function is:</para>
+    <para>The comments in <systemitem>sha256_compress.s</systemitem> state the public API for the function is as follows. The documentation does not state the alignment requirements of <systemitem>state</systemitem>, <systemitem>input</systemitem> or <systemitem>keys</systemitem>. When in doubt you should align the memory to a 16-byte boundary.</para>
     <screen>void sha256_compress_ppc(
     uint32_t *state,
     const uint8_t *input,
     const uint32_t *keys)
 </screen>
-    <para>The documentation does not state the alignment requirements of <systemitem>state</systemitem>, <systemitem>input</systemitem> or <systemitem>keys</systemitem>. When in doublt you should align the memory to a 16-byte boundary. A program that links to ssh2-le's <systemitem>sha256_compress_ppc</systemitem> might look like the following.</para>
+    <para>Finally, a program that links to ssh2-le's <systemitem>sha256_compress_ppc</systemitem> might look like the following.</para>
     <programlisting>$ cat test.cxx
 #include &lt;stdio.h&gt;
 #include &lt;string.h&gt;
