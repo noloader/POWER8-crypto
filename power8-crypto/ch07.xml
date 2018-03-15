@@ -5,7 +5,7 @@
   <indexterm>
     <primary>Assembly language</primary>
   </indexterm>
-  <para>This chapter demonstrates building and linking against SHA assembly language routines. The source code is available on GitHubs and shows the steps for integration of the projects without the baggage of a full blown library.</para>
+  <para>This chapter demonstrates building and linking against projects that provide SHA assembly language routines. The steps show you the integration of the routines without the baggage of a full blown library.</para>
   <section id="asm_cryptogams">
     <title>Cryptogams</title>
     <indexterm>
@@ -37,7 +37,7 @@
       <primary>SHA-256</primary>
       <secondary>sha2-le</secondary>
     </indexterm>
-    <para>The <ulink url="https://github.com/PPC64/sha2-le/">PPC64 team on GitHub</ulink> has a SHA-256 assembly implementation built using <systemitem>m4</systemitem> macros. This section explains how to build the assembly source file, create a test program and link against the assembly-based object file.</para>
+    <para>The <ulink url="https://github.com/PPC64/sha2-le/">PPC64 team on GitHub</ulink> provide a SHA-256 assembly implementation built using <systemitem>m4</systemitem> macros. This section explains how to build the assembly source file, create a test program and link against the assembly-based object file.</para>
     <para>The team only provides little-endian so you will need to modify the source files for big-endian. There is a <ulink url="https://github.com/PPC64/sha2-le/pull/6">pull request</ulink> that will be useful if you want both little-endian and big-endian support.</para>
     <para>The steps that follow were carried out on <systemitem>gcc112</systemitem>, which is ppc64-le. To begin clone the project, build the sources and test the program.</para>
     <screen>$ git clone https://github.com/PPC64/sha2-le.git
