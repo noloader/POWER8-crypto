@@ -95,7 +95,7 @@
   <section id="power8_alloc">
     <title>Malloc alignment</title>
     <para>System calls like <systemitem>malloc</systemitem> and <systemitem>calloc</systemitem> (and friends) are used to acquire memory from the heap. The system calls <emphasis>do not</emphasis> guarantee aligment to any particular boundary on all platforms. Linux generally returns a pointer that is at least 16-byte aligned on all platforms, including ARM, PPC, MIPS and x86. AIX does not provide the same alignment behavior.</para>
-    <para>To avoid unexpected surprises when using heap allocations you should use <ulink href="http://pubs.opengroup.org/onlinepubs/009695399/functions/posix_memalign.html"><systemitem>posix_memalign</systemitem></ulink> to acquire heap memory aligned to a particular boundary.</para>
+    <para>To avoid unexpected surprises when using heap allocations you should use <ulink url="http://pubs.opengroup.org/onlinepubs/009695399/functions/posix_memalign.html"><systemitem>posix_memalign</systemitem></ulink> to acquire heap memory aligned to a particular boundary.</para>
     <para>TODO: I believe AIX or XLC has another function to call for memory used with vector programming.</para>
   </section>
   <section id="power8_datatypes">
@@ -157,7 +157,7 @@ T VectorRotateLeft(const T val)
     <title>Aligned loads</title>
     <para>Altivec loads and stores have traditionally been performed using <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> since at least the POWER4 days in the early 2000s. <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive to alignment of the memory address and the offset into the address. The effective address is the sum <systemitem>address+offset</systemitem> rounded down or masked to a multiple of 16.</para>
     <para>Altivec <emphasis>does not</emphasis> raise a <systemitem>SIGBUS</systemitem> to indicate a misaligned load or store. Instead, the bottom 4 bits of the sum <systemitem>address+offset</systemitem> are masked-off and then the memory at the effective address is loaded.</para>
-    <para>You can use the Altivec loads and stores when you <emphasis>control</emphasis> buffers and their alignments, like for AES key schedule table. Otherwise just use <link linkend="power8_unaligned_ld_st">unaligned loads and stores</link> to avoid trouble.</para>
+    <para>You can use the Altivec loads and stores when you <emphasis>control</emphasis> buffers and ensure they are 16-byte aligned, like an AES key schedule table. Otherwise just use <link linkend="power8_unaligned_ld_st">unaligned loads and stores</link> to avoid trouble.</para>
     <para>The C/C++ code to perform a load using <systemitem>vec_ld</systemitem> should look similar to below. Notice the <systemitem>assert</systemitem> to warn you of problems in debug builds.</para>
     <programlisting>template &lt;class T&gt;
 uint32x4_p8 VectorLoad(const T* mem_addr, int offset)
@@ -192,7 +192,7 @@ void VectorStore(T* mem_addr, int offset)
     <title>Unaligned loads</title>
     <para>POWER7 introduced unaligned loads and stores that avoid the aligned memory requirements. The instructions for unaligned loads and stores are <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> for GCC; and <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem> for XLC.</para>
     <para>You should use the POWER7 loads and stores whenever you <emphasis>do not control</emphasis> buffers or their alignments, like messages supplied by user code.</para>
-    <para>The C/C++ code to perform a load using <systemitem>vec_xl</systemitem> and <systemitem>vec_vsx_ld</systemitem> should look similar to below. An <systemitem>assert</systemitem> is no longer needed for debug builds, and the function name has a <systemitem>u</systemitem> added to indicate unaligned.</para>
+    <para>The C/C++ code to perform a load using <systemitem>vec_xl</systemitem> and <systemitem>vec_vsx_ld</systemitem> should look similar to below. The function name has a <systemitem>u</systemitem> added to indicate unaligned.</para>
     <programlisting>template &lt;class T&gt;
 uint32x4_p8 VectorLoadu(const T* mem_addr, int offset)
 {
@@ -219,6 +219,23 @@ void VectorStoreu(T* mem_addr, int offset)
   <section id="power8_vec_ld_be">
     <title>Big-endian loads</title>
     <para>TODO: talk about <systemitem>vec_xl_be</systemitem> when using XLC, and the assembly replacement <systemitem>VEC_XL_BE</systemitem> when using GCC.</para>
+  </section>
+  <section id="power8_vec_ld_deref">
+    <title>Vector dereferences</title>
+    <para>The <ulink url="http://openpowerfoundation.org/wp-content/uploads/resources/leabi/content/dbdoclet.50655244_39970.html">OpenPOWER manual states</ulink> use vector pointers and dereferences to perform loads and stores: <quote>The preferred way to access vectors at an application-defined address is by using vector pointers and the C/C+⁠+ dereference operator *.</quote> The example from the manual is shown below.</para>
+    <programlisting>vector char vca;
+vector char vcb;
+vector int via;
+int a[4];
+void *vp;
+
+via = *(vector int *) &amp;a[0];
+vca = (vector char) via;
+vcb = vca;
+vca = *(vector char *)vp;
+*(vector char *)&amp;a[0] = vca;
+</programlisting>
+    <para>The technique requires aligned memory addresses so you should use it with care. The easiest way to ensure trouble free loads and stores is to perform <link linkend="power8_unaligned_ld_st">unaligned loads and stores</link>.</para>
   </section>
   <section id="power8_const_ptr">
     <title>Const pointers</title>
