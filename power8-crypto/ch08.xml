@@ -51,6 +51,11 @@
       </listitem>
       <listitem>
         <para>
+          <ulink url="https://www.ibm.com/support/knowledgecenter/en/ssw_aix_61/com.ibm.aix.genprogc/vector_prog.htm">AIX vector programming</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
           <ulink url="https://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/index.html">POWER8 in-core cryptography</ulink>
         </para>
       </listitem>

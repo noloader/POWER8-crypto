@@ -93,10 +93,10 @@
 </screen>
   </section>
   <section id="power8_alloc">
-    <title>Malloc alignment</title>
-    <para>System calls like <systemitem>malloc</systemitem> and <systemitem>calloc</systemitem> (and friends) are used to acquire memory from the heap. The system calls <emphasis>do not</emphasis> guarantee aligment to any particular boundary on all platforms. Linux generally returns a pointer that is at least 16-byte aligned on all platforms, including ARM, PPC, MIPS and x86. AIX does not provide the same alignment behavior.</para>
-    <para>To avoid unexpected surprises when using heap allocations you should use <ulink url="http://pubs.opengroup.org/onlinepubs/009695399/functions/posix_memalign.html"><systemitem>posix_memalign</systemitem></ulink> to acquire heap memory aligned to a particular boundary.</para>
-    <para>TODO: I believe AIX or XLC has another function to call for memory used with vector programming.</para>
+    <title>Memory allocation</title>
+    <para>System calls like <systemitem>malloc</systemitem> and <systemitem>calloc</systemitem> (and friends) are used to acquire memory from the heap. The system calls <emphasis>do not</emphasis> guarantee aligment to any particular boundary on all platforms. Linux generally returns a pointer that is at least 16-byte aligned on all platforms, including ARM, PPC, MIPS and x86. AIX <emphasis>does not</emphasis> provide the same <ulink url="https://stackoverflow.com/q/48373188/608639">alignment behavior</ulink>.</para>
+    <para>To avoid unexpected surprises when using heap allocations you should use <ulink url="http://pubs.opengroup.org/onlinepubs/009695399/functions/posix_memalign.html"><systemitem>posix_memalign</systemitem></ulink> to acquire heap memory aligned to a particular boundary and <systemitem>free</systemitem> to return it to the system.</para>
+    <para>AIX provides routines for vector memory allocation and alignment. They are <systemitem>vec_malloc</systemitem> and <systemitem>vec_free</systemitem>, and you can use then like <systemitem>_mm_malloc</systemitem> on Intel machines with Streaming SIMD Extensions (SSE).</para>
   </section>
   <section id="power8_datatypes">
     <title>Vector datatypes</title>
