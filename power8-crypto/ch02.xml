@@ -94,7 +94,7 @@
   </section>
   <section id="power8_alloc">
     <title>Memory allocation</title>
-    <para>System calls like <systemitem>malloc</systemitem> and <systemitem>calloc</systemitem> (and friends) are used to acquire memory from the heap. The system calls <emphasis>do not</emphasis> guarantee aligment to any particular boundary on all platforms. Linux generally returns a pointer that is at least 16-byte aligned on all platforms, including ARM, PPC, MIPS and x86. AIX <emphasis>does not</emphasis> provide the same <ulink url="https://stackoverflow.com/q/48373188/608639">alignment behavior</ulink>.</para>
+    <para>System calls like <systemitem>malloc</systemitem> and <systemitem>calloc</systemitem> (and friends) are used to acquire memory from the heap. The system calls <emphasis>do not</emphasis> guarantee aligment to any particular boundary on all platforms. Linux generally returns a pointer that is at least 16-byte aligned on all platforms, including ARM, PPC, MIPS and x86. AIX <emphasis>does not</emphasis> provide the same <ulink url="http://stackoverflow.com/q/48373188/608639">alignment behavior</ulink>.</para>
     <para>To avoid unexpected surprises when using heap allocations you should use <ulink url="http://pubs.opengroup.org/onlinepubs/009695399/functions/posix_memalign.html"><systemitem>posix_memalign</systemitem></ulink> to acquire heap memory aligned to a particular boundary and <systemitem>free</systemitem> to return it to the system.</para>
     <para>AIX provides routines for vector memory allocation and alignment. They are <systemitem>vec_malloc</systemitem> and <systemitem>vec_free</systemitem>, and you can use then like <systemitem>_mm_malloc</systemitem> on Intel machines with Streaming SIMD Extensions (SSE).</para>
   </section>
@@ -125,8 +125,8 @@
   <section id="power8_shift">
     <title>Vector shifts</title>
     <para>Altivec shifts and rotates are performed using <emphasis>Vector Shift Left Double by Octet Immediate</emphasis>. The vector shift and rotate built-in is <systemitem>vec_sld</systemitem> and it compiles/assembles to <systemitem>vsldoi</systemitem>. Both shift and rotate operate on a concatenation of two vectors. Bytes are shifted out on the left and shifted in on the right. The instructions need an integral constant in the range 0 - 15, inclusive.</para>
-    <para>Vector shifts and rotates perform as expected on big-endian machines. Little-endian machines need a special handling to produce correct results and the <ulink url="https://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>. If you are like many other developers then you will literally waste hours trying to figure it out what happened the first time you experience it.</para>
-    <para>The issue is <ulink url="https://stackoverflow.com/q/46341923/608639">shifts and rotates are endian sensitive</ulink>, and you have to use <systemitem>16-n</systemitem> and swap vector arguments on little-endian systems. The C++ source code provides the following template function to compensate for the little-endian behavior.</para>
+    <para>Vector shifts and rotates perform as expected on big-endian machines. Little-endian machines need a special handling to produce correct results and the <ulink url="http://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>. If you are like many other developers then you will literally waste hours trying to figure it out what happened the first time you experience it.</para>
+    <para>The issue is <ulink url="http://stackoverflow.com/q/46341923/608639">shifts and rotates are endian sensitive</ulink>, and you have to use <systemitem>16-n</systemitem> and swap vector arguments on little-endian systems. The C++ source code provides the following template function to compensate for the little-endian behavior.</para>
     <programlisting>template &lt;unsigned int N, class T&gt;
 T VectorShiftLeft(const T val1, const T val2)
 {
@@ -152,6 +152,23 @@ T VectorRotateLeft(const T val)
 #endif
 }
 </programlisting>
+  </section>
+  <section id="power8_vec_ld_deref">
+    <title>Vector dereferences</title>
+    <para>The OpenPOWER manual recommends using <ulink url="http://openpowerfoundation.org/wp-content/uploads/resources/leabi/content/dbdoclet.50655244_39970.html">vector pointers and dereferences to perform loads and stores</ulink>. According to the manual, <quote>the preferred way to access vectors at an application-defined address is by using vector pointers and the C/C+⁠+ dereference operator *.</quote> The manual then provides the following example.</para>
+    <programlisting>vector char vca;
+vector char vcb;
+vector int via;
+int a[4];
+void *vp;
+
+via = *(vector int *) &amp;a[0];
+vca = (vector char) via;
+vcb = vca;
+vca = *(vector char *)vp;
+*(vector char *)&amp;a[0] = vca;
+</programlisting>
+    <para>The technique in the OpenPOWER manual requires <link linkend="power8_aligned_ld_st">aligned memory addresses</link> so use it with care. In fact running the example with int <systemitem>a[4]</systemitem> initialized to <systemitem>{1,2,3,4}</systemitem> <ulink url="http://stackoverflow.com/q/47743384/608639">produces incorrect results</ulink> because alignment requirements for <systemitem>int</systemitem> and <systemitem>vector</systemitem> are differernt. The easiest way to ensure trouble free vector programming is <link linkend="power8_unaligned_ld_st">POWER7 unaligned loads and stores</link>.</para>
   </section>
   <section id="power8_aligned_ld_st">
     <title>Aligned loads</title>
@@ -218,28 +235,12 @@ void VectorStoreu(T* mem_addr, int offset)
   </section>
   <section id="power8_vec_ld_be">
     <title>Big-endian loads</title>
-    <para>TODO: talk about <systemitem>vec_xl_be</systemitem> when using XLC, and the assembly replacement <systemitem>VEC_XL_BE</systemitem> when using GCC.</para>
-  </section>
-  <section id="power8_vec_ld_deref">
-    <title>Vector dereferences</title>
-    <para>The OpenPOWER manual recommends using <ulink url="http://openpowerfoundation.org/wp-content/uploads/resources/leabi/content/dbdoclet.50655244_39970.html">vector pointers and dereferences to perform loads and stores</ulink>. According to the manual, <quote>the preferred way to access vectors at an application-defined address is by using vector pointers and the C/C+⁠+ dereference operator *.</quote> The manual then provides the following example.</para>
-    <programlisting>vector char vca;
-vector char vcb;
-vector int via;
-int a[4];
-void *vp;
-
-via = *(vector int *) &amp;a[0];
-vca = (vector char) via;
-vcb = vca;
-vca = *(vector char *)vp;
-*(vector char *)&amp;a[0] = vca;
-</programlisting>
-    <para>The technique requires aligned memory addresses so use it with care. The easiest way to ensure trouble free vector programming is <link linkend="power8_unaligned_ld_st">POWER7 unaligned loads and stores</link>.</para>
+    <para>POWER7 introduced <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> which performs big-endian loads and stores. The big-endian load compiles/assembles to <systemitem>lxvw4x/lxvd2x</systemitem>, and the store compiles/assembles to <systemitem>stxvw4x/stxvd2x</systemitem>. The big-endian variants can save two instructions on little-endian systems when the little-endian byte swap is not needed. This usually happens when you need to immediately permute the data after a load or before a store.</para>
+    <para>Access to <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> was provided for IBM XL C/C++ but <ulink url="https://gcc.gnu.org/ml/gcc-patches/2018-01/msg01753.html">GCC support is ongoing</ulink>. GCC must use inline assembly to replace the missing built-ins with <systemitem>VEC_XL_BE</systemitem> and <systemitem>VEC_ST_BE</systemitem>.</para>
   </section>
   <section id="power8_const_ptr">
     <title>Const pointers</title>
-    <para>The Altivec built-ins have unusual behavior when using <systemitem>const</systemitem> pointers during a load operation. A program runs slower when the memory is marked as <systemitem>const</systemitem>. The behavior has been witnessed in two libraries on different machines and the decrease in perfromance is measurable. For example, <ulink url="https://github.com/randombit/botan/pull/1459">AES runs 0.3 cycles per byte (cpb) faster</ulink> when non-<systemitem>const</systemitem> pointers are used for loads. 0.3 cpb may not sound like much but it equates to 200 MiB/s for AES-128 on <systemitem>gcc112</systemitem>.</para>
+    <para>The Altivec built-ins have unusual behavior when using <systemitem>const</systemitem> pointers during a load operation. A program runs slower when the memory is marked as <systemitem>const</systemitem>. The behavior has been witnessed in two libraries on different machines and the decrease in perfromance is measurable. For example, <ulink url="http://github.com/randombit/botan/pull/1459">AES runs 0.3 cycles per byte (cpb) faster</ulink> when non-<systemitem>const</systemitem> pointers are used for loads. 0.3 cpb may not sound like much but it equates to 200 MiB/s for AES-128 on <systemitem>gcc112</systemitem>.</para>
     <para>Source code using the <systemitem>non-const</systemitem> pointers should look similar to below:</para>
     <programlisting>template &lt;class T&gt;
 uint32x4_p8 VectorLoad(const T* mem_addr, int offset)
