@@ -49,13 +49,8 @@ Test #1:        sha2-le is Ok   libcrypto is Ok c is Ok
 Test #2:        sha2-le is Ok   libcrypto is Ok c is Ok
 Test #3:        sha2-le is Ok   libcrypto is Ok c is Ok
 Test #4:        sha2-le is Ok   libcrypto is Ok c is Ok
-
-Running tests for SHA-512:
-Test #1:        sha2-le is Ok   libcrypto is Ok c is Ok
-Test #2:        sha2-le is Ok   libcrypto is Ok c is Ok
-Test #3:        sha2-le is Ok   libcrypto is Ok c is Ok
-Test #4:        sha2-le is Ok   libcrypto is Ok c is Ok
-    </screen>
+...
+</screen>
     <para>Perform the following to create an assembly language source file and object file.</para>
     <screen>$ make clean
 ...
