@@ -7,7 +7,7 @@
   </indexterm>
   <para>This document is a guide to using IBM's <ulink url="https://www.ibm.com/developerworks/learn/security/index.html">POWER8 in-core cryptography</ulink>. The purpose of the book is to document in-core cryptography more completely for developers and quality assurance personnel who wish to take advantage of the features.</para>
   <para>POWER8 in-core cryptography includes CPU instructions to accelerate AES, SHA-256, SHA-512 and polynomial multiplication. This document includes treatments of AES, SHA-256 and SHA-512. It does not include a discussion of polynomial multiplication at the moment, but the chapter is stubbed-out (and waiting for a contributor).</para>
-  <para>The POWER8 extensions for in-core cryptography find its ancestry in Altivec SIMD coprocessor. The POWER8 vector unit includes Vector Multimedia Extension (VSX) and the instruction set for in-core cryptography are part it. You can find additional information on VSX at IBM's website at <ulink url="https://www.ibm.com/developerworks/">TODO</ulink>.</para>
+  <para>The POWER8 extensions for in-core cryptography find their ancestry in the Altivec SIMD coprocessor. The POWER8 vector unit includes Vector-Scalar Extensions (VSX) and the instruction set for in-core cryptography is a part of it. You can find additional information on VSX in Chapter 7 of the <ulink url="https://openpowerfoundation.org/?resource_lib=power-isa-version-3-0">IBM Power ISA Version 3.0B</ulink> at the OpenPOWER Foundation website<!-- at IBM's website at <ulink url="https://www.ibm.com/developerworks/">TODO</ulink -->.</para>
   <indexterm>
     <primary>C/C++</primary>
   </indexterm>
@@ -56,6 +56,6 @@
     </indexterm>
     <para>Both POWER8 machines are IBM POWER System S822 with two CPU cards. <systemitem>gcc112</systemitem> has 160 logical CPUs and runs at 3.4 GHz.  <systemitem>gcc119</systemitem> has 64 logical CPUs and runs at 4.1 GHz. At 4.1 GHz and 192 GB of RAM <systemitem>gcc119</systemitem> is probably a contender for one of the fastest machine you will work on.</para>
     <para>If you are a free and open software developer then you are eligible for a free <ulink url="https://cfarm.tetaneutral.net/">GCC Compile Farm</ulink> account. The Cfarm provides machines for different architectures, including MIPS64, Aarch64 and PowerPC64. Access is provided through SSH.</para>
-    <para>TODO: This book is free software. If you see an opportunity for improvement, and error or an omission then submit a pull request or open a bug report.</para>
+    <para>TODO: This book is free software. If you see an opportunity for improvement, an error or an omission then submit a pull request or open a bug report.</para>
   </section>
 </chapter>
