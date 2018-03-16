@@ -237,7 +237,22 @@ void VectorStoreu(T* mem_addr, int offset)
   </section>
   <section id="power8_vec_ld_be">
     <title>Big-endian loads</title>
-    <para>POWER7 introduced <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> which performs big-endian loads and stores. The big-endian load compiles/assembles to <systemitem>lxvw4x/lxvd2x</systemitem>, and the store compiles/assembles to <systemitem>stxvw4x/stxvd2x</systemitem>. The big-endian variants can save two instructions on little-endian systems when the little-endian byte swap is not needed. This usually happens when you need to immediately permute the data after a load or before a store.</para>
+    <para>POWER7 introduced <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> which performs big-endian loads and stores. The big-endian load compiles/assembles to <systemitem>lxvw4x/lxvd2x</systemitem>, and the store compiles/assembles to <systemitem>stxvw4x/stxvd2x</systemitem>.</para>
+    <para>The big-endian variants can save two instructions on little-endian systems when the little-endian byte swap is not needed. This usually happens when you need to permute the data after a load or before a store.</para>
+    <para>The extraneous permutes can be seen in the disassmbly below. The interleaved instructions were removed. The instructions which remain are (1) a load of the value, (2) a load of the mask, and (3) three permutations instead of one.</para>
+    <programlisting>$ objdump --disassemble sha256-p8.exe
+
+SHA256_SCHEDULE(unsigned int*, unsigned char const*):
+...
+100008a8:   99 4e 00 7c     lxvd2x  vs32,0,r9
+100008bc:   99 26 20 7c     lxvd2x  vs33,0,r4
+100008cc:   57 02 00 f0     xxswapd vs32,vs32
+100008d0:   57 0a 21 f0     xxswapd vs33,vs33
+100008d4:   97 05 00 f0     xxlnand vs32,vs32,vs32
+100008d8:   2b 08 21 10     vperm   v1,v1,v1,v0
+...
+</programlisting>
+    <para>While not readily apparent, <systemitem>v0</systemitem> is <systemitem>vs32</systemitem> and <systemitem>v1</systemitem> is <systemitem>vs33</systemitem>. So the permutation can be written as <systemitem>vperm vs33,vs33,vs33,vs32</systemitem>. Also see <ulink url="https://stackoverflow.com/q/49132339/608639">What does “vperm v0,v0,v0,v17” with unused v0 do?</ulink>.</para>
     <para>Access to <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> was provided for IBM XL C/C++ but <ulink url="https://gcc.gnu.org/ml/gcc-patches/2018-01/msg01753.html">GCC support is ongoing</ulink>. GCC must use inline assembly to replace the missing built-ins with <systemitem>VEC_XL_BE</systemitem> and <systemitem>VEC_ST_BE</systemitem>.</para>
   </section>
   <section id="power8_const_ptr">
