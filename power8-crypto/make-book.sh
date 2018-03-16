@@ -46,22 +46,15 @@ then
     done
 fi
 
-XSL=/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
-if [[ ! -e "$XSL" ]]
-then
-    echo "Stylesheet is missing. Exiting."
-    [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-fi
-
 echo "Translating document..."
-if ! xsltproc --xinclude "$XSL" book.xml > "$BOOKNAME.fo"
+if ! xsltproc --xinclude custom.xsl book.xml > "$BOOKNAME.fo"
 then
     echo "Failed to create Formatted Object."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
 echo "Creating PDF..."
-if ! fop -fo "$BOOKNAME.fo" -pdf "$BOOKNAME.pdf"
+if ! fop -fo "$BOOKNAME.fo" -c fonts.xml -pdf "$BOOKNAME.pdf"
 then
     echo "Failed to create PDF."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
