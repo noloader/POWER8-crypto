@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Spell checker
+# reset && hunspell -l -X chXX.xml | sort | uniq -i
+
 # Name without extensions. The final artifact include PDF.
 BOOKNAME=power8-crypto
 
