@@ -6,7 +6,7 @@
   <para>Memory alignment, loads, stores and shifts will probably cause the most trouble for someone new to PowerPC vector programming. If you are new to the platform you may want to read this chapter twice. If you are experienced with the platform then you probably want to skip this chapter.</para>
   <section id="power8_compilers">
     <title>PowerPC compilers</title>
-    <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++. The compilers are mostly the same but slightly different with their options.</para>
+    <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++. The compilers are mostly the same but accept slightly different options.</para>
     <para>Compiling a test program with GCC will generally look like below. The important part is <systemitem>-mcpu=power8</systemitem> which selects the POWER8 Instruction Set Architecture (ISA).</para>
     <programlisting>$ g++ -mcpu=power8 test.cxx -o test.exe
 </programlisting>
@@ -63,7 +63,7 @@
 # error "Big-endian system"
 #endif
 </programlisting>
-    <para>The compilers can show the endian related preprocessor macros available on a platform. Below is from GCC on <systemitem>gcc112</systemitem> from the <link linkend="cfarm">compile farm</link>, which is ppc64-le.</para>
+    <para>The compilers can show the endian-related preprocessor macros available on a platform. Below is from GCC on <systemitem>gcc112</systemitem> from the <link linkend="cfarm">compile farm</link>, which is ppc64-le.</para>
     <screen>$ g++ -dM -E test.cxx | grep -i endian
 #define __ORDER_LITTLE_ENDIAN__ 1234
 #define _LITTLE_ENDIAN 1
@@ -96,7 +96,7 @@
     <title>Memory allocation</title>
     <para>System calls like <systemitem>malloc</systemitem> and <systemitem>calloc</systemitem> (and friends) are used to acquire memory from the heap. The system calls <emphasis>do not</emphasis> guarantee alignment to any particular boundary on all platforms. Linux generally returns a pointer that is at least 16-byte aligned on all platforms, including ARM, PPC, MIPS and x86. AIX <emphasis>does not</emphasis> provide the same <ulink url="http://stackoverflow.com/q/48373188/608639">alignment behavior</ulink>.</para>
     <para>To avoid unexpected surprises when using heap allocations you should use <ulink url="http://pubs.opengroup.org/onlinepubs/009695399/functions/posix_memalign.html"><systemitem>posix_memalign</systemitem></ulink> to acquire heap memory aligned to a particular boundary and <systemitem>free</systemitem> to return it to the system.</para>
-    <para>AIX provides routines for vector memory allocation and alignment. They are <systemitem>vec_malloc</systemitem> and <systemitem>vec_free</systemitem>, and you can use then like <systemitem>_mm_malloc</systemitem> on Intel machines with Streaming SIMD Extensions (SSE).</para>
+    <para>AIX provides routines for vector memory allocation and alignment. They are <systemitem>vec_malloc</systemitem> and <systemitem>vec_free</systemitem>, and you can use them like <systemitem>_mm_malloc</systemitem> on Intel machines with Streaming SIMD Extensions (SSE).</para>
   </section>
   <section id="power8_datatypes">
     <title>Vector datatypes</title>
@@ -139,7 +139,7 @@ T VectorShiftLeft(const T val1, const T val2)
 #endif
 }
 </programlisting>
-    <para>A <systemitem>VectorRoatetLeft</systemitem> would be similar to the code below, if needed. Rotate is a special case of shift where both vector arguments are the same value.</para>
+    <para>A <systemitem>VectorRotateLeft</systemitem> would be similar to the code below, if needed. Rotate is a special case of shift where both vector arguments are the same value.</para>
     <programlisting>template &lt;unsigned int N, class T&gt;
 T VectorRotateLeft(const T val)
 {
@@ -155,7 +155,7 @@ T VectorRotateLeft(const T val)
   </section>
   <section id="power8_permute">
     <title>Vector permutes</title>
-    <para>Vector permutes allow you to rearrange elements in a vector. The values to be permuted can ne any arrangement like 64x2 or 32x4, but the mask is always an octet mask using an 8x16 arrangement.</para>
+    <para>Vector permutes allow you to rearrange elements in a vector. The values to be permuted can be in any arrangement like 64x2 or 32x4, but the mask is always an octet mask using an 8x16 arrangement.</para>
     <para>The Altivec permute is very powerful and it stands out among architectures like ARM, Aarch64 and x86. The POWER permute allows you to select elements from two source vectors. When an index in the mask is in the range <systemitem>[0,15]</systemitem> then elements from the first vector are selected, and index values in the the range <systemitem>[16,31]</systemitem> select elements from the second vector.</para>
     <para>As an example, suppose you have a big-endian byte array like a message to be hashed using SHA-256. SHA operates on 32-bit words so the message needs a permute on little-endian systems. The code to perform the permute on a little-endian machine would look like below.</para>
     <programlisting>uint32x4_p msg = vec_ld(/*load from memory*/);
@@ -189,8 +189,14 @@ vca = *(vector char *)vp;
     <para>The technique in the OpenPOWER manual requires <link linkend="power8_aligned_ld_st">aligned memory addresses</link> so use it with care. In fact running the example with int <systemitem>a[4]</systemitem> initialized to <systemitem>{1,2,3,4}</systemitem> <ulink url="http://stackoverflow.com/q/47743384/608639">produces incorrect results</ulink> because alignment requirements for <systemitem>int</systemitem> and <systemitem>vector</systemitem> are differernt. The easiest way to ensure trouble free vector programming is <link linkend="power8_unaligned_ld_st">POWER7 unaligned loads and stores</link>.</para>
   </section>
 -->
+  <section id="power8_vec_deref">
+    <title>Vector dereferences</title>
+    <para>
+      The <ulink url="https://openpowerfoundation.org/?resource_lib=64-bit-elf-v2-abi-specification-power-architecture">OpenPOWER ELF V2 ABI Specification</ulink>, version 1.4, incorrectly states that accessing vectors on Power should preferably be done with vector pointers and the dereference operator *.  However, this is only permitted for aligned vector references.  Examples in Chapter 6 of the ABI document show use of casting operations that represent undefined behavior according to the C standard.  An errata document that corrects the ABI may be found here: [TODO: Provide the URL once the technical problems with posting the errata have been overcome.]  Subsequent sections describe the proper way to use loads and stores of aligned and unaligned data.
+    </para>
+  </section>
   <section id="power8_aligned_ld_st">
-    <title>Aligned loads</title>
+    <title>Aligned data references</title>
     <para>Altivec loads and stores have traditionally been performed using <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> since at least the POWER4 days in the early 2000s. <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive to alignment of the memory address and the offset into the address. The effective address is the sum <systemitem>address+offset</systemitem> rounded down or masked to a multiple of 16.</para>
     <para>Altivec <emphasis>does not</emphasis> raise a <systemitem>SIGBUS</systemitem> to indicate a misaligned load or store. Instead, the bottom 4 bits of the sum <systemitem>address+offset</systemitem> are masked-off and then the memory at the effective address is loaded.</para>
     <para>You can use the Altivec loads and stores when you <emphasis>control</emphasis> buffers and ensure they are 16-byte aligned, like an AES key schedule table. Otherwise just use <link linkend="power8_unaligned_ld_st">unaligned loads and stores</link> to avoid trouble.</para>
@@ -225,8 +231,8 @@ void VectorStore(T* mem_addr, int offset)
     <para>Casting away <systemitem>const</systemitem>-ness on <systemitem>mem_addr</systemitem> is discussed in <link linkend="power8_const_ptr"><systemitem>const</systemitem> pointers</link> below.</para>
   </section>
   <section id="power8_unaligned_ld_st">
-    <title>Unaligned loads</title>
-    <para>POWER7 introduced unaligned loads and stores that avoid the aligned memory requirements. The instructions for unaligned loads and stores are <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> for GCC; and <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem> for XLC.</para>
+    <title>Unaligned data references</title>
+    <para>POWER7 (PowerISA 2.07) introduced unaligned loads and stores that avoid the aligned memory requirements. The preferred intrinsic functions for unaligned loads and stores are <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem>.  Theses are available on all currently supported versions of GCC and XLC; however, older versions of GCC such as those installed on many enterprise Linux distributions do not supply them.  For compatibility with these older compilers, you may use <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> for GCC.</para>
     <para>You should use the POWER7 loads and stores whenever you <emphasis>do not control</emphasis> buffers or their alignments, like messages supplied by user code.</para>
     <para>The C/C++ code to perform a load using <systemitem>vec_xl</systemitem> and <systemitem>vec_vsx_ld</systemitem> should look similar to below. The function name has a <systemitem>u</systemitem> added to indicate unaligned.</para>
     <programlisting>template &lt;class T&gt;
@@ -250,13 +256,14 @@ void VectorStoreu(T* mem_addr, int offset)
 #endif
 }
 </programlisting>
+    <para>If your code will only be compiled with supported compilers, you may simplify it to use the vec_xl and vec_xst variants for both XLC and GCC.</para>
     <para>Casting away <systemitem>const</systemitem>-ness on <systemitem>mem_addr</systemitem> is discussed in <link linkend="power8_const_ptr"><systemitem>const</systemitem> pointers</link> below.</para>
   </section>
   <section id="power8_vec_ld_be">
-    <title>Big-endian loads</title>
-    <para>POWER7 introduced <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> which performs big-endian loads and stores. The big-endian load compiles/assembles to <systemitem>lxvw4x/lxvd2x</systemitem>, and the store compiles/assembles to <systemitem>stxvw4x/stxvd2x</systemitem>.</para>
+    <title>Big-endian data references</title>
+    <para>POWER7 introduced <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> which perform big-endian loads and stores. The big-endian load compiles/assembles to <systemitem>lxvw4x/lxvd2x</systemitem>, and the store compiles/assembles to <systemitem>stxvw4x/stxvd2x</systemitem>.</para>
     <para>The big-endian variants can save two instructions on little-endian systems when the little-endian byte swap is not needed. This usually happens when you need to permute the data after a load or before a store.</para>
-    <para>The extraneous permutes can be seen in the disassmbly below. The interleaved instructions were removed. The instructions which remain are (1) a load of the value, (2) a load of the mask, and (3) three permutations instead of one.</para>
+    <para>The extraneous permutes can be seen in the disassembly below. The interleaved instructions were removed. The instructions which remain are (1) a load of the value, (2) a load of the mask, and (3) three permutations instead of one.</para>
     <programlisting>$ objdump --disassemble sha256-p8.exe
 
 SHA256_SCHEDULE(unsigned int*, unsigned char const*):
@@ -269,8 +276,8 @@ SHA256_SCHEDULE(unsigned int*, unsigned char const*):
 100008d8:   2b 08 21 10     vperm   v1,v1,v1,v0
 ...
 </programlisting>
-    <para>While not readily apparent, <systemitem>v0</systemitem> is <systemitem>vs32</systemitem> and <systemitem>v1</systemitem> is <systemitem>vs33</systemitem>. So the permutation can be written as <systemitem>vperm vs33,vs33,vs33,vs32</systemitem>. Also see <ulink url="https://stackoverflow.com/q/49132339/608639">What does “vperm v0,v0,v0,v17” with unused v0 do?</ulink>.</para>
-    <para>Access to <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> was provided for IBM XL C/C++ but <ulink url="https://gcc.gnu.org/ml/gcc-patches/2018-01/msg01753.html">GCC support is ongoing</ulink>. GCC must use inline assembly to replace the missing built-ins with <systemitem>VEC_XL_BE</systemitem> and <systemitem>VEC_ST_BE</systemitem>.</para>
+    <para>While not readily apparent, <systemitem>v0</systemitem> is another name for <systemitem>vs32</systemitem>, and <systemitem>v1</systemitem> is another name for <systemitem>vs33</systemitem>. So the permutation may be thought of as <systemitem>vperm vs33,vs33,vs33,vs32</systemitem> (although this will not assemble). Also see <ulink url="https://stackoverflow.com/q/49132339/608639">What does “vperm v0,v0,v0,v17” with unused v0 do?</ulink>.</para>
+    <para>Access to <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> was provided for IBM XL C/C++, but GCC only supports these intrinsic functions beginning with version 8 (Spring 2018 release).  For earlier versions of GCC, you must use inline assembly to replace the missing built-ins with <systemitem>VEC_XL_BE</systemitem> and <systemitem>VEC_ST_BE</systemitem>.  [<emphasis role="italic">WJS: Is it intended to provide definitions of these macros here?</emphasis>]</para>
   </section>
   <section id="power8_const_ptr">
     <title>Const pointers</title>
