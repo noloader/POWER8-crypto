@@ -153,6 +153,11 @@ T VectorRotateLeft(const T val)
 }
 </programlisting>
   </section>
+  <section id="power8_permute">
+    <title>Vector permute</title>
+    <para>Vector permutes allow you to rearrange elements in a vector. The values to be permuted are any arrangement, but the mask is always an octet mask.</para>
+    <para>The Altivec permute is very powerful and it stands out among architectures like ARM, Aarch64 and x86. The POWER permute allows you to specify two vectors and select elements from either of them.</para>
+  </section>
   <!--
   <section id="power8_vec_ld_deref">
     <title>Vector dereferences</title>
