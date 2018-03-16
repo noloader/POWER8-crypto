@@ -2,8 +2,8 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="ch02">
   <title>Vector programming</title>
-  <para>Several topics need to be discussed to minimize trouble when using the Ativec and POWER8 extensions. They include PowerPC compilers and options, Altivec headers, machine endianness, vector datatypes, memory and alignment, and loads and stores. It is enough information to get to the point you can use AES and SHA but not much more.</para>
-  <para>Memory alignment, loads, stores and shifts will probably cause the most trouble for someone new to PowerPC vector programming. If you are new to the platform you may want to read this chapter twice. If you are expereinced with the platform then you probably want to skip this chapter.</para>
+  <para>Several topics need to be discussed to minimize trouble when using the Altivec and POWER8 extensions. They include PowerPC compilers and options, Altivec headers, machine endianness, vector datatypes, memory and alignment, and loads and stores. It is enough information to get to the point you can use AES and SHA but not much more.</para>
+  <para>Memory alignment, loads, stores and shifts will probably cause the most trouble for someone new to PowerPC vector programming. If you are new to the platform you may want to read this chapter twice. If you are experienced with the platform then you probably want to skip this chapter.</para>
   <section id="power8_compilers">
     <title>PowerPC compilers</title>
     <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++. The compilers are mostly the same but slightly different with their options.</para>
@@ -94,7 +94,7 @@
   </section>
   <section id="power8_alloc">
     <title>Memory allocation</title>
-    <para>System calls like <systemitem>malloc</systemitem> and <systemitem>calloc</systemitem> (and friends) are used to acquire memory from the heap. The system calls <emphasis>do not</emphasis> guarantee aligment to any particular boundary on all platforms. Linux generally returns a pointer that is at least 16-byte aligned on all platforms, including ARM, PPC, MIPS and x86. AIX <emphasis>does not</emphasis> provide the same <ulink url="http://stackoverflow.com/q/48373188/608639">alignment behavior</ulink>.</para>
+    <para>System calls like <systemitem>malloc</systemitem> and <systemitem>calloc</systemitem> (and friends) are used to acquire memory from the heap. The system calls <emphasis>do not</emphasis> guarantee alignment to any particular boundary on all platforms. Linux generally returns a pointer that is at least 16-byte aligned on all platforms, including ARM, PPC, MIPS and x86. AIX <emphasis>does not</emphasis> provide the same <ulink url="http://stackoverflow.com/q/48373188/608639">alignment behavior</ulink>.</para>
     <para>To avoid unexpected surprises when using heap allocations you should use <ulink url="http://pubs.opengroup.org/onlinepubs/009695399/functions/posix_memalign.html"><systemitem>posix_memalign</systemitem></ulink> to acquire heap memory aligned to a particular boundary and <systemitem>free</systemitem> to return it to the system.</para>
     <para>AIX provides routines for vector memory allocation and alignment. They are <systemitem>vec_malloc</systemitem> and <systemitem>vec_free</systemitem>, and you can use then like <systemitem>_mm_malloc</systemitem> on Intel machines with Streaming SIMD Extensions (SSE).</para>
   </section>
@@ -242,7 +242,7 @@ void VectorStoreu(T* mem_addr, int offset)
   </section>
   <section id="power8_const_ptr">
     <title>Const pointers</title>
-    <para>The Altivec built-ins have unusual behavior when using <systemitem>const</systemitem> pointers during a load operation. A program runs slower when the memory is marked as <systemitem>const</systemitem>. The behavior has been witnessed in two libraries on different machines and the decrease in perfromance is measurable. For example, <ulink url="http://github.com/randombit/botan/pull/1459">AES runs 0.3 cycles per byte (cpb) faster</ulink> when non-<systemitem>const</systemitem> pointers are used for loads. 0.3 cpb may not sound like much but it equates to 200 MiB/s for AES-128 on <systemitem>gcc112</systemitem>.</para>
+    <para>The Altivec built-ins have unusual behavior when using <systemitem>const</systemitem> pointers during a load operation. A program runs slower when the memory is marked as <systemitem>const</systemitem>. The behavior has been witnessed in two libraries on different machines and the decrease in performance is measurable. For example, <ulink url="http://github.com/randombit/botan/pull/1459">AES runs 0.3 cycles per byte (cpb) faster</ulink> when non-<systemitem>const</systemitem> pointers are used for loads. 0.3 cpb may not sound like much but it equates to 200 MiB/s for AES-128 on <systemitem>gcc112</systemitem>.</para>
     <para>Source code using the <systemitem>non-const</systemitem> pointers should look similar to below:</para>
     <programlisting>template &lt;class T&gt;
 uint32x4_p8 VectorLoad(const T* mem_addr, int offset)

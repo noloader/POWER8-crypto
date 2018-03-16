@@ -12,7 +12,7 @@
       <primary>SHA</primary>
       <secondary>Sigma functions</secondary>
     </indexterm>
-    <para>POWER8 provides a <systemitem>sigma</systemitem> instruction to accelrate SHA calculations. The instruction takes two integer arguments and the constants are used to select among <systemitem>Sigma0</systemitem>, <systemitem>Sigma1</systemitem>, <systemitem>sigma0</systemitem> and <systemitem>sigma1</systemitem>.</para>
+    <para>POWER8 provides a <systemitem>sigma</systemitem> instruction to accelerate SHA calculations. The instruction takes two integer arguments and the constants are used to select among <systemitem>Sigma0</systemitem>, <systemitem>Sigma1</systemitem>, <systemitem>sigma0</systemitem> and <systemitem>sigma1</systemitem>.</para>
   </section>
   <section id="sha_ch">
     <title>Ch function</title>

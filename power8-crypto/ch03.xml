@@ -74,7 +74,7 @@ bool HasPower8()
     return false;
 }
 
-bool HasPower8Crypto()
+bool HasPowerCrypto()
 {
     if (getauxval(AT_HWCAP2) &amp; PPC_FEATURE2_VEC_CRYPTO != 0)
         return true;
