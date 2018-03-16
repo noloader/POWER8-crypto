@@ -14,6 +14,8 @@
     </indexterm>
     <para>TODO: find out how to perform runtime feature detection on AIX. We checked <systemitem>getsystemcfg</systemitem> and <systemitem>sysconf</systemitem> for ISA 2.07, polynomial multiply, AES and SHA (and crypto) bits but they are missing.</para>
     <para>The only thing we have found is <systemitem>SIGILL</systemitem> probes and signal handlers. It would be nice to avoid the nastiness.</para>
+    <para>[<emphasis role="italic">WJS: I'm not an AIX expert either, but I've
+    send a note to someone who should be able to help us.</emphasis>]</para>
   </section>
   <section>
     <title>Linux features</title>
@@ -25,7 +27,9 @@
       <primary>Feature detection</primary>
       <secondary>Glibc</secondary>
     </indexterm>
-    <para>Some versions of Glibc and the kernel provide ELF auxiliary vectors with the information. <systemitem>AT_HWCAP2</systemitem> will show the <systemitem>vcrypto</systemitem> flag when in-core crypto is available. TODO: which versions?</para>
+    <para>Some versions of Glibc and the kernel provide ELF auxiliary vectors with the information. <systemitem>AT_HWCAP2</systemitem> will show the <systemitem>vcrypto</systemitem> flag when in-core crypto is available.  This is guaranteed for the following little-endian Linux distributions:
+    <itemizedlist spacing="compact"><listitem><para>Ubuntu 14.04 and later</para></listitem><listitem><para>SLES 12 and later</para></listitem><listitem><para>RHEL 7 and later</para></listitem></itemizedlist>
+    </para>
     <screen>$ LD_SHOW_AUXV=1 /bin/true
 AT_DCACHEBSIZE:  0x80
 AT_ICACHEBSIZE:  0x80
