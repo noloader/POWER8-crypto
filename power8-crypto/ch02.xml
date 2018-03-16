@@ -153,6 +153,7 @@ T VectorRotateLeft(const T val)
 }
 </programlisting>
   </section>
+  <!--
   <section id="power8_vec_ld_deref">
     <title>Vector dereferences</title>
     <para>The OpenPOWER manual recommends using <ulink url="http://openpowerfoundation.org/wp-content/uploads/resources/leabi/content/dbdoclet.50655244_39970.html">vector pointers and dereferences to perform loads and stores</ulink>. According to the manual, <quote>the preferred way to access vectors at an application-defined address is by using vector pointers and the C/C+⁠+ dereference operator *.</quote> The manual then provides the following example.</para>
@@ -170,6 +171,7 @@ vca = *(vector char *)vp;
 </programlisting>
     <para>The technique in the OpenPOWER manual requires <link linkend="power8_aligned_ld_st">aligned memory addresses</link> so use it with care. In fact running the example with int <systemitem>a[4]</systemitem> initialized to <systemitem>{1,2,3,4}</systemitem> <ulink url="http://stackoverflow.com/q/47743384/608639">produces incorrect results</ulink> because alignment requirements for <systemitem>int</systemitem> and <systemitem>vector</systemitem> are differernt. The easiest way to ensure trouble free vector programming is <link linkend="power8_unaligned_ld_st">POWER7 unaligned loads and stores</link>.</para>
   </section>
+-->
   <section id="power8_aligned_ld_st">
     <title>Aligned loads</title>
     <para>Altivec loads and stores have traditionally been performed using <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> since at least the POWER4 days in the early 2000s. <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive to alignment of the memory address and the offset into the address. The effective address is the sum <systemitem>address+offset</systemitem> rounded down or masked to a multiple of 16.</para>
