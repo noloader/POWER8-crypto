@@ -5,7 +5,7 @@
   <indexterm>
     <primary>Assembly language</primary>
   </indexterm>
-  <para>This chapter shows you how to build and link against projects that provide POWER8 SHA assembly language routines. Two projects are used. The first is Andy Polyakov's Cryptogams, and second is the PPC64 team's sha2-le. Andy's implementations are well respected and world renowned. The PPC64's team implementation is no longer maintained.</para>
+  <para>This chapter shows you how to build and link against projects that provide POWER8 SHA assembly language routines. Two projects are used. The first is Andy Polyakov's Cryptogams, and second is the PPC64 team's sha2-le. Andy's implementations are well respected and world renowned. The PPC64 team's implementation is no longer maintained.</para>
   <section id="asm_cryptogams">
     <title>Cryptogams</title>
     <indexterm>
@@ -27,7 +27,7 @@ $ cd cryptogams
     <blockquote>
       <para>"Flavour" refers to ABI family or specific OS. E.g. x86_64 scripts recognize 'elf', 'elf32', 'macosx', 'mingw64', 'nasm'. PPC scripts recognize 'linux32', 'linux64', 'linux64le', 'aix32', 'aix64', 'osx32', 'osx64', and so on...</para>
     </blockquote>
-    <para>Unfortunately Andy has not uploaded the SHA gear to Cryptogams so you will have to switch to OpenSSL sources. Make a <systemitem>cryptogams</systemitem> directory, and then copy <systemitem>sha512p8-ppc.pl</systemitem> and <systemitem>ppc-xlate.pl</systemitem> from the OpenSSL source directory:</para>
+    <para>Unfortunately Andy has not uploaded the SHA gear to Cryptogams so you will have to switch to OpenSSL to get the Cryptogams sources. Make a <systemitem>cryptogams</systemitem> directory, and then copy <systemitem>sha512p8-ppc.pl</systemitem> and <systemitem>ppc-xlate.pl</systemitem> from the OpenSSL source directory:</para>
     <screen>$ mkdir cryptogams
 $ cp openssl/crypto/sha/asm/sha512p8-ppc.pl cryptogams/
 $ cp openssl/crypto/perlasm/ppc-xlate.pl cryptogams/
