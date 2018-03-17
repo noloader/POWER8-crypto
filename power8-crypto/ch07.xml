@@ -5,7 +5,7 @@
   <indexterm>
     <primary>Assembly language</primary>
   </indexterm>
-  <para>This chapter shows you how to build and link against projects that provide POWER8 SHA assembly language routines. Two projects are used. The first is Andy Polyakov's Cryptogams, and second is the PPC64 team's sha2-le.</para>
+  <para>This chapter shows you how to build and link against projects that provide POWER8 SHA assembly language routines. Two projects are used. The first is Andy Polyakov's Cryptogams, and second is the PPC64 team's sha2-le. Andy's implementations are well respected and world renowned. The PPC64's team implementation is no longer maintained.</para>
   <section id="asm_cryptogams">
     <title>Cryptogams</title>
     <indexterm>

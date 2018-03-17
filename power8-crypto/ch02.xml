@@ -164,31 +164,12 @@ msg = vec_perm(msg, msg, mask);
 </programlisting>
     <para>The previous code only needed one vector so it used <systemitem>msg</systemitem> twice in the call to <systemitem>vec_perm</systemitem>. An example that interleaves two different vectors is shown below.</para>
     <programlisting>uint32x4_p a = { 0,  0,  0,  0};  // All 0 bits
-uint32x4_p a = {-1, -1, -1, -1};  // All 1 bits
+uint32x4_p b = {-1, -1, -1, -1};  // All 1 bits
 uint8x16_p m = {0,1,2,3, 16,17,18,19, 4,5,6,7, 20,21,22,23};
 uint32x4_p c = vec_perm(a, b, c);
 </programlisting>
     <para>After the code above executes the vector <systemitem>c</systemitem> will have the value <systemitem>{0, -1, 0, -1}</systemitem>.</para>
   </section>
-  <!--
-  <section id="power8_vec_ld_deref">
-    <title>Vector dereferences</title>
-    <para>The OpenPOWER manual recommends using <ulink url="http://openpowerfoundation.org/wp-content/uploads/resources/leabi/content/dbdoclet.50655244_39970.html">vector pointers and dereferences to perform loads and stores</ulink>. According to the manual, <quote>the preferred way to access vectors at an application-defined address is by using vector pointers and the C/C+⁠+ dereference operator *.</quote> The manual then provides the following example.</para>
-    <programlisting>vector char vca;
-vector char vcb;
-vector int via;
-int a[4];
-void *vp;
-
-via = *(vector int *) &amp;a[0];
-vca = (vector char) via;
-vcb = vca;
-vca = *(vector char *)vp;
-*(vector char *)&amp;a[0] = vca;
-</programlisting>
-    <para>The technique in the OpenPOWER manual requires <link linkend="power8_aligned_ld_st">aligned memory addresses</link> so use it with care. In fact running the example with int <systemitem>a[4]</systemitem> initialized to <systemitem>{1,2,3,4}</systemitem> <ulink url="http://stackoverflow.com/q/47743384/608639">produces incorrect results</ulink> because alignment requirements for <systemitem>int</systemitem> and <systemitem>vector</systemitem> are differernt. The easiest way to ensure trouble free vector programming is <link linkend="power8_unaligned_ld_st">POWER7 unaligned loads and stores</link>.</para>
-  </section>
--->
   <section id="power8_vec_deref">
     <title>Vector dereferences</title>
     <para>
