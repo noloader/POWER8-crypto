@@ -19,12 +19,12 @@
       <secondary>Andy Polyakov</secondary>
     </indexterm>
     <para>TODO: figure out why Cryptogam's ASM routine fails.</para>
-    <para><ulink url="https://www.openssl.org/~appro/cryptogams/">Cryptogams</ulink> is Andy Polyakov's incubator to develop assembly language routines for OpenSSL. Andy dual licenses his implementations, so a more permissive license is available for the assembly language source code. This section will show you how to build Cryptogams' software.</para>
-    <para>The steps that follow were carried out on <systemitem>gcc112</systemitem>, which is ppc64-le. To begin, clone the project. Andy's GitHub is located at <ulink url="https://github.com/dot-asm">dot-asm</ulink>, so clone Cryptogams and read the README.</para>
+    <para><ulink url="https://www.openssl.org/~appro/cryptogams/">Cryptogams</ulink> is Andy Polyakov's incubator to develop assembly language routines for OpenSSL. Andy dual licenses his implementations and a more permissive license is available for his assembly language source code. This section will show you how to use Cryptogams' SHA-256 implementation.</para>
+    <para>The steps that follow were carried out on <systemitem>gcc112</systemitem>, which is ppc64-le. Andy's GitHub is located at <ulink url="https://github.com/dot-asm">dot-asm</ulink>, so clone the project and read the README.</para>
     <screen>$ git clone https://github.com/dot-asm/cryptogams
 $ cd dot-asm
 </screen>
-    <para>Open the README and notice it says:</para>
+    <para>The README contains instructions for using the source files:</para>
     <blockquote>
       <para>"Flavour" refers to ABI family or specific OS. E.g. x86_64 scripts recognize 'elf', 'elf32', 'macosx', 'mingw64', 'nasm'. PPC scripts recognize 'linux32', 'linux64', 'linux64le', 'aix32', 'aix64', 'osx32', 'osx64', and so on...</para>
     </blockquote>
