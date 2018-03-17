@@ -6,7 +6,6 @@
     <primary>Assembly language</primary>
   </indexterm>
   <para>This chapter shows you how to build and link against projects that provide SHA assembly language routines. Two projects are used. First is Andy Polyakov's Cryptogams, and second is the PPC64 team's sha2-le.</para>
-  <para>TODO... Ping Andy Polyakov and ask why Cryptogams' code is failing.</para>
   <section id="asm_cryptogams">
     <title>Cryptogams</title>
     <indexterm>
@@ -19,26 +18,27 @@
       <primary>Cryptogams</primary>
       <secondary>Andy Polyakov</secondary>
     </indexterm>
+    <para>TODO: figure out why Cryptogam's ASM routine fails.</para>
     <para><ulink url="https://www.openssl.org/~appro/cryptogams/">Cryptogams</ulink> is Andy Polyakov's incubator to develop assembly language routines for OpenSSL. Andy dual licenses his implementations, so a more permissive license is available for the assembly language source code. This section will show you how to build Cryptogams' software.</para>
     <para>The steps that follow were carried out on <systemitem>gcc112</systemitem>, which is ppc64-le. To begin, clone the project. Andy's GitHub is located at <ulink url="https://github.com/dot-asm">dot-asm</ulink>, so clone Cryptogams and read the README.</para>
     <screen>$ git clone https://github.com/dot-asm/cryptogams
 $ cd dot-asm
 </screen>
-    <para>Notice the README says PowerPC:</para>
+    <para>Open the README and notice it says:</para>
     <blockquote>
       <para>"Flavour" refers to ABI family or specific OS. E.g. x86_64 scripts recognize 'elf', 'elf32', 'macosx', 'mingw64', 'nasm'. PPC scripts recognize 'linux32', 'linux64', 'linux64le', 'aix32', 'aix64', 'osx32', 'osx64', and so on...</para>
     </blockquote>
-    <para>Next, make a directory <systemitem>cryptogams</systemitem> and copy <systemitem>sha512p8-ppc.pl</systemitem> and <systemitem>ppc-xlate.pl</systemitem> from the OpenSSL source directory:</para>
+    <para>Unfortunately Andy has not uploaded the SHA gear to Cryptogams so you will have to switch to OpenSSL sources. Make a <systemitem>cryptogams</systemitem> directory, and copy <systemitem>sha512p8-ppc.pl</systemitem> and <systemitem>ppc-xlate.pl</systemitem> from the OpenSSL source directory:</para>
     <screen>$ mkdir cryptogams
 $ cp openssl/crypto/sha/asm/sha512p8-ppc.pl cryptogams/
 $ cp openssl/crypto/perlasm/ppc-xlate.pl cryptogams/
 $ cd cryptogams/</screen>
     <para>Next examine the head notes in <systemitem>sha512p8-ppc.pl</systemitem>, which is used to create the source files for SHA-256 and SHA-512. The comments say the script takes two arguments. The first is a <quote>flavor</quote>, and the 32 or 64 is used to convey the platform architecture. Adding <quote>le</quote> to flavor will produce a source file for a little endian machine. The second argument is <quote>output</quote>, and 256 or 512 in the output filename selects either SHA-256 or SHA-512.</para>
-    <para>The commands to produce an assembly langauge source file and assemble it are shown below.</para>
+    <para>The commands to produce a SHA-256 assembly source file for <systemitem>gcc112</systemitem> and assemble it are shown below.</para>
     <screen>$ ./sha512p8-ppc.pl linux64le sha256le_compress.s
 $ as -mpower8 sha256le_compress.s -o sha256le_compress.o
 </screen>
-    <para>You can examine the disassembly with the following command. The output below shows one round calculation.</para>
+    <para>You can examine the disassembly with the following command. The output below shows a partial round calculation.</para>
     <screen>$ objdump --disassemble sha256le_compress.o
 
 sha256le_compress.o:     file format elf64-powerpcle
@@ -48,21 +48,17 @@ Disassembly of section .text:
 0000000000000000 &lt;sha256_block_p8&gt;:
 
  ...
- 16c:   ce 30 07 7f     lvx     v24,r7,r6
- 170:   10 00 e7 38     addi    r7,r7,16
- 174:   80 d0 e7 10     vadduwm v7,v7,v26
- 178:   2c 41 28 11     vsldoi  v9,v8,v8,4
- 17c:   ea 20 25 13     vsel    v25,v5,v4,v3
- 180:   82 fe 63 13     vshasigmaw v27,v3,1,15
- 184:   80 48 c6 10     vadduwm v6,v6,v9
- 188:   82 86 47 13     vshasigmaw v26,v7,1,0
- 18c:   80 c8 c6 10     vadduwm v6,v6,v25
- 190:   c4 04 27 13     vxor    v25,v7,v0
- 194:   80 d8 c6 10     vadduwm v6,v6,v27
- 198:   6a 0e 20 13     vsel    v25,v0,v1,v25
- 19c:   80 c0 a5 10     vadduwm v5,v5,v24
- 1a0:   80 30 42 10     vadduwm v2,v2,v6
- 1a4:   80 c8 5a 13     vadduwm v26,v26,v25
+ 57c:   ce 30 07 7f     lvx     v24,r7,r6
+ 580:   10 00 e7 38     addi    r7,r7,16
+ 584:   80 d0 e7 10     vadduwm v7,v7,v26
+ 588:   80 e8 29 11     vadduwm v9,v9,v29
+ 58c:   82 06 8b 13     vshasigmaw v28,v11,0,0
+ 590:   ea 20 25 13     vsel    v25,v5,v4,v3
+ 594:   82 fe 63 13     vshasigmaw v27,v3,1,15
+ 598:   80 48 c6 10     vadduwm v6,v6,v9
+ 59c:   82 86 47 13     vshasigmaw v26,v7,1,0
+ 5a0:   82 7e a8 13     vshasigmaw v29,v8,0,15
+ 5a4:   80 c8 c6 10     vadduwm v6,v6,v25
  ...
 </screen>
     <para>The head notes in <systemitem>sha512p8-ppc.pl</systemitem> do not state the public API. However the source file <systemitem>crypto/ppccap.c</systemitem> says:</para>
@@ -81,7 +77,7 @@ size_t len);
     <programlisting>#define SHA_LONG unsigned int
 #define SHA_LBLOCK  16
 
-struct HASH_CTX {
+struct SHA256_CTX {
   SHA_LONG h[8];
   SHA_LONG Nl,Nh;
   SHA_LONG data[SHA_LBLOCK];
@@ -98,7 +94,7 @@ struct HASH_CTX {
 #define SHA_LONG unsigned int
 #define SHA_LBLOCK  16
 
-struct HASH_CTX {
+struct SHA256_CTX {
   SHA_LONG h[8];
   SHA_LONG Nl,Nh;
   SHA_LONG data[SHA_LBLOCK];
@@ -106,7 +102,7 @@ struct HASH_CTX {
 };
 
 extern "C" {
-  void sha256_block_p8(HASH_CTX*, const void*, size_t);
+  void sha256_block_p8(SHA256_CTX*, const void*, size_t);
 }
 
 int main(int argc, char* argv[])
@@ -122,7 +118,7 @@ int main(int argc, char* argv[])
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
   };
 
-  ALIGN16 HASH_CTX ctx;
+  ALIGN16 SHA256_CTX ctx;
   memset(&amp;ctx, 0x00, sizeof(ctx));
   memcpy(ctx.h, state, sizeof(ctx.h));
   ctx.md_len = 32;
