@@ -21,7 +21,7 @@
     <para><ulink url="https://www.openssl.org/~appro/cryptogams/">Cryptogams</ulink> is Andy Polyakov's incubator to develop assembly language routines for OpenSSL. Andy dual licenses his implementations and a more permissive license is available for his assembly language source code. This section will show you how to use Cryptogams' SHA-256 implementation.</para>
     <para>The steps that follow were carried out on <systemitem>gcc112</systemitem>, which is ppc64-le. Andy's GitHub is located at <ulink url="https://github.com/dot-asm">dot-asm</ulink>, so clone the project and read the README.</para>
     <screen>$ git clone https://github.com/dot-asm/cryptogams
-$ cd dot-asm
+$ cd cryptogams
 </screen>
     <para>The README contains instructions for using the source files:</para>
     <blockquote>
@@ -42,11 +42,10 @@ $ as -mpower8 sha256le_compress.s -o sha256le_compress.o
 crypto/ppccap.c:void sha256_block_p8(void *ctx, const void *inp,
 size_t len);
 ...</screen>
-    <para>The documentation does not explicitly state it, but the signature for <systemitem>sha256_block_p8</systemitem> is better documented as shown below. There are no alignment requirements for <systemitem>state</systemitem> or <systemitem>input</systemitem>.</para>
+    <para>In fact the signature for <systemitem>sha256_block_p8</systemitem> is better documented as shown below. There are no alignment requirements for <systemitem>state</systemitem> or <systemitem>input</systemitem>.</para>
     <programlisting>void sha256_block_p8(uint32_t *state,
-            const uint8_t *data, size_t blocks);
+            const uint8_t *input, size_t blocks);
 </programlisting>
-    <para>The documentation also lacks the alignment requirements of <systemitem>ctx</systemitem> or <systemitem>inp</systemitem>. When in doubt you should align the memory to a 16-byte boundary.</para>
     <para>Finally, a program that links to Cryptogams' <systemitem>sha256_block_p8</systemitem> might look like the following.</para>
     <programlisting>$ cat test.cxx
 #include &lt;stdio.h&gt;
@@ -124,35 +123,8 @@ Success!
     </indexterm>
     <para>The <ulink url="https://github.com/PPC64/sha2-le/">PPC64 team on GitHub</ulink> provide a SHA-256 little-endian implementation built using <systemitem>m4</systemitem> macros. This section explains how to create the assembly source file, and how to create a test program that links against the object file.</para>
     <para>The team only provides little-endian so you will need to modify the source files for big-endian. There is a <ulink url="https://github.com/PPC64/sha2-le/pull/6">pull request</ulink> that will be useful if you want both little-endian and big-endian support.</para>
-    <para>The steps that follow were carried out on <systemitem>gcc112</systemitem>, which is ppc64-le. To begin, clone the project, build the sources and test the program.</para>
-    <screen>$ git clone https://github.com/PPC64/sha2-le.git
-$ cd sha2-le
-...
-
-$ make COMPILERS=gcc
-...
-
-$ make test COMPILERS=gcc
-...
-
-========================================================
-Testing gcc
-========================================================
-./bin/test256_gcc
-./bin/test512_gcc
-CC=gcc ./blackbox-test.sh
-Running tests for SHA-256:
-Test #1:        sha2-le is Ok   libcrypto is Ok c is Ok
-Test #2:        sha2-le is Ok   libcrypto is Ok c is Ok
-Test #3:        sha2-le is Ok   libcrypto is Ok c is Ok
-Test #4:        sha2-le is Ok   libcrypto is Ok c is Ok
-...
-</screen>
-    <para>Next, create the assembly language source file from m4 sources, and then create the object file by assembling the source file.</para>
-    <screen>$ make clean
-...
-
-$ m4 common.m4 sha256_compress_ppc.m4 &gt; sha256_compress.s
+    <para>The steps that follow were carried out on <systemitem>gcc112</systemitem>, which is ppc64-le. To begin, clone the project. Then, create the assembly language source file from m4 sources, and create the object file by assembling the source file.</para>
+    <screen>$ m4 common.m4 sha256_compress_ppc.m4 &gt; sha256_compress.s
 $ as -mpower8 sha256_compress.s -o sha256_compress.o
 </screen>
     <para>The comments in <systemitem>sha256_compress.s</systemitem> state the public API for the function is as follows. There are no alignment requirements for <systemitem>state</systemitem>, <systemitem>input</systemitem> or <systemitem>keys</systemitem>. The function only operates on 1 block (64 bytes) at a time.</para>
