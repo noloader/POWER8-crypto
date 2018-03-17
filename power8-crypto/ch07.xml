@@ -18,7 +18,6 @@
       <primary>Cryptogams</primary>
       <secondary>Andy Polyakov</secondary>
     </indexterm>
-    <para>TODO: figure out why Cryptogam's ASM routine fails.</para>
     <para><ulink url="https://www.openssl.org/~appro/cryptogams/">Cryptogams</ulink> is Andy Polyakov's incubator to develop assembly language routines for OpenSSL. Andy dual licenses his implementations and a more permissive license is available for his assembly language source code. This section will show you how to use Cryptogams' SHA-256 implementation.</para>
     <para>The steps that follow were carried out on <systemitem>gcc112</systemitem>, which is ppc64-le. Andy's GitHub is located at <ulink url="https://github.com/dot-asm">dot-asm</ulink>, so clone the project and read the README.</para>
     <screen>$ git clone https://github.com/dot-asm/cryptogams
@@ -38,93 +37,41 @@ $ cd cryptogams/</screen>
     <screen>$ ./sha512p8-ppc.pl linux64le sha256le_compress.s
 $ as -mpower8 sha256le_compress.s -o sha256le_compress.o
 </screen>
-    <para>You can examine the disassembly with the following command. The output below shows a partial round calculation.</para>
-    <screen>$ objdump --disassemble sha256le_compress.o
-
-sha256le_compress.o:     file format elf64-powerpcle
-
-Disassembly of section .text:
-
-0000000000000000 &lt;sha256_block_p8&gt;:
-
- ...
- 57c:   ce 30 07 7f     lvx     v24,r7,r6
- 580:   10 00 e7 38     addi    r7,r7,16
- 584:   80 d0 e7 10     vadduwm v7,v7,v26
- 588:   80 e8 29 11     vadduwm v9,v9,v29
- 58c:   82 06 8b 13     vshasigmaw v28,v11,0,0
- 590:   ea 20 25 13     vsel    v25,v5,v4,v3
- 594:   82 fe 63 13     vshasigmaw v27,v3,1,15
- 598:   80 48 c6 10     vadduwm v6,v6,v9
- 59c:   82 86 47 13     vshasigmaw v26,v7,1,0
- 5a0:   82 7e a8 13     vshasigmaw v29,v8,0,15
- 5a4:   80 c8 c6 10     vadduwm v6,v6,v25
- ...
-</screen>
     <para>The head notes in <systemitem>sha512p8-ppc.pl</systemitem> do not state the public API. However the source file <systemitem>crypto/ppccap.c</systemitem> says:</para>
     <screen>$ grep -IR sha256_block_p8 *
 crypto/ppccap.c:void sha256_block_p8(void *ctx, const void *inp,
 size_t len);
 ...</screen>
-    <para>Running OpenSSL's <systemitem>config</systemitem> program and then grepping the sources reveals the <systemitem>SHA256state_st</systemitem> definition in <systemitem>sha.h</systemitem>.</para>
-    <programlisting>typedef struct SHA256state_st {
-   SHA_LONG h[8];
-   SHA_LONG Nl, Nh;
-   SHA_LONG data[SHA_LBLOCK];
-   unsigned int num, md_len;
-} SHA256_CTX;</programlisting>
-    <para>A few more greps and all the defines for the struct are discovered.</para>
-    <programlisting>#define SHA_LONG unsigned int
-#define SHA_LBLOCK  16
-
-struct SHA256_CTX {
-  SHA_LONG h[8];
-  SHA_LONG Nl,Nh;
-  SHA_LONG data[SHA_LBLOCK];
-  unsigned int num, md_len;
-};</programlisting>
-    <para>The documentation does not state the alignment requirements of <systemitem>ctx</systemitem> or <systemitem>inp</systemitem>. When in doubt you should align the memory to a 16-byte boundary.</para>
+    <para>The documentation does not explicitly state it, but the signature for <systemitem>sha256_block_p8</systemitem> is better documented as shown below. There are no alignment requirements for <systemitem>state</systemitem> or <systemitem>input</systemitem>.</para>
+    <programlisting>void sha256_block_p8(uint32_t *state,
+            const uint8_t *data, size_t blocks);
+</programlisting>
+    <para>The documentation also lacks the alignment requirements of <systemitem>ctx</systemitem> or <systemitem>inp</systemitem>. When in doubt you should align the memory to a 16-byte boundary.</para>
     <para>Finally, a program that links to Cryptogams' <systemitem>sha256_block_p8</systemitem> might look like the following.</para>
     <programlisting>$ cat test.cxx
 #include &lt;stdio.h&gt;
 #include &lt;string.h&gt;
 #include &lt;stdint.h&gt;
 
-#define ALIGN16 __attribute__((aligned(16)))
-#define SHA_LONG unsigned int
-#define SHA_LBLOCK  16
-
-struct SHA256_CTX {
-  SHA_LONG h[8];
-  SHA_LONG Nl,Nh;
-  SHA_LONG data[SHA_LBLOCK];
-  unsigned int num, md_len;
-};
-
 extern "C" {
-  void sha256_block_p8(SHA256_CTX*, const void*, size_t);
+  void sha256_block_p8(uint32_t*, const uint8_t*, size_t);
 }
 
 int main(int argc, char* argv[])
 {
   /* empty message with padding */
-  ALIGN16 uint8_t message[64];
+  uint8_t message[64];
   memset(message, 0x00, sizeof(message));
   message[0] = 0x80;
 
   /* initial state */
-  ALIGN16 uint32_t state[8] = {
+  uint32_t state[8] = {
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
   };
 
-  ALIGN16 SHA256_CTX ctx;
-  memset(&amp;ctx, 0x00, sizeof(ctx));
-  memcpy(ctx.h, state, sizeof(ctx.h));
-  ctx.md_len = 32;
-
-  sha256_block_p8(&amp;ctx, message, sizeof(message));
-  memcpy(state, ctx.h, sizeof(state));
+  size_t blocks = sizeof(message)/64;
+  sha256_block_p8(state, message, blocks);
 
   const uint8_t b1 = (uint8_t)(state[0] &gt;&gt; 24);
   const uint8_t b2 = (uint8_t)(state[0] &gt;&gt; 16);
@@ -154,12 +101,10 @@ int main(int argc, char* argv[])
 }
 </programlisting>
     <para>Compiling and linking to <systemitem>sha256le_compress.o</systemitem> would look similar to below.</para>
-    <programlisting>$ g++ test.cxx sha256le_compress.o -o test.exe
-$ ./test.exe
-SHA256 hash of empty message: 6F1146B42BB23652...
-Failure!
+    <programlisting>$ ./test.exe
+SHA256 hash of empty message: E3B0C44298FC1C14...
+Success!
 </programlisting>
-    <para>TODO: figure out why the ASM routine fails.</para>
   </section>
   <section id="asm_sha2_le">
     <title>sha2-le</title>
@@ -210,33 +155,9 @@ Test #4:        sha2-le is Ok   libcrypto is Ok c is Ok
 $ m4 common.m4 sha256_compress_ppc.m4 &gt; sha256_compress.s
 $ as -mpower8 sha256_compress.s -o sha256_compress.o
 </screen>
-    <para>You can examine the disassembly with the following command. The output below shows one round calculation.</para>
-    <screen>$ objdump --disassemble sha256_compress.o
-sha256_compress.o:     file format elf64-powerpcle
-
-Disassembly of section .text:
-
-0000000000000000 &lt;sha256_compress_ppc&gt;:
-
- ...
- 144:   6a 73 0f 10     vsel    v0,v15,v14,v13
- 148:   c4 54 29 10     vxor    v1,v9,v10
- 14c:   82 fe 6d 10     vshasigmaw v3,v13,1,15
- 150:   80 d0 c0 10     vadduwm v6,v0,v26
- 154:   80 18 b0 10     vadduwm v5,v16,v3
- 158:   6a 58 2a 10     vsel    v1,v10,v11,v1
- 15c:   80 30 e5 10     vadduwm v7,v5,v6
- 160:   82 86 49 10     vshasigmaw v2,v9,1,0
- 164:   80 08 02 11     vadduwm v8,v2,v1
- 168:   80 38 8c 11     vadduwm v12,v12,v7
- 16c:   80 40 07 12     vadduwm v16,v7,v8
- ...
-</screen>
-    <para>The comments in <systemitem>sha256_compress.s</systemitem> state the public API for the function is as follows. The documentation does not state the alignment requirements of <systemitem>state</systemitem>, <systemitem>input</systemitem> or <systemitem>keys</systemitem>. When in doubt you should align the memory to a 16-byte boundary.</para>
-    <screen>void sha256_compress_ppc(
-    uint32_t *state,
-    const uint8_t *input,
-    const uint32_t *keys)
+    <para>The comments in <systemitem>sha256_compress.s</systemitem> state the public API for the function is as follows. There are no alignment requirements for <systemitem>state</systemitem>, <systemitem>input</systemitem> or <systemitem>keys</systemitem>. The function only operates on 1 block (64 bytes) at a time.</para>
+    <screen>void sha256_compress_ppc(uint32_t *state,
+            const uint8_t *input, const uint32_t *keys);
 </screen>
     <para>Finally, a program that links to sha2-le's <systemitem>sha256_compress_ppc</systemitem> might look like the following.</para>
     <programlisting>$ cat test.cxx
@@ -249,9 +170,7 @@ extern "C" {
               const uint8_t*, const uint32_t*);
 }
 
-#define ALIGN16 __attribute__((aligned(16)))
-
-const ALIGN16 uint32_t K256[] =
+const uint32_t K256[] =
   {
     0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
     0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
@@ -274,12 +193,12 @@ const ALIGN16 uint32_t K256[] =
 int main(int argc, char* argv[])
 {
   /* empty message with padding */
-  ALIGN16 uint8_t message[64];
+  uint8_t message[64];
   memset(message, 0x00, sizeof(message));
   message[0] = 0x80;
 
   /* initial state */
-  ALIGN16 uint32_t state[8] = {
+  uint32_t state[8] = {
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
   };
