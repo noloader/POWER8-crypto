@@ -85,6 +85,11 @@
           <ulink url="https://openpowerfoundation.org/?resource_lib=power-isa-version-3-0">IBM Power ISA Version 3.0B</ulink>
         </para>
       </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://www.ibm.com/developerworks/library/l-powasm4/index.html">Function calls and the PowerPC 64-bit ABI</ulink>
+        </para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="nist">

@@ -5,7 +5,8 @@
   <indexterm>
     <primary>Assembly language</primary>
   </indexterm>
-  <para>This chapter demonstrates building and linking against projects that provide SHA assembly language routines. The steps show you the integration of the routines without the baggage of a full blown library.</para>
+  <para>This chapter shows you how to build and link against projects that provide SHA assembly language routines. Two projects are used. First is Andy Polyakov's Cryptogams, and second is the PPC64 team's sha2-le.</para>
+  <para>TODO... Ping Andy Polyakov and ask why Cryptogams' code is failing.</para>
   <section id="asm_cryptogams">
     <title>Cryptogams</title>
     <indexterm>
@@ -18,8 +19,151 @@
       <primary>Cryptogams</primary>
       <secondary>Andy Polyakov</secondary>
     </indexterm>
-    <para><ulink url="https://www.openssl.org/~appro/cryptogams/">Cryptogams</ulink> is Andy Polyakov's incubator to develop assembly language routines for OpenSSL. Andy dual licenses his implementations, so a more permissive license is available for the assembly language source code. This section will show you how to build Andy's software.</para>
-    <para/>
+    <para><ulink url="https://www.openssl.org/~appro/cryptogams/">Cryptogams</ulink> is Andy Polyakov's incubator to develop assembly language routines for OpenSSL. Andy dual licenses his implementations, so a more permissive license is available for the assembly language source code. This section will show you how to build Cryptogams' software.</para>
+    <para>The steps that follow were carried out on <systemitem>gcc112</systemitem>, which is ppc64-le. To begin, clone the project. Andy's GitHub is located at <ulink url="https://github.com/dot-asm">dot-asm</ulink>, so clone Cryptogams and read the README.</para>
+    <screen>$ git clone https://github.com/dot-asm/cryptogams
+$ cd dot-asm
+</screen>
+    <para>Notice the README says PowerPC:</para>
+    <blockquote>
+      <para>"Flavour" refers to ABI family or specific OS. E.g. x86_64 scripts recognize 'elf', 'elf32', 'macosx', 'mingw64', 'nasm'. PPC scripts recognize 'linux32', 'linux64', 'linux64le', 'aix32', 'aix64', 'osx32', 'osx64', and so on...</para>
+    </blockquote>
+    <para>Next, make a directory <systemitem>cryptogams</systemitem> and copy <systemitem>sha512p8-ppc.pl</systemitem> and <systemitem>ppc-xlate.pl</systemitem> from the OpenSSL source directory:</para>
+    <screen>$ mkdir cryptogams
+$ cp openssl/crypto/sha/asm/sha512p8-ppc.pl cryptogams/
+$ cp openssl/crypto/perlasm/ppc-xlate.pl cryptogams/
+$ cd cryptogams/</screen>
+    <para>Next examine the head notes in <systemitem>sha512p8-ppc.pl</systemitem>, which is used to create the source files for SHA-256 and SHA-512. The comments say the script takes two arguments. The first is a <quote>flavor</quote>, and the 32 or 64 is used to convey the platform architecture. Adding <quote>le</quote> to flavor will produce a source file for a little endian machine. The second argument is <quote>output</quote>, and 256 or 512 in the output filename selects either SHA-256 or SHA-512.</para>
+    <para>The commands to produce an assembly langauge source file and assemble it are shown below.</para>
+    <screen>$ ./sha512p8-ppc.pl linux64le sha256le_compress.s
+$ as -mpower8 sha256le_compress.s -o sha256le_compress.o
+</screen>
+    <para>You can examine the disassembly with the following command. The output below shows one round calculation.</para>
+    <screen>$ objdump --disassemble sha256le_compress.o
+
+sha256le_compress.o:     file format elf64-powerpcle
+
+Disassembly of section .text:
+
+0000000000000000 &lt;sha256_block_p8&gt;:
+
+ ...
+ 16c:   ce 30 07 7f     lvx     v24,r7,r6
+ 170:   10 00 e7 38     addi    r7,r7,16
+ 174:   80 d0 e7 10     vadduwm v7,v7,v26
+ 178:   2c 41 28 11     vsldoi  v9,v8,v8,4
+ 17c:   ea 20 25 13     vsel    v25,v5,v4,v3
+ 180:   82 fe 63 13     vshasigmaw v27,v3,1,15
+ 184:   80 48 c6 10     vadduwm v6,v6,v9
+ 188:   82 86 47 13     vshasigmaw v26,v7,1,0
+ 18c:   80 c8 c6 10     vadduwm v6,v6,v25
+ 190:   c4 04 27 13     vxor    v25,v7,v0
+ 194:   80 d8 c6 10     vadduwm v6,v6,v27
+ 198:   6a 0e 20 13     vsel    v25,v0,v1,v25
+ 19c:   80 c0 a5 10     vadduwm v5,v5,v24
+ 1a0:   80 30 42 10     vadduwm v2,v2,v6
+ 1a4:   80 c8 5a 13     vadduwm v26,v26,v25
+ ...
+</screen>
+    <para>The head notes in <systemitem>sha512p8-ppc.pl</systemitem> do not state the public API. However the source file <systemitem>crypto/ppccap.c</systemitem> says:</para>
+    <screen>$ grep -IR sha256_block_p8 *
+crypto/ppccap.c:void sha256_block_p8(void *ctx, const void *inp,
+size_t len);
+...</screen>
+    <para>Running OpenSSL's <systemitem>Configure</systemitem> program and then grepping the sources reveals the <systemitem>SHA256state_st</systemitem> definition in <systemitem>sha.h</systemitem>.</para>
+    <programlisting>typedef struct SHA256state_st {
+   SHA_LONG h[8];
+   SHA_LONG Nl, Nh;
+   SHA_LONG data[SHA_LBLOCK];
+   unsigned int num, md_len;
+} SHA256_CTX;</programlisting>
+    <para>A few more greps and all the defines for the struct are discovered.</para>
+    <programlisting>#define SHA_LONG unsigned int
+#define SHA_LBLOCK  16
+
+struct HASH_CTX {
+  SHA_LONG h[8];
+  SHA_LONG Nl,Nh;
+  SHA_LONG data[SHA_LBLOCK];
+  unsigned int num, md_len;
+};</programlisting>
+    <para>The documentation does not state the alignment requirements of <systemitem>ctx</systemitem> or <systemitem>inp</systemitem>. When in doubt you should align the memory to a 16-byte boundary.</para>
+    <para>Finally, a program that links to Cryptogams' <systemitem>sha256_block_p8</systemitem> might look like the following.</para>
+    <programlisting>$ cat test.cxx
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdint.h&gt;
+
+#define ALIGN16 __attribute__((aligned(16)))
+#define SHA_LONG unsigned int
+#define SHA_LBLOCK  16
+
+struct HASH_CTX {
+  SHA_LONG h[8];
+  SHA_LONG Nl,Nh;
+  SHA_LONG data[SHA_LBLOCK];
+  unsigned int num, md_len;
+};
+
+extern "C" {
+  void sha256_block_p8(HASH_CTX*, const void*, size_t);
+}
+
+int main(int argc, char* argv[])
+{
+  /* empty message with padding */
+  ALIGN16 uint8_t message[64];
+  memset(message, 0x00, sizeof(message));
+  message[0] = 0x80;
+
+  /* initial state */
+  ALIGN16 uint32_t state[8] = {
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+    0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+  };
+
+  ALIGN16 HASH_CTX ctx;
+  memset(&amp;ctx, 0x00, sizeof(ctx));
+  memcpy(ctx.h, state, sizeof(ctx.h));
+  ctx.md_len = 32;
+
+  sha256_block_p8(&amp;ctx, message, sizeof(message));
+  memcpy(state, ctx.h, sizeof(state));
+
+  const uint8_t b1 = (uint8_t)(state[0] &gt;&gt; 24);
+  const uint8_t b2 = (uint8_t)(state[0] &gt;&gt; 16);
+  const uint8_t b3 = (uint8_t)(state[0] &gt;&gt;  8);
+  const uint8_t b4 = (uint8_t)(state[0] &gt;&gt;  0);
+  const uint8_t b5 = (uint8_t)(state[1] &gt;&gt; 24);
+  const uint8_t b6 = (uint8_t)(state[1] &gt;&gt; 16);
+  const uint8_t b7 = (uint8_t)(state[1] &gt;&gt;  8);
+  const uint8_t b8 = (uint8_t)(state[1] &gt;&gt;  0);
+
+  /* e3b0c44298fc1c14... */
+  printf("SHA256 hash of empty message: ");
+  printf("%02X%02X%02X%02X%02X%02X%02X%02X...\n",
+         b1, b2, b3, b4, b5, b6, b7, b8);
+
+  int success = ((b1 == 0xE3) &amp;&amp; (b2 == 0xB0) &amp;&amp;
+                 (b3 == 0xC4) &amp;&amp; (b4 == 0x42) &amp;&amp;
+                 (b5 == 0x98) &amp;&amp; (b6 == 0xFC) &amp;&amp;
+                 (b7 == 0x1C) &amp;&amp; (b8 == 0x14));
+
+  if (success)
+    printf("Success!\n");
+  else
+    printf("Failure!\n");
+
+  return (success != 0 ? 0 : 1);
+}
+</programlisting>
+    <para>Compiling and linking to <systemitem>sha256le_compress.o</systemitem> would look similar to below.</para>
+    <programlisting>$ g++ test.cxx sha256le_compress.o -o test.exe
+$ ./test.exe
+SHA256 hash of empty message: 6F1146B42BB23652...
+Failure!
+</programlisting>
+    <para>TODO: figure out why the ASM routine fails.</para>
   </section>
   <section id="asm_sha2_le">
     <title>sha2-le</title>
@@ -37,7 +181,7 @@
       <primary>SHA-256</primary>
       <secondary>sha2-le</secondary>
     </indexterm>
-    <para>The <ulink url="https://github.com/PPC64/sha2-le/">PPC64 team on GitHub</ulink> provide a SHA-256 assembly implementation built using <systemitem>m4</systemitem> macros. This section explains how to build the assembly source file, create a test program and link against the assembly-based object file.</para>
+    <para>The <ulink url="https://github.com/PPC64/sha2-le/">PPC64 team on GitHub</ulink> provide a SHA-256 little-endian implementation built using <systemitem>m4</systemitem> macros. This section explains how to create the assembly source file, and how to create a test program that links against the object file.</para>
     <para>The team only provides little-endian so you will need to modify the source files for big-endian. There is a <ulink url="https://github.com/PPC64/sha2-le/pull/6">pull request</ulink> that will be useful if you want both little-endian and big-endian support.</para>
     <para>The steps that follow were carried out on <systemitem>gcc112</systemitem>, which is ppc64-le. To begin, clone the project, build the sources and test the program.</para>
     <screen>$ git clone https://github.com/PPC64/sha2-le.git
@@ -70,7 +214,7 @@ Test #4:        sha2-le is Ok   libcrypto is Ok c is Ok
 $ m4 common.m4 sha256_compress_ppc.m4 &gt; sha256_compress.s
 $ as -mpower8 sha256_compress.s -o sha256_compress.o
 </screen>
-    <para>You can examine the disassembly with the following command. The output below shows round calculations.</para>
+    <para>You can examine the disassembly with the following command. The output below shows one round calculation.</para>
     <screen>$ objdump --disassemble sha256_compress.o
 sha256_compress.o:     file format elf64-powerpcle
 
@@ -174,7 +318,7 @@ int main(int argc, char* argv[])
 }
 </programlisting>
     <para>Compiling and linking to <systemitem>sha256_compress_ppc.o</systemitem> would look similar to below.</para>
-    <programlisting>$ g++ test.cxx -o test.exe sha256_compress.o
+    <programlisting>$ g++ test.cxx sha256_compress.o -o test.exe
 $ ./test.exe
 SHA256 hash of empty message: E3B0C44298FC1C14...
 Success!
