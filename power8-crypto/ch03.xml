@@ -12,8 +12,13 @@
       <primary>Feature detection</primary>
       <secondary>AIX</secondary>
     </indexterm>
-    <para>TODO: find out how to perform runtime feature detection on AIX. We checked <systemitem>getsystemcfg</systemitem> and <systemitem>sysconf</systemitem> for ISA 2.07, polynomial multiply, AES and SHA (and crypto) bits but they are missing.</para>
-    <para>The only thing we have found is <systemitem>SIGILL</systemitem> probes and signal handlers. It would be nice to avoid the nastiness.</para>
+    <para>TODO: find out how to perform runtime feature detection on AIX. We checked <systemitem>getsystemcfg</systemitem> and <systemitem>sysconf</systemitem> for AES, SHA and polynomial multiply (and vcrypto) but the bits are missing.</para>
+    <para>The only thing we know works is <systemitem>SIGILL</systemitem> probes and signal handlers. It would be nice to avoid the nastiness.</para>
+    <para>OpenSSL uses the following in <ulink url="https://github.com/openssl/openssl/blob/master/crypto/ppccap.c">ppccap.c</ulink>, but I have not read that ISA 2.07 and/or POWER8 is synonymous with vcrypto. I.e., vcrypto may be an optional or missing component for ISA 2.07.</para>
+    <programlisting>/* POWER8 and later */
+if (__power_set(0xffffffffU&lt;&lt;16))
+    OPENSSL_ppccap_P |= PPC_CRYPTO207;
+</programlisting>
     <para>[<emphasis role="italic">WJS: I'm not an AIX expert either, but I've
     send a note to someone who should be able to help us.</emphasis>]</para>
   </section>
