@@ -90,6 +90,11 @@
           <ulink url="https://www.ibm.com/developerworks/library/l-powasm4/index.html">Function calls and the PowerPC 64-bit ABI</ulink>
         </para>
       </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://www.redbooks.ibm.com/redbooks/pdfs/sg248171.pdf">Performance Optimization and Tuning Techniques for IBM Power Systems Processors Including IBM POWER8</ulink>
+        </para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="nist">
