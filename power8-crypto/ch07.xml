@@ -46,7 +46,7 @@ size_t len);
     <programlisting>void sha256_block_p8(uint32_t *state,
             const uint8_t *input, size_t blocks);
 </programlisting>
-    <para>Finally, a program that links to Cryptogams' <systemitem>sha256_block_p8</systemitem> might look like the following.</para>
+    <para>Finally, a program that links to <systemitem>sha256_block_p8</systemitem> might look like the following.</para>
     <programlisting>$ cat test.cxx
 #include &lt;stdio.h&gt;
 #include &lt;string.h&gt;
@@ -131,7 +131,7 @@ $ as -mpower8 sha256_compress.s -o sha256_compress.o
     <screen>void sha256_compress_ppc(uint32_t *state,
             const uint8_t *input, const uint32_t *keys);
 </screen>
-    <para>Finally, a program that links to sha2-le's <systemitem>sha256_compress_ppc</systemitem> might look like the following.</para>
+    <para>Finally, a program that links to <systemitem>sha256_compress_ppc</systemitem> might look like the following.</para>
     <programlisting>$ cat test.cxx
 #include &lt;stdio.h&gt;
 #include &lt;string.h&gt;

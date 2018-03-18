@@ -173,7 +173,7 @@ uint32x4_p c = vec_perm(a, b, m);
     <para/>
     <mediaobject>
       <imageobject>
-        <imagedata fileref="images/vecperm.gif" width="6in" scalefit="1" format="GIF"/>
+        <imagedata fileref="images/vecperm.gif" width="5.5in" scalefit="1" format="GIF"/>
       </imageobject>
       <textobject>
         <phrase>Permute 16 8-bit integer elements.</phrase>
