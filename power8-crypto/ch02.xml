@@ -268,7 +268,37 @@ SHA256_SCHEDULE(unsigned int*, unsigned char const*):
 ...
 </programlisting>
     <para>While not readily apparent, <systemitem>v0</systemitem> is another name for <systemitem>vs32</systemitem>, and <systemitem>v1</systemitem> is another name for <systemitem>vs33</systemitem>. So the permutation may be thought of as <systemitem>vperm vs33,vs33,vs33,vs32</systemitem> (although this will not assemble). Also see <ulink url="https://stackoverflow.com/q/49132339/608639">What does “vperm v0,v0,v0,v17” with unused v0 do?</ulink>.</para>
-    <para>Access to <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> was provided for IBM XL C/C++, but GCC only supports these intrinsic functions beginning with version 8 (Spring 2018 release).  For earlier versions of GCC, you must use inline assembly to replace the missing built-ins with <systemitem>VEC_XL_BE</systemitem> and <systemitem>VEC_ST_BE</systemitem>.  [<emphasis role="italic">WJS: Is it intended to provide definitions of these macros here?</emphasis>]</para>
+    <para>Access to <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> was provided for IBM XL C/C++, but GCC only supports these intrinsic functions beginning with version 8 (Spring 2018 release).  For earlier versions of GCC, you must use inline assembly to replace the missing built-ins with <systemitem>VEC_XL_BE</systemitem> and <systemitem>VEC_ST_BE</systemitem>.</para>
+    <para>
+      <emphasis role="italic">WJS: Is it intended to provide definitions of these macros here?</emphasis>
+    </para>
+    <para>JWW: Here are my functions to load a user message for use with SHA-256. I benchmarked them on GCC112, which is ppc64-le @3.4 GHz. I lose 2-3 cpb when using the replacement <systemitem>VEC_XL_BE</systemitem>. We may need to drop them as technically unfeasible.</para>
+    <programlisting>uint32x4_p8 VEC_XL_BE(int offset, uint8_t* data)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    return vec_xl_be(offset, data);
+#else
+    uint32x4_p8 res;
+    __asm(" lxvw4x  %x0, %1, %2    \n\t"
+          : "=wa" (res)
+          : "b" (data), "r" (offset),
+            "m" (*(unsigned char (*)[16]) &amp;data[offset]));
+    return res;
+#endif
+}
+
+template &lt;class T&gt; static inline
+uint32x4_p8 VectorLoadMsg32x4(const T* data, int offset)
+{
+#if __LITTLE_ENDIAN__
+    const uint8x16_p8 mask = {11,10,9,8, 15,14,13,12, 3,2,1,0, 7,6,5,4};
+    const uint32x4_p8 res = VEC_XL_BE(offset, (uint8_t*)data);
+    return (uint32x4_p8)vec_perm(res, res, mask);
+#else
+    return VEC_XL_BE(offset, (uint8_t*)data);
+#endif
+}
+</programlisting>
   </section>
   <section id="power8_const_ptr">
     <title>Const pointers</title>
