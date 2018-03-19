@@ -6,11 +6,12 @@
   <para>Memory alignment, loads, stores and shifts will probably cause the most trouble for someone new to PowerPC vector programming. If you are new to the platform you may want to read this chapter twice. If you are experienced with the platform then you probably want to skip this chapter.</para>
   <section id="power8_compilers">
     <title>PowerPC compilers</title>
-    <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++. The compilers are mostly the same but accept slightly different options.</para>
+    <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++ (XLC). LLVM's Clang was not tested. The compile farm lacks a Clang installation.</para>
+    <para>The GCC and XLC compilers are mostly the same but accept slightly different options. The difference usually reduces to GCC accepts architecture options using <systemitem>-march</systemitem> and <systemitem>-mcpu</systemitem>, while XLC uses <systemitem>-qarch</systemitem>. Both produce high quality code.</para>
     <para>Compiling a test program with GCC will generally look like below. The important part is <systemitem>-mcpu=power8</systemitem> which selects the POWER8 Instruction Set Architecture (ISA).</para>
     <programlisting>$ g++ -mcpu=power8 test.cxx -o test.exe
 </programlisting>
-    <para>Complimentary, compiling a test program with IBM XL C/C++ will generally look like below. The important parts are the C++ compiler name of <systemitem>xlC</systemitem>, and <systemitem>-qarch=pwr8</systemitem> which selects the POWER8 ISA.</para>
+    <para>Compiling a test program with IBM XL C/C++ will generally look like below. The important parts are the C++ compiler name of <systemitem>xlC</systemitem>, and <systemitem>-qarch=pwr8</systemitem> which selects the POWER8 ISA.</para>
     <programlisting>$ xlC -qarch=pwr8 -qaltivec test.cxx -o test.exe
 </programlisting>
     <para>When compiling source code to examine the quality of code generation the program should be compiled with <systemitem>-O3</systemitem>. Both compilers consume <systemitem>-O3</systemitem>.</para>
