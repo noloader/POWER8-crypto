@@ -59,7 +59,7 @@
       <secondary>POWER8</secondary>
     </indexterm>
     <para>Both POWER8 machines are IBM POWER System S822 with two CPU cards. <systemitem>gcc112</systemitem> has 160 logical CPUs and runs at 3.4 GHz.  <systemitem>gcc119</systemitem> has 64 logical CPUs and runs at 4.1 GHz. At 4.1 GHz and 192 GB of RAM <systemitem>gcc119</systemitem> is probably a contender for one of the fastest machine you will work on.</para>
-    <para>If you are a free and open software developer then you are eligible for a free <ulink url="https://cfarm.tetaneutral.net/">GCC Compile Farm</ulink> account. The Cfarm provides machines for different architectures, including MIPS64, Aarch64 and PowerPC64. Access is provided through SSH.</para>
+    <para>If you are a free and open software developer then you are eligible for a free <ulink url="https://cfarm.tetaneutral.net/">GCC Compile Farm</ulink> account. The Cfarm provides machines for different architectures, including MIPS64, Aarch64 and 64-bit PowerPC. Access is provided through SSH.</para>
   </section>
   <section id="intro_contribute">
     <title>Contributing</title>

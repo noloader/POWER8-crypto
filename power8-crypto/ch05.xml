@@ -33,7 +33,7 @@ VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
       <primary>SHA</primary>
       <secondary>Maj function</secondary>
     </indexterm>
-    <para>POWER8 provides the <systemitem>vsel</systemitem> instruction and it can be used for SHA's <systemitem>Maj</systemitem> function. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x^y</systemitem> used as the selector.</para>
+    <para>POWER8 provides the <systemitem>vsel</systemitem> instruction and it can be used for the SHA <systemitem>Maj</systemitem> function. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x^y</systemitem> used as the selector.</para>
     <programlisting>uint32x4_p8
 VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
 {

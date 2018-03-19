@@ -20,7 +20,7 @@
     <indexterm>
       <primary>performance</primary>
     </indexterm>
-    <para>Linux desktop systems are usually configured in either <systemitem>on-demand</systemitem> or <systemitem>powersave</systemitem> mode. The configuration is usually a kernel parameter, and the default energy states are usually effcient states that use less power. Before benchmarking you should leave <systemitem>on-demand</systemitem> or <systemitem>powersave</systemitem> mode, and enter a <systemitem>performance</systemitem> state.</para>
+    <para>Linux desktop systems are usually configured in either <systemitem>on-demand</systemitem> or <systemitem>powersave</systemitem> mode. The configuration is usually a kernel parameter, and the default energy states are usually efficient states that use less power. Before benchmarking you should leave <systemitem>on-demand</systemitem> or <systemitem>powersave</systemitem> mode, and enter a <systemitem>performance</systemitem> state.</para>
     <indexterm>
       <primary>Cryptogams</primary>
     </indexterm>
@@ -40,7 +40,7 @@ New CPU governor scaling settings:
   CPU 2: performance
   CPU 3: performance
 </screen>
-    <para>TODO: We are not aware of a similar script for AIX. In fact we don't know how to check a simialr setting to determine if a script is needed.</para>
+    <para>TODO: We are not aware of a similar script for AIX. In fact we don't know how to check a similar setting to determine if a script is needed.</para>
   </section>
   <section id="perf_comparison">
     <title>Comparison</title>

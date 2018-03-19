@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter id="ch08">
+  <title>References</title>
+  <indexterm>
+    <primary>References</primary>
+  </indexterm>
+  <section id="cryptogams">
+    <title>Cryptogams</title>
+    <indexterm>
+      <primary>Cryptogams</primary>
+    </indexterm>
+    <itemizedlist mark="bullet">
+      <listitem>
+        <para>
+          <ulink url="https://www.openssl.org/~appro/cryptogams/">CRYPTOGAMS: low-level cryptographic primitives collection</ulink>
+        </para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="github">
+    <title>GitHub</title>
+    <indexterm>
+      <primary>GitHub</primary>
+    </indexterm>
+    <itemizedlist mark="bullet">
+      <listitem>
+        <para>
+          <ulink url="https://github.com/noloader/AES-Intrinsics">AES Intrinsics</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://github.com/noloader/SHA-Intrinsics">SHA Intrinsics</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://github.com/antonblanchard/crc32-vpmsum">CRC32/vpmsum</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://github.com/PPC64/sha2-le">sha2-le</ulink>
+        </para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="ibm">
+    <title>IBM and OpenPOWER websites</title>
+    <indexterm>
+      <primary>IBM website</primary>
+    </indexterm>
+    <indexterm>
+      <primary>OpenPOWER website</primary>
+    </indexterm>
+    <itemizedlist mark="bullet">
+      <listitem>
+        <para>
+          <ulink url="https://www.ibm.com/support/knowledgecenter/en/linuxonibm/liaal/iplsdkrecbldset.htm">Recommended debug, compiler, and linker settings for Power processor tuning</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://www.ibm.com/support/knowledgecenter/en/ssw_aix_61/com.ibm.aix.genprogc/vector_prog.htm">AIX vector programming</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/index.html">POWER8 in-core cryptography</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://developer.ibm.com/linuxonpower/advance-toolchain/">IBM Advance Toolchain (for latest gcc and glibc)</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://openpowerfoundation.org/?resource_lib=64-bit-elf-v2-abi-specification-power-architecture">64-Bit ELF V2 ABI Specification: Power Architecture</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://openpowerfoundation.org/?resource_lib=power-isa-version-3-0">IBM Power ISA Version 3.0B</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://www.ibm.com/developerworks/library/l-powasm4/index.html">Function calls and the PowerPC 64-bit ABI</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://www.redbooks.ibm.com/redbooks/pdfs/sg248171.pdf">Performance Optimization and Tuning Techniques for IBM Power Systems Processors Including IBM POWER8</ulink>
+        </para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="nist">
+    <title>NIST website</title>
+    <indexterm>
+      <primary>NIST website</primary>
+    </indexterm>
+    <itemizedlist mark="bullet">
+      <listitem>
+        <para>
+          <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.197.pdf">FIPS 197, Advanced Encryption Standard (AES)</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>
+        </para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="stack">
+    <title>Stack Exchange</title>
+    <indexterm>
+      <primary>Stack Exchange</primary>
+    </indexterm>
+    <itemizedlist mark="bullet">
+      <listitem>
+        <para>
+          <ulink url="https://stackoverflow.com/q/46144668/608639">Detect Power8 in-core crypto through getauxval?</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <ulink url="https://stackoverflow.com/q/46341923/608639">Is vec_sld endian sensitive?</ulink>
+        </para>
+      </listitem>
+    </itemizedlist>
+  </section>
+</chapter>
