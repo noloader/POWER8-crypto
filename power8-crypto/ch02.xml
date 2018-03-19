@@ -183,7 +183,7 @@ uint32x4_p c = vec_perm(a, b, m);
   <section id="power8_vec_deref">
     <title>Vector dereferences</title>
     <para>
-      The <ulink url="https://openpowerfoundation.org/?resource_lib=64-bit-elf-v2-abi-specification-power-architecture">OpenPOWER ELF V2 ABI Specification</ulink>, version 1.4, incorrectly states that accessing vectors on Power should preferably be done with vector pointers and the dereference operator *.  However, this is only permitted for aligned vector references.  Examples in Chapter 6 of the ABI document show use of casting operations that represent undefined behavior according to the C standard.  An errata document that corrects the ABI may be found here: [TODO: Provide the URL once the technical problems with posting the errata have been overcome.]  Subsequent sections describe the proper way to use loads and stores of aligned and unaligned data.
+      The <ulink url="https://openpowerfoundation.org/?resource_lib=64-bit-elf-v2-abi-specification-power-architecture">OpenPOWER ELF V2 ABI Specification</ulink>, version 1.4, incorrectly states that accessing vectors on Power should preferably be done with vector pointers and the dereference operator *.  However, this is only permitted for aligned vector references.  Examples in Chapter 6 of the ABI document show use of casting operations that represent undefined behavior according to the C standard.  An errata document that corrects the ABI may be found <ulink url="https://openpowerfoundation.org/?resource_lib=openpower-elfv2-errata-elfv2-abi-version-1-4">at the OpenPOWER Foundation website</ulink>.  Subsequent sections describe the proper way to use loads and stores of aligned and unaligned data.
     </para>
   </section>
   <section id="power8_aligned_ld_st">
