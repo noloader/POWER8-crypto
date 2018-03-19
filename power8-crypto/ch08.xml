@@ -44,7 +44,8 @@ New CPU governor scaling settings:
   </section>
   <section id="perf_comparison">
     <title>Comparison</title>
-    <para>The table below presents benchmark statistics using standard C++, C++ with built-ins, and assembly language routines. The measurements were taken on <systemitem>gcc112</systemitem>, which is a Linux PowerPC, 64-bit, little-endian machine. The hardware is IBM POWER System S822 with two CPU cards, 160 logical CPUs at 3.4 GHz. The kernel is CentOS 7.4 version <systemitem>3.10.0-514</systemitem> and the compiler is GCC 7.2.0.</para>
+    <para>The table below presents benchmark statistics using standard C++, C++ with built-ins, and assembly language routines. The "standard C++" and "C++ with built-ins" columns were derived using Crypto++. The "assembly language" column was taken from Cryptogams and OpenSSL source file notes.</para>
+    <para>The measurements were taken on <systemitem>gcc112</systemitem>, which is a Linux PowerPC, 64-bit, little-endian machine. The hardware is IBM POWER System S822 with two CPU cards, 160 logical CPUs at 3.4 GHz. The kernel is CentOS 7.4 version <systemitem>3.10.0-514</systemitem> and the compiler is GCC 7.2.0.</para>
     <informaltable frame="all">
       <tgroup align="center" cols="7">
         <colspec colname="c1" colwidth="1.5in"/>
@@ -79,7 +80,7 @@ New CPU governor scaling settings:
             <entry>3151</entry>
             <entry>1.03</entry>
             <entry>-</entry>
-            <entry>-<superscript>‡</superscript></entry>
+            <entry>-<superscript>†</superscript></entry>
           </row>
           <row>
             <entry>AES/CTR</entry>
@@ -88,7 +89,7 @@ New CPU governor scaling settings:
             <entry>2544</entry>
             <entry>1.27</entry>
             <entry>-</entry>
-            <entry>0.74<superscript>†</superscript></entry>
+            <entry>0.74<superscript>‡</superscript></entry>
           </row>
           <row>
             <entry>AES/GCM</entry>
@@ -97,7 +98,7 @@ New CPU governor scaling settings:
             <entry>474</entry>
             <entry>6.8</entry>
             <entry>-</entry>
-            <entry>-<superscript>‡</superscript></entry>
+            <entry>-<superscript>†</superscript></entry>
           </row>
           <row>
             <entry>SHA-1</entry>
@@ -106,7 +107,7 @@ New CPU governor scaling settings:
             <entry>N/A</entry>
             <entry>N/A</entry>
             <entry>-</entry>
-            <entry>-<superscript>‡</superscript></entry>
+            <entry>-<superscript>†</superscript></entry>
           </row>
           <row>
             <entry>SHA-256</entry>
@@ -115,7 +116,7 @@ New CPU governor scaling settings:
             <entry>275</entry>
             <entry>12.0</entry>
             <entry>-</entry>
-            <entry>9.9<superscript>†</superscript></entry>
+            <entry>9.9<superscript>‡</superscript></entry>
           </row>
           <row>
             <entry>SHA-512</entry>
@@ -124,13 +125,13 @@ New CPU governor scaling settings:
             <entry>368</entry>
             <entry>8.8</entry>
             <entry>-</entry>
-            <entry>6.3<superscript>†</superscript></entry>
+            <entry>6.3<superscript>‡</superscript></entry>
           </row>
         </tbody>
       </tgroup>
     </informaltable>
-    <para><superscript>†</superscript> As reported in the head notes of the Cryptogams and OpenSSL source files. MiB/s is not provided, and the metric is only meaningful on the same hardware using the same test configuration.</para>
-    <para><superscript>‡</superscript> The Cryptogams and OpenSSL source files do not provide a meaningful metric for cycles per byte in this case. The metrics are reported as +150% or +90%, but we don't know what base value was used as a frame of reference.</para>
+    <para><superscript>†</superscript> The Cryptogams and OpenSSL source files do not provide a meaningful metric for cycles per byte in this case. The metrics are reported as +150% or +90%, but we don't know what base value was used as a frame of reference.</para>
+    <para><superscript>‡</superscript> As reported in the head notes of the Cryptogams and OpenSSL source files. MiB/s is not provided, and the metric is only meaningful on the same hardware using the same test configuration.</para>
     <para>POWER8 <emphasis>does not</emphasis> provide instructions for SHA-1, and based on the benchmarks it is easy to see why. A good compiler generates quality code. Other factors probably include SHA-1 has been superseded by SHA-256 and SHA-512.</para>
   </section>
 </chapter>
