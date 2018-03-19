@@ -65,6 +65,16 @@ SHA-256
 SHA512
 SHA-512
 
+altivec
+posix
+qarch
+calloc
+cpb
+crypto
+datatypes
+epi8
+inline
+
 cpu
 cpu0
 asm
