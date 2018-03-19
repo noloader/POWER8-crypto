@@ -27,6 +27,7 @@
     <para>The book does not discriminate compilers. All the samples will compile with both GCC and IBM XL C/C++. XL C/C++ is IBM's flagship compiler, and it is referred to as XLC on occasion.</para>
     <para>The samples may compile with LLVM's Clang but it was not tested. The compile farm does not have Clang installed so we could not test it. We would like to see how well Clang performs when compared to GCC and XLC. If you encounter a problem using Clang then please report it.</para>
     <para>The compiler you use can make a measurable difference on you program. For example, you will probably obtain different benchmark results using GCC and XLC. You will even obtain different benchmark results among versions of the same compiler. For example, GCC 7.2 is generally faster than GCC 4.8.5, and both SHA-256 and SHA-512 built-in implementations will speed up by about 2 cycles per byte (cpb) using GCC 7.</para>
+    <para>Compilers are discussed in more detail at <link linkend="power8_compilers">PowerPC Compilers</link>.</para>
   </section>
   <section id="intro_src_code">
     <title>Source code</title>

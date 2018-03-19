@@ -6,6 +6,36 @@
     <primary>SHA</primary>
   </indexterm>
   <para>SHA is the Secure Hash Standard. SHA is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>. You should read the standard if you are not familiar with the hash family.</para>
+  <section id="sha_strategy">
+    <title>Strategy</title>
+    <para>SHA provides a lot of freedom to an implementation. You can approach your SHA implementation in several ways, but most of them will result in an under-performing SHA. This section provides one of the strategies for a better performing implementation.</para>
+    <para>The first strategy is to perform everything in vector registers. The only integer operations should be reading 2 longs or 4 integers from memory during a load, and writing 2 longs or 4 integers after the round during a store.</para>
+    <para>Second, don't maintain a full <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> table. You only maintain the last 16 values and operate <emphasis>in-situ</emphasis> or "in-place." <systemitem>W[16]</systemitem> will be 16 each vectors in a 32x4 or 64x2 arrangement.</para>
+    <para>Third, the eight working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> each get their own vector register. The one you care about is located at element 0, the remainder of the elements in the vector are "don't care" elements.</para>
+    <para>Fourth, when you need an integer for a calculation you will shift it out from a vector register into a scratch vector register using <systemitem>vec_sld</systemitem>. Most of the time you only care about element 0 in a vector register, and the remainder of elements are "don't care" elements.</para>
+    <para>It does not matter if you rotate the working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> in the caller or in the callee. They have nearly the same performance characteristics.</para>
+    <para>Because you are operating on <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> in-place the body of your round function will look similar to below (after copying the user's message).</para>
+    <programlisting>// SHA-256 partial round function
+uint32x4_p8 X[16];
+...
+
+for (i = 16; i &lt; 64; i++)
+{
+   s0 = X[(i + 1) &amp; 0x0f];
+   s0 = sigma0(s0);
+   s1 = X[(i + 14) &amp; 0x0f];
+   s1 = sigma1(s1);
+
+   T1 = (X[i &amp; 0xf] += s0 + s1 + X[(i + 9) &amp; 0xf]);
+   T1 += h + Sigma1(e) + Ch(e, f, g) + K256[i];
+   T2 = Sigma0(a) + Maj(a, b, c);
+   h = g; g = f; f = e;
+   e = d + T1;
+   d = c; c = b; b = a;
+   a = T1 + T2;
+}
+</programlisting>
+  </section>
   <section id="sha_insn">
     <title>Sigma functions</title>
     <indexterm>
@@ -20,7 +50,7 @@
       <primary>SHA</primary>
       <secondary>Ch function</secondary>
     </indexterm>
-    <para>POWER8 provides the <systemitem>vsel</systemitem> instruction and it is SHA's <systemitem>Ch</systemitem> function. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x</systemitem> used as the selector.</para>
+    <para>POWER8 provides the <systemitem>vsel</systemitem> instruction and it is the SHA <systemitem>Ch</systemitem> function. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x</systemitem> used as the selector.</para>
     <programlisting>uint32x4_p8
 VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
 {
