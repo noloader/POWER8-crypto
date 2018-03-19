@@ -9,18 +9,20 @@
   <section id="sha_strategy">
     <title>Strategy</title>
     <para>SHA provides a lot of freedom to an implementation. You can approach your SHA implementation in several ways, but most of them will result in an under-performing SHA. This section provides one of the strategies for a better performing implementation.</para>
-    <para>The first strategy is to perform everything in vector registers. The only integer operations should be reading 2 longs or 4 integers from memory during a load, and writing 2 longs or 4 integers after the round during a store.</para>
-    <para>Second, don't maintain a full <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> table. You only maintain the last 16 values and operate <emphasis>in-situ</emphasis> or "in-place." <systemitem>W[16]</systemitem> will be 16 each vectors in a 32x4 or 64x2 arrangement.</para>
+    <para>The first design element is to perform everything in vector registers. The only integer operations should be reading 2 longs or 4 integers from memory during a load, and writing 2 longs or 4 integers after the round during a store.</para>
+    <para>Second, don't maintain a full <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> table. <systemitem>W[16]</systemitem> will be 16 each vectors in a 32x4 or 64x2 arrangement and operate in-place using a rolling strategy.</para>
     <para>Third, the eight working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> each get their own vector register. The one you care about is located at element 0, the remainder of the elements in the vector are "don't care" elements.</para>
-    <para>Fourth, when you need an integer for a calculation you will shift it out from a vector register into a scratch vector register using <systemitem>vec_sld</systemitem>. Most of the time you only care about element 0 in a vector register, and the remainder of elements are "don't care" elements.</para>
-    <para>It does not matter if you rotate the working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> in the caller or in the callee. They have nearly the same performance characteristics.</para>
-    <para>Because you are operating on <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> in-place the body of your round function will look similar to below (after copying the user's message).</para>
-    <programlisting>// SHA-256 partial round function
+    <para>Fourth, when you need an integer for a calculation you will shift it out from a vector register to another vector register using <systemitem>vec_sld</systemitem>. Most of the time you only care about element 0 in a vector register, and the remainder of elements are "don't care" elements.</para>
+    <para>It does not matter if you rotate the working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> in the caller or in the callee. Both designs have nearly the same performance characteristics.</para>
+    <para>Because you are operating on <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> in-place the main body of your compression function will look similar to below (after copying the user's message).</para>
+    <programlisting>// SHA-256 partial compression function
 uint32x4_p8 X[16];
 ...
 
 for (i = 16; i &lt; 64; i++)
 {
+   uint32x4_p8 s0, s1, T0, T1;
+
    s0 = X[(i + 1) &amp; 0x0f];
    s0 = sigma0(s0);
    s1 = X[(i + 14) &amp; 0x0f];
