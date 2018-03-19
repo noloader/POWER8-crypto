@@ -63,7 +63,7 @@
 # error "Big-endian system"
 #endif
 </programlisting>
-    <para>The compilers can show the endian-related preprocessor macros available on a platform. Below is from GCC on <systemitem>gcc112</systemitem> from the <link linkend="cfarm">compile farm</link>, which is ppc64-le.</para>
+    <para>The compilers can show the endian-related preprocessor macros available on a platform. Below is from GCC on <systemitem>gcc112</systemitem> from the <link linkend="intro_cfarm">compile farm</link>, which is ppc64-le.</para>
     <screen>$ g++ -dM -E test.cxx | grep -i endian
 #define __ORDER_LITTLE_ENDIAN__ 1234
 #define _LITTLE_ENDIAN 1
@@ -73,7 +73,7 @@
 #define __ORDER_BIG_ENDIAN__ 4321
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
 </screen>
-    <para>And the complimentary view from IBM XL C/C++ on <systemitem>gcc112</systemitem> from the <link linkend="cfarm">compile farm</link>, which is ppc64-le.</para>
+    <para>And the complimentary view from IBM XL C/C++ on <systemitem>gcc112</systemitem> from the <link linkend="intro_cfarm">compile farm</link>, which is ppc64-le.</para>
     <screen>$ xlC -qshowmacros -E test.cxx | grep -i endian
 #define _LITTLE_ENDIAN 1
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
@@ -84,7 +84,7 @@
 #define __ORDER_PDP_ENDIAN__ 3412
 #define __VEC_ELEMENT_REG_ORDER__ __ORDER_LITTLE_ENDIAN__
 </screen>
-    <para>However, below is <systemitem>gcc119</systemitem> from the <link linkend="cfarm">compile farm</link>, which is ppc64-be. It runs AIX and notice <systemitem>__BYTE_ORDER__</systemitem>, <systemitem>__ORDER_BIG_ENDIAN__</systemitem> and <systemitem>__ORDER_LITTLE_ENDIAN__</systemitem> are not present.</para>
+    <para>However, below is <systemitem>gcc119</systemitem> from the <link linkend="intro_cfarm">compile farm</link>, which is ppc64-be. It runs AIX and notice <systemitem>__BYTE_ORDER__</systemitem>, <systemitem>__ORDER_BIG_ENDIAN__</systemitem> and <systemitem>__ORDER_LITTLE_ENDIAN__</systemitem> are not present.</para>
     <screen>$ xlC -qshowmacros -E test.cxx | grep -i endian
 #define __BIG_ENDIAN__ 1
 #define _BIG_ENDIAN 1
