@@ -202,7 +202,7 @@ uint32x4_p8 VectorLoad(const T* mem_addr, int offset)
     assert(maddr == eaddr);
 #endif
 
-    return (uint32x4_p8)vec_ld(offset, (uint8_t*)mem_addr);
+    return (uint32x4_p8)vec_ld(offset, mem_addr);
 }
 </programlisting>
     <para>The C/C++ code to perform a store using <systemitem>vec_st</systemitem> should look similar to below.</para>
@@ -216,7 +216,7 @@ void VectorStore(const uint32x4_p8 val, T* mem_addr, int offset)
     assert(maddr == eaddr);
 #endif
 
-    vec_st((uint8x16_p8)val, offset, (uint8_t*)mem_addr);
+    vec_st((uint8x16_p8)val, offset, mem_addr);
 }
 </programlisting>
     <!--
@@ -232,9 +232,9 @@ void VectorStore(const uint32x4_p8 val, T* mem_addr, int offset)
 uint32x4_p8 VectorLoadu(const T* mem_addr, int offset)
 {
 #if defined(__xlc__) || defined(__xlC__)
-    return (uint32x4_p8)vec_xl(offset, (uint8_t*)mem_addr);
+    return (uint32x4_p8)vec_xl(offset, mem_addr);
 #else
-    return (uint32x4_p8)vec_vsx_ld(offset, (uint8_t*)mem_addr);
+    return (uint32x4_p8)vec_vsx_ld(offset, mem_addr);
 #endif
 }
 </programlisting>
@@ -243,9 +243,9 @@ uint32x4_p8 VectorLoadu(const T* mem_addr, int offset)
 void VectorStoreu(const uint32x4_p8 val, T* mem_addr, int offset)
 {
 #if defined(__xlc__) || defined(__xlC__)
-    vec_xst((uint8x16_p8)val, offset, (uint8_t*)mem_addr);
+    vec_xst((uint8x16_p8)val, offset, mem_addr);
 #else
-    vec_vsx_st((uint8x16_p8)val, offset, (uint8_t*)mem_addr);
+    vec_vsx_st((uint8x16_p8)val, offset, mem_addr);
 #endif
 }
 </programlisting>
@@ -296,10 +296,10 @@ uint32x4_p8 VectorLoadMsg32x4(const T* data, int offset)
 {
 #if __LITTLE_ENDIAN__
     const uint8x16_p8 mask = {11,10,9,8, 15,14,13,12, 3,2,1,0, 7,6,5,4};
-    const uint32x4_p8 res = VEC_XL_BE(offset, (uint8_t*)data);
+    const uint32x4_p8 res = VEC_XL_BE(offset, data);
     return (uint32x4_p8)vec_perm(res, res, mask);
 #else
-    return VEC_XL_BE(offset, (uint8_t*)data);
+    return VEC_XL_BE(offset, data);
 #endif
 }
 </programlisting>
@@ -313,7 +313,7 @@ uint32x4_p8 VectorLoadMsg32x4(const T* data, int offset)
 uint32x4_p8 VectorLoad(const T* mem_addr, int offset)
 {
     // mem_addr must be aligned to 16-byte boundary
-    return (uint32x4_p8)vec_ld(offset, (uint8_t*)mem_addr);
+    return (uint32x4_p8)vec_ld(offset, mem_addr);
 }
 </programlisting>
   </section>
