@@ -169,7 +169,7 @@ uint8x16_p m = {0,1,2,3, 16,17,18,19, 4,5,6,7, 20,21,22,23};
 uint32x4_p c = vec_perm(a, b, m);
 </programlisting>
     <para>After the code above executes the vector <systemitem>c</systemitem> will have the value <systemitem>{0, -1, 0, -1}</systemitem>.</para>
-    <para>Below is the image IBM provides for the <systemitem>vec_perm</systemitem> documentation. The IBM example shows <systemitem>d = vec_perm(a, b, c)</systemitem>. The light grey blocks in vector <systemitem>d</systemitem> are from the first vector, and dark grey blocks in vector <systemitem>d</systemitem> are from the second vector.</para>
+    <para>Below is the image IBM provides for the <systemitem>vec_perm</systemitem> documentation. The IBM example shows <systemitem>d = vec_perm(a, b, c)</systemitem>. The light gray blocks in vector <systemitem>d</systemitem> are from the first vector, and dark gray blocks in vector <systemitem>d</systemitem> are from the second vector.</para>
     <para/>
     <mediaobject>
       <imageobject>

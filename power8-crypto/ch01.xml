@@ -39,7 +39,7 @@
       <secondary>C/C++</secondary>
     </indexterm>
     <para>The source code in the book is a mix of C and C++. The SHA-256 and SHA-512 samples were written in C++ to avoid compile errors due to the SHA API requiring 4-bit literal constants. We could not pass parameters through functions and obtain the necessary <systemitem>constexpr</systemitem>-ness so template parameters were used instead.</para>
-    <para>There is no source code to download <emphasis>per se</emphasis>. The code is taken from Botan, Crypto++ and OpenSSL free software projects. Some code is taken from Andy Polyakov's Cryptogams. Some code is taken from GitHub projects. Some code was written and thrown away after testing.</para>
+    <para>There is no source code to download <emphasis>per se</emphasis>. The code is taken from Botan, Crypto++ and OpenSSL free software projects. Some code is taken from Andy Polyakov and Cryptogams. Some code is taken from GitHub projects. And some code was written and thrown away after testing.</para>
   </section>
   <section id="intro_cfarm">
     <title>Compile Farm</title>

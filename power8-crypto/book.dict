@@ -5,13 +5,17 @@ ABIs
 
 Botan
 Crypto++
-Cryptogams
+cryptogams
 DocBook
+administrivia
+Cfarm
 GitHub
 FIPS
 NIST
 OpenSSL
-sha2-le
+
+Andy
+Polyakov
 
 AIX
 CentOS
@@ -185,18 +189,18 @@ uint32_t
 uint8
 uint8_t
 
-'aix32'
-'aix64'
-'elf'
-'elf32'
-'linux32'
-'linux64'
-'linux64le'
-'macosx'
-'mingw64'
-'nasm'
-'osx32'
-'osx64'
+aix32
+aix64
+elf
+elf32
+linux32
+linux64
+linux64le
+macosx
+mingw64
+nasm
+osx32
+osx64
 
 malloc
 mcpu
