@@ -2,89 +2,41 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="ch01">
   <title>Introduction</title>
-  <indexterm>
-    <primary>Introduction</primary>
-  </indexterm>
-  <para>This document is a guide to using IBM's <ulink url="https://www.ibm.com/developerworks/learn/security/index.html">POWER8 in-core cryptography</ulink>. The purpose of the book is to document in-core cryptography more completely for developers and quality assurance personnel who wish to take advantage of the features.</para>
+  <para><indexterm><primary>Introduction</primary></indexterm>This document is a guide to using IBM's <ulink url="https://www.ibm.com/developerworks/learn/security/index.html">POWER8 in-core cryptography</ulink>. The purpose of the book is to document in-core cryptography more completely for developers and quality assurance personnel who wish to take advantage of the features.</para>
   <para>POWER8 in-core cryptography includes CPU instructions to accelerate AES, SHA-256, SHA-512 and polynomial multiplication. This document includes treatments of AES, SHA-256 and SHA-512. It does not include a discussion of polynomial multiplication at the moment, but the chapter is stubbed-out (and waiting for a contributor).</para>
   <para>The POWER8 extensions for in-core cryptography find their ancestry in the Altivec SIMD coprocessor. The POWER8 vector unit includes Vector-Scalar Extensions (VSX) and the instruction set for in-core cryptography is a part of it. You can find additional information on VSX in Chapter 7 of the <ulink url="https://openpowerfoundation.org/?resource_lib=power-isa-version-3-0">IBM Power ISA Version 3.0B</ulink> at the OpenPOWER Foundation website<!-- at IBM's website at <ulink url="https://www.ibm.com/developerworks/">TODO</ulink -->.</para>
   <section id="intro_compilers">
     <title>Compilers</title>
-    <indexterm>
-      <primary>GCC</primary>
-    </indexterm>
-    <indexterm>
-      <primary>XL C/C++</primary>
-    </indexterm>
-    <indexterm>
-      <primary>Compiler</primary>
-      <secondary>GCC</secondary>
-    </indexterm>
-    <indexterm>
-      <primary>Compiler</primary>
-      <secondary>XL C/C++</secondary>
-    </indexterm>
-    <para>The book does not discriminate compilers. All the samples will compile with both GCC and IBM XL C/C++. XL C/C++ is IBM's flagship compiler, and it is referred to as XLC on occasion.</para>
+    <para><indexterm><primary>GCC</primary></indexterm><indexterm><primary>XL C/C++</primary></indexterm><indexterm><primary>Compiler</primary><secondary>GCC</secondary></indexterm><indexterm><primary>Compiler</primary><secondary>XL C/C++</secondary></indexterm>The book does not discriminate compilers. All the samples will compile with both GCC and IBM XL C/C++. XL C/C++ is IBM's flagship compiler, and it is referred to as XLC on occasion.</para>
     <para>The samples may compile with LLVM's Clang but it was not tested. The compile farm does not have Clang installed so we could not test it. We would like to see how well Clang performs when compared to GCC and XLC. If you encounter a problem using Clang then please report it.</para>
     <para>The compiler you use can make a measurable difference on you program. For example, you will probably obtain different benchmark results using GCC and XLC. You will even obtain different benchmark results among versions of the same compiler. For example, GCC 7.2 is generally faster than GCC 4.8.5, and both SHA-256 and SHA-512 built-in implementations will speed up by about 2 cycles per byte (cpb) using GCC 7.</para>
     <para>Compilers are discussed in more detail at <link linkend="power8_compilers">PowerPC Compilers</link>.</para>
   </section>
   <section id="intro_src_code">
     <title>Source code</title>
-    <para>The source code in the book is a mix of C and C++. The SHA-256 and SHA-512 samples were written in C++ to avoid compile errors due to the SHA API requiring 4-bit literal constants. We could not pass parameters through functions and obtain the necessary <systemitem>constexpr</systemitem>-ness so template parameters were used instead.</para>
+    <para><indexterm><primary>Source code</primary></indexterm>The source code in the book is a mix of C and C++. The SHA-256 and SHA-512 samples were written in C++ to avoid compile errors due to the SHA API requiring 4-bit literal constants. We could not pass parameters through functions and obtain the necessary <systemitem>constexpr</systemitem>-ness so template parameters were used instead.</para>
     <para>There is no source code to download <emphasis>per se</emphasis>. The code is taken from Botan, Crypto++ and OpenSSL free software projects. Some code is taken from Andy Polyakov and Cryptogams. Some code is taken from GitHub projects. And some code was written and thrown away after testing.</para>
   </section>
   <section id="intro_cfarm">
     <title>Compile Farm</title>
-    <indexterm>
-      <primary>Compile farm</primary>
-    </indexterm>
-    <indexterm>
-      <primary>Compile farm</primary>
-      <secondary>gcc112</secondary>
-    </indexterm>
-    <indexterm>
-      <primary>Compile farm</primary>
-      <secondary>gcc119</secondary>
-    </indexterm>
-    <para>The book makes frequent references to <systemitem class="domainname">gcc112</systemitem> and <systemitem class="domainname">gcc119</systemitem> from the GCC Compile Farm. The Compile Farm offers four 64-bit PowerPC machines, and <systemitem>gcc112</systemitem> and <systemitem>gcc119</systemitem> are the POWER8 iron (the other two are POWER7 hardware). <systemitem>gcc112</systemitem> is a Linux PowerPC, 64-bit, little-endian machine (ppc64-le), and <systemitem>gcc119</systemitem> is an AIX PowerPC, 64-bit, big-endian machine (ppc64-be).</para>
+    <para><indexterm><primary>Compile farm</primary></indexterm><indexterm><primary>Compile farm</primary><secondary>gcc112</secondary></indexterm><indexterm><primary>Compile farm</primary><secondary>gcc119</secondary></indexterm>The book makes frequent references to <systemitem class="domainname">gcc112</systemitem> and <systemitem class="domainname">gcc119</systemitem> from the GCC Compile Farm. The Compile Farm offers four 64-bit PowerPC machines, and <systemitem>gcc112</systemitem> and <systemitem>gcc119</systemitem> are the POWER8 iron (the other two are POWER7 hardware). <systemitem>gcc112</systemitem> is a Linux PowerPC, 64-bit, little-endian machine (ppc64-le), and <systemitem>gcc119</systemitem> is an AIX PowerPC, 64-bit, big-endian machine (ppc64-be).</para>
     <para>Both POWER8 machines are IBM POWER System S822 with two CPU cards. <systemitem>gcc112</systemitem> has 160 logical CPUs and runs at 3.4 GHz.  <systemitem>gcc119</systemitem> has 64 logical CPUs and runs at 4.1 GHz. At 4.1 GHz and 192 GB of RAM <systemitem>gcc119</systemitem> is probably a contender for one of the fastest machine you will work on.</para>
     <para>If you are a free and open software developer then you are eligible for a free <ulink url="https://cfarm.tetaneutral.net/">GCC Compile Farm</ulink> account. The Cfarm provides machines for different architectures, including MIPS64, Aarch64 and 64-bit PowerPC. Access is provided through SSH.</para>
     <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be careful of the default GCC compiler. It is probably GCC 4.8.5, and you usually get better code generation and performance with GCC 7.2 located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
   </section>
   <section id="intro_contribute">
     <title>Contributing</title>
-    <indexterm>
-      <primary>Contributing</primary>
-    </indexterm>
-    <para>This book is free software. If you see an opportunity for improvement, an error or an omission then please submit a pull request or open a bug report.</para>
+    <para><indexterm><primary>Contributing</primary></indexterm>This book is free software. If you see an opportunity for improvement, an error or an omission then please submit a pull request or open a bug report.</para>
   </section>
   <section id="intro_organization">
     <title>Organization</title>
-    <indexterm>
-      <primary>Administrivia</primary>
-    </indexterm>
-    <para>The book proceeds in six parts. First, administrivia is discussed, like how to determine machine endianness and how to load and store a vector from memory. A full treatment of vector programming is its own book, but the discussion should be adequate to move on to the more interesting tasks.</para>
-    <indexterm>
-      <primary>AES</primary>
-    </indexterm>
-    <para>Second, AES is discussed. AES is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.197.pdf">FIPS 197, Advanced Encryption Standard (AES)</ulink>. You should read the standard if you are not familiar with the block cipher.</para>
-    <indexterm>
-      <primary>SHA</primary>
-    </indexterm>
-    <para>Third, SHA is discussed. SHA is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>. You should read the standard if you are not familiar with the hash.</para>
-    <indexterm>
-      <primary>Polynomial multiplication</primary>
-    </indexterm>
-    <para>Fourth, polynomial multiplication is discussed. Polynomial multiplications is important for CRC-32, CRC-32C and GCM mode of operation for AES.</para>
+    <para><indexterm><primary>Administrivia</primary></indexterm>The book proceeds in six parts. First, administrivia is discussed, like how to determine machine endianness and how to load and store a vector from memory. A full treatment of vector programming is its own book, but the discussion should be adequate to move on to the more interesting tasks.</para>
+    <para><indexterm><primary>Feature detection</primary></indexterm>Second, runtime feature detections is discussed for AIX and Linux. Runtime feature detection allows you to switch to a faster implementation at runtime when the hardware provides the support.</para>
+    <para><indexterm><primary>AES</primary></indexterm>Third, AES is discussed. AES is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.197.pdf">FIPS 197, Advanced Encryption Standard (AES)</ulink>. You should read the standard if you are not familiar with the block cipher.</para>
+    <para><indexterm><primary>SHA</primary></indexterm>Fourth, SHA is discussed. SHA is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>. You should read the standard if you are not familiar with the hash.</para>
+    <para><indexterm><primary>Polynomial multiplication</primary></indexterm>Fifth, polynomial multiplication is discussed. Polynomial multiplications is important for CRC-32, CRC-32C and GCM mode of operation for AES.</para>
     <para>Fifth, performance is discussed. The implementations are compared against C and C++ routines and assembly language routines from OpenSSL. The OpenSSL routines are high quality and written by Andy Polyakov.</para>
-    <indexterm>
-      <primary>Assembly language</primary>
-    </indexterm>
-    <para>Fifth, assembly language integration is discussed. Andy Polyakov dual licenses his cryptographic implementations and you can use his routines once you know how to integrate them.</para>
-    <indexterm>
-      <primary>Performance</primary>
-    </indexterm>
-    <para>Finally, performance and benchmarking is discussed. C/C++, C++ using built-ins and assembly language routines are benchmarked using GCC.</para>
+    <para><indexterm><primary>Assembly language</primary></indexterm>Sixth, assembly language integration is discussed. Andy Polyakov dual licenses his cryptographic implementations and you can use his routines once you know how to integrate them.</para>
+    <para><indexterm><primary>Performance</primary></indexterm>Finally, performance and benchmarking is discussed. C/C++, C++ using built-ins and assembly language routines are benchmarked using GCC.</para>
   </section>
 </chapter>
