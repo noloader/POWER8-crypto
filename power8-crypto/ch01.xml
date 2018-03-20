@@ -30,13 +30,13 @@
   </section>
   <section id="intro_organization">
     <title>Organization</title>
-    <para><indexterm><primary>Administrivia</primary></indexterm>The book proceeds in six parts. First, administrivia is discussed, like how to determine machine endianness and how to load and store a vector from memory. A full treatment of vector programming is its own book, but the discussion should be adequate to move on to the more interesting tasks.</para>
-    <para><indexterm><primary>Feature detection</primary></indexterm>Second, runtime feature detections is discussed for AIX and Linux. Runtime feature detection allows you to switch to a faster implementation at runtime when the hardware provides the support.</para>
+    <para><indexterm><primary>Administrivia</primary></indexterm>The book proceeds in eight parts. First, administrivia is discussed, like how to determine machine endianness and how to load and store a vector from memory. A full treatment of vector programming is its own book, but the discussion should be adequate to move on to the more interesting tasks.</para>
+    <para><indexterm><primary>Feature detection</primary></indexterm>Second, runtime feature detections is discussed for AIX and Linux. Runtime detection allows you to switch to a faster implementation at runtime when the hardware provides the support.</para>
     <para><indexterm><primary>AES</primary></indexterm>Third, AES is discussed. AES is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.197.pdf">FIPS 197, Advanced Encryption Standard (AES)</ulink>. You should read the standard if you are not familiar with the block cipher.</para>
     <para><indexterm><primary>SHA</primary></indexterm>Fourth, SHA is discussed. SHA is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>. You should read the standard if you are not familiar with the hash.</para>
     <para><indexterm><primary>Polynomial multiplication</primary></indexterm>Fifth, polynomial multiplication is discussed. Polynomial multiplications is important for CRC-32, CRC-32C and GCM mode of operation for AES.</para>
-    <para>Fifth, performance is discussed. The implementations are compared against C and C++ routines and assembly language routines from OpenSSL. The OpenSSL routines are high quality and written by Andy Polyakov.</para>
-    <para><indexterm><primary>Assembly language</primary></indexterm>Sixth, assembly language integration is discussed. Andy Polyakov dual licenses his cryptographic implementations and you can use his routines once you know how to integrate them.</para>
+    <para>Sixth, performance is discussed. The implementations are compared against C and C++ routines and assembly language routines from OpenSSL. The OpenSSL routines are high quality and written by Andy Polyakov.</para>
+    <para><indexterm><primary>Assembly language</primary></indexterm>Seventh, assembly language integration is discussed. Andy Polyakov dual licenses his cryptographic implementations and you can use his routines once you know how to integrate them.</para>
     <para><indexterm><primary>Performance</primary></indexterm>Finally, performance and benchmarking is discussed. C/C++, C++ using built-ins and assembly language routines are benchmarked using GCC.</para>
   </section>
 </chapter>

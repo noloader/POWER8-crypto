@@ -14,7 +14,7 @@
     <para>Third, the eight working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> each get their own vector register. The one you care about is located at element 0, the remainder of the elements in the vector are "don't care" elements.</para>
     <para>Fourth, when you need an integer for a calculation you will shift it out from a vector register to another vector register using <systemitem>vec_sld</systemitem>. Most of the time you only care about element 0 in a vector register, and the remainder of elements are "don't care" elements.</para>
     <para>It does not matter if you rotate the working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> in the caller or in the callee. Both designs have nearly the same performance characteristics.</para>
-    <para>Because you are operating on <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> in-place the main body of your compression function will look similar to below (after copying the user's message).</para>
+    <para>Because you are operating on <systemitem>W[16]</systemitem> instead of <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> the main body of your compression function will look similar to below.</para>
     <programlisting>// SHA-256 partial compression function
 uint32x4_p8 X[16];
 ...
@@ -29,7 +29,7 @@ for (i = 16; i &lt; 64; i++)
    s1 = sigma1(s1);
 
    T1 = (X[i &amp; 0xf] += s0 + s1 + X[(i + 9) &amp; 0xf]);
-   T1 += h + Sigma1(e) + Ch(e, f, g) + K256[i];
+   T1 += h + Sigma1(e) + Ch(e, f, g) + KEY[i];
    T2 = Sigma0(a) + Maj(a, b, c);
    h = g; g = f; f = e;
    e = d + T1;
@@ -40,19 +40,11 @@ for (i = 16; i &lt; 64; i++)
   </section>
   <section id="sha_insn">
     <title>Sigma functions</title>
-    <indexterm>
-      <primary>SHA</primary>
-      <secondary>Sigma functions</secondary>
-    </indexterm>
-    <para>POWER8 provides the <systemitem>vshasigmaw</systemitem> and <systemitem>vshasigmad</systemitem> instructions to accelerate SHA calculations for 32-bit and 64-bit quantities, respectively. The instructions take two integer arguments and the constants are used to select among <systemitem>Sigma0</systemitem>, <systemitem>Sigma1</systemitem>, <systemitem>sigma0</systemitem> and <systemitem>sigma1</systemitem>.</para>
+    <para><indexterm><primary>SHA</primary><secondary>Sigma functions</secondary></indexterm>POWER8 provides the <systemitem>vshasigmaw</systemitem> and <systemitem>vshasigmad</systemitem> instructions to accelerate SHA calculations for 32-bit and 64-bit words, respectively. The instructions take two integer arguments and the constants are used to select among <systemitem>Sigma0</systemitem>, <systemitem>Sigma1</systemitem>, <systemitem>sigma0</systemitem> and <systemitem>sigma1</systemitem>.</para>
   </section>
   <section id="sha_ch">
     <title>Ch function</title>
-    <indexterm>
-      <primary>SHA</primary>
-      <secondary>Ch function</secondary>
-    </indexterm>
-    <para>POWER8 provides the <systemitem>vsel</systemitem> instruction and it is the SHA <systemitem>Ch</systemitem> function. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x</systemitem> used as the selector.</para>
+    <para><indexterm><primary>SHA</primary><secondary>Ch function</secondary></indexterm>The SHA <systemitem>Ch</systemitem> function is implemented in POWER systems using the <systemitem>vsel</systemitem> instruction or the <systemitem>vec_sel</systemitem> built-in. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x</systemitem> used as the selector.</para>
     <programlisting>uint32x4_p8
 VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
 {
@@ -61,11 +53,7 @@ VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
   </section>
   <section id="sha_maj">
     <title>Maj function</title>
-    <indexterm>
-      <primary>SHA</primary>
-      <secondary>Maj function</secondary>
-    </indexterm>
-    <para>POWER8 provides the <systemitem>vsel</systemitem> instruction and it can be used for the SHA <systemitem>Maj</systemitem> function. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x^y</systemitem> used as the selector.</para>
+    <para><indexterm><primary>SHA</primary><secondary>Maj function</secondary></indexterm>The SHA <systemitem>Maj</systemitem> function is implemented in POWER systems using the <systemitem>vsel</systemitem> instruction or the <systemitem>vec_sel</systemitem> built-in. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x^y</systemitem> used as the selector.</para>
     <programlisting>uint32x4_p8
 VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
 {
