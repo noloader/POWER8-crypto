@@ -2,44 +2,11 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="ch09">
   <title>Performance</title>
-  <indexterm>
-    <primary>Performance</primary>
-  </indexterm>
-  <indexterm>
-    <primary>Benchmark</primary>
-  </indexterm>
-  <para>This chapter presents benchmarking numbers and discusses some of the issues that affect performance. Benchmarking an application is an art and can be tricky to collect accurate results.</para>
+  <para><indexterm><primary>Performance</primary></indexterm><indexterm><primary>Benchmark</primary></indexterm>This chapter presents benchmarking numbers and discusses some of the issues that affect performance. Benchmarking an application is an art and can be tricky to collect accurate results.</para>
   <section id="perf_powersave">
     <title>Power states</title>
-    <indexterm>
-      <primary>powersave</primary>
-    </indexterm>
-    <indexterm>
-      <primary>on-demand</primary>
-    </indexterm>
-    <indexterm>
-      <primary>performance</primary>
-    </indexterm>
-    <indexterm>
-      <primary>Power state</primary>
-      <secondary>powersave</secondary>
-    </indexterm>
-    <indexterm>
-      <primary>Power state</primary>
-      <secondary>on-demand</secondary>
-    </indexterm>
-    <indexterm>
-      <primary>Power state</primary>
-      <secondary>performance</secondary>
-    </indexterm>
-    <para>Linux desktop systems are usually configured in either <systemitem>on-demand</systemitem> or <systemitem>powersave</systemitem> mode. The configuration is usually a kernel parameter, and the default energy states are usually efficient states that use less power. Before benchmarking you should leave <systemitem>on-demand</systemitem> or <systemitem>powersave</systemitem> mode, and enter a <systemitem>performance</systemitem> state.</para>
-    <indexterm>
-      <primary>Cryptogams</primary>
-    </indexterm>
-    <indexterm>
-      <primary>Andy Polyakov</primary>
-    </indexterm>
-    <para>Cryptogams uses a script to enter <systemitem>performance</systemitem> mode for benchmarking but it is not available online. A modified version of Andy's script is available at <ulink url="https://github.com/weidai11/cryptopp/blob/master/TestScripts/governor.sh"><systemitem>governor.sh</systemitem></ulink>. The script changes the scaling frequency using the <systemitem>/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor</systemitem> key (where <systemitem>cpu*</systemitem> is a logical cpu, like <systemitem>cpu0</systemitem>). Below is an example of running the script on a x86_64 Linux system.</para>
+    <para><indexterm><primary>Powersave</primary></indexterm><indexterm><primary>On-demand</primary></indexterm><indexterm><primary>Performance</primary></indexterm><indexterm><primary>Power state</primary><secondary>powersave</secondary></indexterm><indexterm><primary>Power state</primary><secondary>on-demand</secondary></indexterm><indexterm><primary>Power state</primary><secondary>performance</secondary></indexterm>Linux desktop systems are usually configured in either <systemitem>on-demand</systemitem> or <systemitem>powersave</systemitem> mode. The configuration is usually a kernel parameter, and the default energy states are usually efficient states that use less power. Before benchmarking you should leave <systemitem>on-demand</systemitem> or <systemitem>powersave</systemitem> mode, and enter a <systemitem>performance</systemitem> state.</para>
+    <para><indexterm><primary>Cryptogams</primary></indexterm><indexterm><primary>Andy Polyakov</primary></indexterm>Cryptogams uses a script to enter <systemitem>performance</systemitem> mode for benchmarking but it is not available online. A modified version of Andy's script is available at <ulink url="https://github.com/weidai11/cryptopp/blob/master/TestScripts/governor.sh"><systemitem>governor.sh</systemitem></ulink>. The script changes the scaling frequency using the <systemitem>/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor</systemitem> key (where <systemitem>cpu*</systemitem> is a logical cpu, like <systemitem>cpu0</systemitem>). Below is an example of running the script on a x86_64 Linux system.</para>
     <screen>$ sudo ./governor.sh perf
 Current CPU governor scaling settings:
   CPU 0: powersave
@@ -56,7 +23,7 @@ New CPU governor scaling settings:
   </section>
   <section id="perf_comparison">
     <title>Comparison</title>
-    <para>The table below presents benchmark statistics using standard C++, C++ with built-ins, and assembly language routines. The "standard C++" and "C++ with built-ins" columns were derived using Crypto++. The "assembly language" column was taken from Cryptogams and OpenSSL source file notes.</para>
+    <para><indexterm><primary>Benchmarks</primary></indexterm>The table below presents benchmark statistics using standard C++, C++ with built-ins, and assembly language routines. The "standard C++" and "C++ with built-ins" columns were derived using Crypto++. The "assembly language" column was taken from Cryptogams and OpenSSL source file notes.</para>
     <para>The measurements were taken on <systemitem>gcc112</systemitem>, which is a Linux PowerPC, 64-bit, little-endian machine. The hardware is IBM POWER System S822 with two CPU cards, 160 logical CPUs at 3.4 GHz. The kernel is CentOS 7.4 version <systemitem>3.10.0-514</systemitem> and the compiler is GCC 7.2.0.</para>
     <informaltable frame="all">
       <tgroup align="center" cols="7">
@@ -142,7 +109,7 @@ New CPU governor scaling settings:
         </tbody>
       </tgroup>
     </informaltable>
-    <para><superscript>†</superscript> The Cryptogams and OpenSSL source files do not provide a meaningful metric for cycles per byte in this case. The metrics are reported as +150% or +90%, but we don't know what base value was used as a frame of reference.</para>
+    <para><superscript>†</superscript> The Cryptogams and OpenSSL source files do not provide a meaningful metric for cycles per byte in this case. The metrics are reported as +150% or +90%, but we don't know the frame of reference.</para>
     <para><superscript>‡</superscript> As reported in the head notes of the Cryptogams and OpenSSL source files. MiB/s is not provided, and the metric is only meaningful on the same hardware using the same test configuration.</para>
     <para>POWER8 <emphasis>does not</emphasis> provide instructions for SHA-1, and based on the benchmarks it is easy to see why. A good compiler generates quality code. Other factors probably include SHA-1 has been superseded by SHA-256 and SHA-512.</para>
   </section>
