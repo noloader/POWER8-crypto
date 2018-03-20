@@ -31,13 +31,6 @@
   </section>
   <section id="intro_src_code">
     <title>Source code</title>
-    <indexterm>
-      <primary>Source code</primary>
-    </indexterm>
-    <indexterm>
-      <primary>Source code</primary>
-      <secondary>C/C++</secondary>
-    </indexterm>
     <para>The source code in the book is a mix of C and C++. The SHA-256 and SHA-512 samples were written in C++ to avoid compile errors due to the SHA API requiring 4-bit literal constants. We could not pass parameters through functions and obtain the necessary <systemitem>constexpr</systemitem>-ness so template parameters were used instead.</para>
     <para>There is no source code to download <emphasis>per se</emphasis>. The code is taken from Botan, Crypto++ and OpenSSL free software projects. Some code is taken from Andy Polyakov and Cryptogams. Some code is taken from GitHub projects. And some code was written and thrown away after testing.</para>
   </section>
@@ -54,11 +47,7 @@
       <primary>Compile farm</primary>
       <secondary>gcc119</secondary>
     </indexterm>
-    <para>The book makes frequent references to <systemitem>gcc112</systemitem> and <systemitem>gcc119</systemitem> from the GCC Compile Farm. The Compile Farm offers four 64-bit PowerPC machines, and <systemitem>gcc112</systemitem> and <systemitem>gcc119</systemitem> are the POWER8 iron (the other two are POWER7 hardware). <systemitem>gcc112</systemitem> is a Linux PowerPC, 64-bit, little-endian machine (ppc64-le), and <systemitem>gcc119</systemitem> is an AIX PowerPC, 64-bit, big-endian machine (ppc64-be).</para>
-    <indexterm>
-      <primary>Compile farm</primary>
-      <secondary>POWER8</secondary>
-    </indexterm>
+    <para>The book makes frequent references to <systemitem class="domainname">gcc112</systemitem> and <systemitem class="domainname">gcc119</systemitem> from the GCC Compile Farm. The Compile Farm offers four 64-bit PowerPC machines, and <systemitem>gcc112</systemitem> and <systemitem>gcc119</systemitem> are the POWER8 iron (the other two are POWER7 hardware). <systemitem>gcc112</systemitem> is a Linux PowerPC, 64-bit, little-endian machine (ppc64-le), and <systemitem>gcc119</systemitem> is an AIX PowerPC, 64-bit, big-endian machine (ppc64-be).</para>
     <para>Both POWER8 machines are IBM POWER System S822 with two CPU cards. <systemitem>gcc112</systemitem> has 160 logical CPUs and runs at 3.4 GHz.  <systemitem>gcc119</systemitem> has 64 logical CPUs and runs at 4.1 GHz. At 4.1 GHz and 192 GB of RAM <systemitem>gcc119</systemitem> is probably a contender for one of the fastest machine you will work on.</para>
     <para>If you are a free and open software developer then you are eligible for a free <ulink url="https://cfarm.tetaneutral.net/">GCC Compile Farm</ulink> account. The Cfarm provides machines for different architectures, including MIPS64, Aarch64 and 64-bit PowerPC. Access is provided through SSH.</para>
     <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be careful of the default GCC compiler. It is probably GCC 4.8.5, and you usually get better code generation and performance with GCC 7.2 located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>

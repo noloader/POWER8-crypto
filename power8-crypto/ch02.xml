@@ -15,7 +15,7 @@
     <programlisting>$ xlC -qarch=pwr8 -qaltivec test.cxx -o test.exe
 </programlisting>
     <para>Both compilers consume <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem> for GCC and <systemitem>-qpic</systemitem> for XLC.</para>
-    <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be careful of the default GCC compiler. It is probably GCC 4.8.5, and you usually get better code generation and performance with GCC 7.2 located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
+    <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be mindful of the default GCC compiler. It may be GCC 4.8.5 which is a bit old and unsupported. You usually enjoy better code generation and performance with a modern GCC like 7.2. A newer compiler is usually located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
   </section>
   <section id="power8_header">
     <title>Altivec headers</title>

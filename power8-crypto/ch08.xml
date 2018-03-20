@@ -10,7 +10,7 @@
   </indexterm>
   <para>This chapter presents benchmarking numbers and discusses some of the issues that affect performance. Benchmarking an application is an art and can be tricky to collect accurate results.</para>
   <section id="perf_powersave">
-    <title>Powersave</title>
+    <title>Power states</title>
     <indexterm>
       <primary>powersave</primary>
     </indexterm>
@@ -19,6 +19,18 @@
     </indexterm>
     <indexterm>
       <primary>performance</primary>
+    </indexterm>
+    <indexterm>
+      <primary>Power state</primary>
+      <secondary>powersave</secondary>
+    </indexterm>
+    <indexterm>
+      <primary>Power state</primary>
+      <secondary>on-demand</secondary>
+    </indexterm>
+    <indexterm>
+      <primary>Power state</primary>
+      <secondary>performance</secondary>
     </indexterm>
     <para>Linux desktop systems are usually configured in either <systemitem>on-demand</systemitem> or <systemitem>powersave</systemitem> mode. The configuration is usually a kernel parameter, and the default energy states are usually efficient states that use less power. Before benchmarking you should leave <systemitem>on-demand</systemitem> or <systemitem>powersave</systemitem> mode, and enter a <systemitem>performance</systemitem> state.</para>
     <indexterm>

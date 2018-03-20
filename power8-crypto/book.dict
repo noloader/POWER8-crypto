@@ -70,7 +70,11 @@ posix
 qarch
 calloc
 cpb
+andup
 crypto
+vcrypto
+cputable
+systemcfg
 datatypes
 epi8
 inline
