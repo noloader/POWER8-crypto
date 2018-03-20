@@ -60,7 +60,7 @@ if (__power_set(0xffffffffU&lt;&lt;16))
         <para>RHEL 7 and later</para>
       </listitem>
     </itemizedlist>
-    <para>Below is a screen capture using the loader's diagnostics to print the auxillary vector for the <systemitem>/bin/true</systemitem> program on <systemitem>gcc112</systemitem>.</para>
+    <para>Below is a screen capture using the loader's diagnostics to print the auxiliary vector for the <systemitem>/bin/true</systemitem> program on <systemitem>gcc112</systemitem>.</para>
     <screen>$ LD_SHOW_AUXV=1 /bin/true
 AT_DCACHEBSIZE:  0x80
 AT_ICACHEBSIZE:  0x80

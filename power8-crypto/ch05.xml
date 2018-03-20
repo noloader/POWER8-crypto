@@ -23,24 +23,15 @@ for (i = 16; i &lt; 64; i++)
 {
    uint32x4_p8 s0, s1, T0, T1;
 
-   s0 = X[(i + 1) &amp; 0x0f];
-   s0 = sigma0(s0);
-   s1 = X[(i + 14) &amp; 0x0f];
-   s1 = sigma1(s1);
+   s0 = sigma0(X[(i + 1) &amp; 0x0f]);
+   s1 = sigma1(X[(i + 14) &amp; 0x0f]);
 
    T1 = (X[i &amp; 0xf] += s0 + s1 + X[(i + 9) &amp; 0xf]);
    T1 += h + Sigma1(e) + Ch(e, f, g) + KEY[i];
    T2 = Sigma0(a) + Maj(a, b, c);
-   h = g; g = f; f = e;
-   e = d + T1;
-   d = c; c = b; b = a;
-   a = T1 + T2;
+   ...
 }
 </programlisting>
-  </section>
-  <section id="sha_insn">
-    <title>Sigma functions</title>
-    <para><indexterm><primary>SHA</primary><secondary>Sigma functions</secondary></indexterm>POWER8 provides the <systemitem>vshasigmaw</systemitem> and <systemitem>vshasigmad</systemitem> instructions to accelerate SHA calculations for 32-bit and 64-bit words, respectively. The instructions take two integer arguments and the constants are used to select among <systemitem>Sigma0</systemitem>, <systemitem>Sigma1</systemitem>, <systemitem>sigma0</systemitem> and <systemitem>sigma1</systemitem>.</para>
   </section>
   <section id="sha_ch">
     <title>Ch function</title>
@@ -60,13 +51,53 @@ VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
     return vec_sel(y, z, vec_xor(x, y));
 }</programlisting>
   </section>
+  <section id="sha_insn">
+    <title>Sigma functions</title>
+    <para><indexterm><primary>SHA</primary><secondary>Sigma functions</secondary></indexterm>POWER8 provides the <systemitem>vshasigmaw</systemitem> and <systemitem>vshasigmad</systemitem> instructions to accelerate SHA calculations for 32-bit and 64-bit words, respectively. The instructions take two integer arguments and the constants are used to select among <systemitem>Sigma0</systemitem>, <systemitem>Sigma1</systemitem>, <systemitem>sigma0</systemitem> and <systemitem>sigma1</systemitem>.</para>
+    <para><indexterm><primary>__builtin_crypto_vshasigmaw</primary></indexterm><indexterm><primary>__builtin_crypto_vshasigmad</primary></indexterm><indexterm><primary>__vshasigmaw</primary></indexterm><indexterm><primary>__vshasigmad</primary></indexterm>The built-in GCC functions for the instructions are <systemitem>__builtin_crypto_vshasigmaw</systemitem> and <systemitem>__builtin_crypto_vshasigmad</systemitem>. The XLC functions for the instructions are <systemitem>__vshasigmaw</systemitem> and <systemitem>__vshasigmad</systemitem>. The C/C++ wrapper for the SHA-256 functions should look similar to below.</para>
+    <programlisting>uint32x4_p8 Vector_sigma0(const uint32x4_p8 val)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    return __vshasigmaw(val, 0, 0);
+#else
+    return __builtin_crypto_vshasigmaw(val, 0, 0);
+#endif
+}
+
+uint32x4_p8 Vector_sigma1(const uint32x4_p8 val)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    return __vshasigmaw(val, 0, 0xf);
+#else
+    return __builtin_crypto_vshasigmaw(val, 0, 0xf);
+#endif
+}
+
+uint32x4_p8 VectorSigma0(const uint32x4_p8 val)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    return __vshasigmaw(val, 1, 0);
+#else
+    return __builtin_crypto_vshasigmaw(val, 1, 0);
+#endif
+}
+
+uint32x4_p8 VectorSigma1(const uint32x4_p8 val)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    return __vshasigmaw(val, 1, 0xf);
+#else
+    return __builtin_crypto_vshasigmaw(val, 1, 0xf);
+#endif
+}</programlisting>
+  </section>
   <section id="sha_sha256">
     <title>SHA-256</title>
     <indexterm>
       <primary>SHA</primary>
       <secondary>SHA-256</secondary>
     </indexterm>
-    <para>TODO</para>
+    <para>The SHA-256 implementation has four parts. </para>
   </section>
   <section id="sha_sha512">
     <title>SHA-512</title>
