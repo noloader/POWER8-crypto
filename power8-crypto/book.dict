@@ -70,6 +70,8 @@ posix
 qarch
 calloc
 cpb
+vmx
+vsx
 andup
 crypto
 vcrypto
@@ -166,19 +168,20 @@ uint32x4
 uint64x2
 uint8x16
 
-VectorLoad
-VectorLoadMsg32x4
-VectorLoadu
-VectorRotateLeft
-VectorShiftLeft
-VectorStore
-VectorStoreu
-VectorLoad32x4
-VectorLoad32x4u
-VectorLoad64x2
-VectorLoad64x2u
-VectorLoad8x16
-VectorLoad8x16u
+VecLoad
+VecLoadu
+VecRotateLeft
+VecShiftLeft
+VecStore
+VecStoreu
+VecLoad32x4
+VecLoad32x4u
+VecLoad64x2
+VecLoad64x2u
+VecLoad8x16
+VecLoad8x16u
+VecLoadMsg32x4
+VecLoadMsg64x2
 
 ppc
 ppc64

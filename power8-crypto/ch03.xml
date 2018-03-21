@@ -7,7 +7,7 @@
     <title>Strategy</title>
     <para>The strategy to detect availability of in-core cryptography on POWER processors is check for ISA 2.07 or above. Cryptography is ingrained in ISA 2.07, and they cannot be disgorged. All POWER8 and above machines implement ISA 2.07.</para>
     <para>AIX does not provide separate bits for AES, SHA and polynomial multiplies. You infer the availability of the cryptography support based on the ISA level.</para>
-    <para>There is no need to perform <systemitem>SIGILL</systemitem> probes on AIX or Linux.</para>
+    <para>There is no need to perform <systemitem>SIGILL</systemitem> probes on AIX or Linux with Glibc 2.24 or newer.</para>
   </section>
   <section id="feature_aix">
     <title>AIX features</title>
@@ -54,7 +54,7 @@ if (__power_set(0xffffffffU&lt;&lt;16))
   </section>
   <section id="feature_linux">
     <title>Linux features</title>
-    <para><indexterm><primary>Feature detection</primary><secondary>Linux</secondary></indexterm><indexterm><primary>Glibc</primary></indexterm>Some versions of Glibc and the kernel provide ELF auxiliary vectors with system information. <systemitem>AT_HWCAP2</systemitem> will show the <systemitem>vcrypto</systemitem> flag when in-core crypto is available. This is guaranteed for the following little-endian Linux distributions:</para>
+    <para><indexterm><primary>Feature detection</primary><secondary>Linux</secondary></indexterm><indexterm><primary>Glibc</primary></indexterm>Some versions of Glibc and the kernel provide ELF auxiliary vectors with system information. <systemitem>AT_HWCAP2</systemitem> will show the <systemitem>vcrypto</systemitem> flag when in-core cryptography is available. This is guaranteed for the following little-endian Linux distributions:</para>
     <itemizedlist spacing="compact">
       <listitem>
         <para>Ubuntu 14.04 and later</para>
@@ -93,7 +93,7 @@ AT_EXECFN:       /bin/true
 AT_PLATFORM:     power8
 AT_BASE_PLATFORM:power8
 </screen>
-    <para><indexterm><primary>Feature detection</primary><secondary>Glibc</secondary></indexterm>Linux systems with Glibc version 2.16 can use <systemitem>getauxval</systemitem> to determine CPU features. Runtime code to perform the check should look similar to below. The defines were taken from the Linux kernel's <ulink url="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/powerpc/include/asm/cputable.h">cputable.h</ulink>.</para>
+    <para><indexterm><primary>Feature detection</primary><secondary>Glibc</secondary></indexterm>Linux systems with Glibc version 2.16 can use <systemitem>getauxval</systemitem> to determine CPU features. However, defines like <systemitem>PPC_FEATURE2_ARCH_2_07</systemitem> and <systemitem>PPC_FEATURE2_VEC_CRYPTO</systemitem> require Glibc 2.24. Runtime code to perform the check should look similar to below. The defines below were taken from the Linux kernel's <ulink url="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/powerpc/include/asm/cputable.h">cputable.h</ulink>.</para>
     <programlisting><indexterm><primary>getauxval</primary></indexterm>#ifndef AT_HWCAP
 # define AT_HWCAP 16
 #endif

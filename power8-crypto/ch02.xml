@@ -141,9 +141,9 @@ T VecShiftLeft(const T val1, const T val2)
 #endif
 }
 </programlisting>
-    <para>A <systemitem>VectorRotateLeft</systemitem> would be similar to the code below, if needed. Rotate is a special case of shift where both vector arguments are the same value.</para>
+    <para>A <systemitem>VecRotateLeft</systemitem> would be similar to the code below, if needed. Rotate is a special case of shift where both vector arguments are the same value.</para>
     <programlisting>template &lt;unsigned int N, class T&gt;
-T VectorRotateLeft(const T val)
+T VecRotateLeft(const T val)
 {
 #if __LITTLE_ENDIAN__
     enum {R = (16-N)&amp;0xf};
@@ -186,7 +186,7 @@ uint32x4_p c = vec_perm(a, b, m);
     <title>Effective addresses</title>
     <para>Some vector operations, like loads and stores, can be sensitive to the alignment of a memory address. Operations like <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive, and the documentation clearly states it.</para>
     <para>The effective address is a simple sum consisting of the memory address plus the offset into the address with the result rounded down to a multiple of 16. Effective addresses follow integer arithmetic and not pointer arithmetic.</para>
-    <para>You can calculate an effective address using the following code. Notice after calculating the sum the bottom 4 bits are masked to yield a multiple of 16.</para>
+    <para>You can calculate an effective address using the following code. Notice the bottom 4 bits are masked after calculating the sum to yield a multiple of 16.</para>
     <programlisting>uintptr_t maddr = (uintptr_t)mem_addr;
 uintptr_t mask = ~(uintptr_t)0xf;
 uintptr_t eaddr = (maddr+offset) &amp; mask;
@@ -199,12 +199,8 @@ uint8x16_p r1 = vec_ld(off1, ptr1);
 uint8_t* ptr2 = 0x401010;
 int off2 = 16;
 uint8x16_p r2 = vec_ld(off2, ptr2);
-
-uint8_t* ptr3 = 0x401020;
-int off3 = 0;
-uint8x16_p r3 = vec_ld(off3, ptr3);
 </programlisting>
-    <para>The following also yields the same VSX register value because the effective address is the same. If you truly wanted to load 4 bytes beyond <systemitem>ptr</systemitem> then you loaded the wrong value because <systemitem>0x401010 = (0x401010+4)&amp;0xfffffff0</systemitem>.</para>
+    <para>The following also yields the same VSX register value because the effective address is the same. If you truly wanted to load 4 bytes beyond <systemitem>ptr</systemitem> then you loaded the wrong value because <systemitem>(0x401010+4)&amp;0xfffffff0 = 0x401010</systemitem>.</para>
     <programlisting>uint8_t* ptr1 = 0x401000;
 int off1 = 16;
 uint8x16_p r1 = vec_ld(off1, ptr1);
@@ -318,8 +314,8 @@ template &lt;class T&gt; static inline
 uint32x4_p8 VecLoadMsg32x4(const T* data, int offset)
 {
 #if __LITTLE_ENDIAN__
-    const uint8x16_p8 mask = {11,10,9,8, 15,14,13,12, 3,2,1,0, 7,6,5,4};
-    const uint32x4_p8 res = VEC_XL_BE(offset, data);
+    uint8x16_p8 mask = {11,10,9,8, 15,14,13,12, 3,2,1,0, 7,6,5,4};
+    uint32x4_p8 res = VEC_XL_BE(offset, data);
     return (uint32x4_p8)vec_perm(res, res, mask);
 #else
     return VEC_XL_BE(offset, data);
