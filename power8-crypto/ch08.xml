@@ -21,8 +21,8 @@ New CPU governor scaling settings:
 </screen>
     <para>TODO: We are not aware of a similar script for AIX. In fact we don't know how to check a similar setting to determine if a script is needed.</para>
   </section>
-  <section id="perf_comparison">
-    <title>Comparison</title>
+  <section id="perf_benchmarks">
+    <title>Benchmarks</title>
     <para><indexterm><primary>Benchmarks</primary></indexterm>The table below presents benchmark statistics using standard C++, C++ with built-ins, and assembly language routines. The "standard C++" and "C++ with built-ins" columns were derived using Crypto++. The "assembly language" column was taken from Cryptogams and OpenSSL source file notes.</para>
     <para>The measurements were taken on <systemitem>gcc112</systemitem>, which is a Linux PowerPC, 64-bit, little-endian machine. The hardware is IBM POWER System S822 with two CPU cards, 160 logical CPUs at 3.4 GHz. The kernel is CentOS 7.4 version <systemitem>3.10.0-514</systemitem> and the compiler is GCC 7.2.0.</para>
     <informaltable frame="all">
