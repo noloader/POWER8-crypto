@@ -10,11 +10,11 @@
     <title>Strategy</title>
     <para>SHA provides a lot of freedom to an implementation. You can approach your SHA implementation in several ways, but most of them will result in an under-performing SHA. This section provides one of the strategies for a better performing implementation.</para>
     <para>The first design element is to perform everything in vector registers. The only integer operations should be reading 2 longs or 4 integers from memory during a load, and writing 2 longs or 4 integers after the round during a store.</para>
-    <para>Second, don't maintain a full <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> table. <systemitem>W[16]</systemitem> will be 16 each vectors in a 32x4 or 64x2 arrangement and operate in-place using a rolling strategy.</para>
-    <para>Third, the eight working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> each get their own vector register. The one you care about is located at element 0, the remainder of the elements in the vector are "don't care" elements.</para>
-    <para>Fourth, when you need an integer for a calculation you will shift it out from a vector register to another vector register using <systemitem>vec_sld</systemitem>. Most of the time you only care about element 0 in a vector register, and the remainder of elements are "don't care" elements.</para>
+    <para>Second, when you need an integer for a calculation you will shift it out from a vector register to another vector register using <systemitem>vec_sld</systemitem>. Most of the time you only care about element 0 in a vector register, and the remainder of elements are "don't care" elements.</para>
+    <para>Third, don't maintain a full <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> table. Use <systemitem>W[16]</systemitem> instead, and each element will be a vector in a 32x4 or 64x2 arrangement. <systemitem>W[16]</systemitem> elements get transformed in-place using a rolling strategy.</para>
+    <para>Fourth, the eight working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> each get their own vector register. The one you care about is located at element 0, the remainder of the elements in the vector are "don't care" elements.</para>
     <para>It does not matter if you rotate the working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> in the caller or in the callee. Both designs have nearly the same performance characteristics.</para>
-    <para>Because you are operating on <systemitem>W[16]</systemitem> instead of <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> the main body of your compression function will look similar to below.</para>
+    <para>Since you are operating on <systemitem>W[16]</systemitem> instead of <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> the main body of your compression function will look similar to below.</para>
     <programlisting>// SHA-256 partial compression function
 uint32x4_p8 X[16];
 ...
@@ -37,7 +37,7 @@ for (i = 16; i &lt; 64; i++)
     <title>Ch function</title>
     <para><indexterm><primary>SHA</primary><secondary>Ch function</secondary></indexterm>The SHA <systemitem>Ch</systemitem> function is implemented in POWER systems using the <systemitem>vsel</systemitem> instruction or the <systemitem>vec_sel</systemitem> built-in. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x</systemitem> used as the selector.</para>
     <programlisting>uint32x4_p8
-VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
+VecCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
 {
     return vec_sel(z, y, x);
 }</programlisting>
@@ -46,7 +46,7 @@ VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
     <title>Maj function</title>
     <para><indexterm><primary>SHA</primary><secondary>Maj function</secondary></indexterm>The SHA <systemitem>Maj</systemitem> function is implemented in POWER systems using the <systemitem>vsel</systemitem> instruction or the <systemitem>vec_sel</systemitem> built-in. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p8</systemitem> arguments. The important piece of information is <systemitem>x^y</systemitem> used as the selector.</para>
     <programlisting>uint32x4_p8
-VectorCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
+VecCh(uint32x4_p8 x, uint32x4_p8 y, uint32x4_p8 z)
 {
     return vec_sel(y, z, vec_xor(x, y));
 }</programlisting>
@@ -93,11 +93,175 @@ uint32x4_p8 VectorSigma1(const uint32x4_p8 val)
   </section>
   <section id="sha_sha256">
     <title>SHA-256</title>
-    <indexterm>
-      <primary>SHA</primary>
-      <secondary>SHA-256</secondary>
-    </indexterm>
-    <para>The SHA-256 implementation has four parts. </para>
+    <para><indexterm><primary>SHA</primary><secondary>SHA-256</secondary></indexterm>The SHA-256 implementation has four parts. The first part is loads the existing state and creates working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem>. The second part loads the message and performs the first 16 rounds. The third part performs the remaining rounds. The final part stores the new state.</para>
+    <para><emphasis role="bold">Part 1.</emphasis> Load the existing state and create working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem>.</para>
+    <programlisting>uint32x4_p8 abcd = VecLoad32x4u(state+0, 0);
+uint32x4_p8 efgh = VecLoad32x4u(state+4, 0);
+
+enum {A=0,B=1,C,D,E,F,G,H};
+uint32x4_p8 W[16], S[8];
+
+S[A] = abcd; S[E] = efgh;
+S[B] = VecShiftLeft&lt;4&gt;(S[A]);
+S[F] = VecShiftLeft&lt;4&gt;(S[E]);
+S[C] = VecShiftLeft&lt;4&gt;(S[B]);
+S[G] = VecShiftLeft&lt;4&gt;(S[F]);
+S[D] = VecShiftLeft&lt;4&gt;(S[C]);
+S[H] = VecShiftLeft&lt;4&gt;(S[G]);
+</programlisting>
+    <para><emphasis role="bold">Part 2.</emphasis> Load the message and perform the first 16 rounds.</para>
+    <programlisting>const uint32_t* k = reinterpret_cast&lt;const uint32_t*&gt;(KEY256);
+const uint32_t* m = reinterpret_cast&lt;const uint32_t*&gt;(data);
+
+uint32x4_p8 vm, vk;
+unsigned int i, offset=0;
+
+vk = VecLoad32x4(k, offset);
+vm = VecLoadMsg32x4(m, offset);
+SHA256_ROUND1&lt;0&gt;(W,S, vk,vm);
+SHA256_ROUND1&lt;1&gt;(W,S, VecShiftLeft&lt;4&gt;(vk), VecShiftLeft&lt;4&gt;(vm));
+SHA256_ROUND1&lt;2&gt;(W,S, VecShiftLeft&lt;8&gt;(vk), VecShiftLeft&lt;8&gt;(vm));
+SHA256_ROUND1&lt;3&gt;(W,S, VecShiftLeft&lt;12&gt;(vk), VecShiftLeft&lt;12&gt;(vm));
+offset+=16;
+
+vk = VecLoad32x4(k, offset);
+vm = VecLoadMsg32x4(m, offset);
+SHA256_ROUND1&lt;4&gt;(W,S, vk,vm);
+SHA256_ROUND1&lt;5&gt;(W,S, VecShiftLeft&lt;4&gt;(vk), VecShiftLeft&lt;4&gt;(vm));
+SHA256_ROUND1&lt;6&gt;(W,S, VecShiftLeft&lt;8&gt;(vk), VecShiftLeft&lt;8&gt;(vm));
+SHA256_ROUND1&lt;7&gt;(W,S, VecShiftLeft&lt;12&gt;(vk), VecShiftLeft&lt;12&gt;(vm));
+offset+=16;
+
+vk = VecLoad32x4(k, offset);
+vm = VecLoadMsg32x4(m, offset);
+SHA256_ROUND1&lt;8&gt;(W,S, vk,vm);
+SHA256_ROUND1&lt;9&gt;(W,S, VecShiftLeft&lt;4&gt;(vk), VecShiftLeft&lt;4&gt;(vm));
+SHA256_ROUND1&lt;10&gt;(W,S, VecShiftLeft&lt;8&gt;(vk), VecShiftLeft&lt;8&gt;(vm));
+SHA256_ROUND1&lt;11&gt;(W,S, VecShiftLeft&lt;12&gt;(vk), VecShiftLeft&lt;12&gt;(vm));
+offset+=16;
+
+vk = VecLoad32x4(k, offset);
+vm = VecLoadMsg32x4(m, offset);
+SHA256_ROUND1&lt;12&gt;(W,S, vk,vm);
+SHA256_ROUND1&lt;13&gt;(W,S, VecShiftLeft&lt;4&gt;(vk), VecShiftLeft&lt;4&gt;(vm));
+SHA256_ROUND1&lt;14&gt;(W,S, VecShiftLeft&lt;8&gt;(vk), VecShiftLeft&lt;8&gt;(vm));
+SHA256_ROUND1&lt;15&gt;(W,S, VecShiftLeft&lt;12&gt;(vk), VecShiftLeft&lt;12&gt;(vm));
+offset+=16;
+</programlisting>
+    <para><emphasis role="bold">Part 3.</emphasis> Perform the remaining rounds.
+    </para>
+    <programlisting>for (i=16; i&lt;64; i+=16)
+{
+    vk = VecLoad32x4(k, offset);
+    SHA256_ROUND2&lt;0&gt;(W,S, vk);
+    SHA256_ROUND2&lt;1&gt;(W,S, VecShiftLeft&lt;4&gt;(vk));
+    SHA256_ROUND2&lt;2&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA256_ROUND2&lt;3&gt;(W,S, VecShiftLeft&lt;12&gt;(vk));
+    offset+=16;
+
+    vk = VecLoad32x4(k, offset);
+    SHA256_ROUND2&lt;4&gt;(W,S, vk);
+    SHA256_ROUND2&lt;5&gt;(W,S, VecShiftLeft&lt;4&gt;(vk));
+    SHA256_ROUND2&lt;6&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA256_ROUND2&lt;7&gt;(W,S, VecShiftLeft&lt;12&gt;(vk));
+    offset+=16;
+
+    vk = VecLoad32x4(k, offset);
+    SHA256_ROUND2&lt;8&gt;(W,S, vk);
+    SHA256_ROUND2&lt;9&gt;(W,S, VecShiftLeft&lt;4&gt;(vk));
+    SHA256_ROUND2&lt;10&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA256_ROUND2&lt;11&gt;(W,S, VecShiftLeft&lt;12&gt;(vk));
+    offset+=16;
+
+    vk = VecLoad32x4(k, offset);
+    SHA256_ROUND2&lt;12&gt;(W,S, vk);
+    SHA256_ROUND2&lt;13&gt;(W,S, VecShiftLeft&lt;4&gt;(vk));
+    SHA256_ROUND2&lt;14&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA256_ROUND2&lt;15&gt;(W,S, VecShiftLeft&lt;12&gt;(vk));
+    offset+=16;
+}
+</programlisting>
+    <para><emphasis role="bold">Part 4.</emphasis> Repack and store the new state.
+    </para>
+    <programlisting>abcd += VecPack(S[A],S[B],S[C],S[D]);
+efgh += VecPack(S[E],S[F],S[G],S[H]);
+
+VecStore32x4u(abcd, state+0, 0);
+VecStore32x4u(efgh, state+4, 0);
+</programlisting>
+    <para>
+      <emphasis role="bold">VecLoadMsg.</emphasis>
+    </para>
+    <programlisting>template &lt;class T&gt;
+uint32x4_p8 VecLoadMsg32x4(const T* data, int offset)
+{
+#if __LITTLE_ENDIAN__
+    const uint8x16_p8 mask = {3,2,1,0, 7,6,5,4,
+                              11,10,9,8, 15,14,13,12};
+    const uint32x4_p8 r = VecLoad32x4u(data, offset);
+    return (uint32x4_p8)vec_perm(r, r, mask);
+#else
+    return VecLoad32x4u(data, offset);
+#endif
+}
+</programlisting>
+    <para>
+      <emphasis role="bold">SHA256_ROUND1.</emphasis>
+    </para>
+    <programlisting>template &lt;unsigned int R&gt;
+void SHA256_ROUND1(uint32x4_p8 W[16], uint32x4_p8 S[8],
+                   const uint32x4_p8 K, const uint32x4_p8 M)
+{
+    uint32x4_p8 T1, T2;
+
+    W[R] = M;
+    T1 = S[H] + VectorSigma1(S[E]);
+    T1 += VecCh(S[E],S[F],S[G]) + K + M;
+    T2 = VectorSigma0(S[A]) + VecMaj(S[A],S[B],S[C]);
+
+    S[H] = S[G]; S[G] = S[F]; S[F] = S[E];
+    S[E] = S[D] + T1;
+    S[D] = S[C]; S[C] = S[B]; S[B] = S[A];
+    S[A] = T1 + T2;
+}
+</programlisting>
+    <para>
+      <emphasis role="bold">SHA256_ROUND2.</emphasis>
+    </para>
+    <programlisting>template &lt;unsigned int R&gt;
+void SHA256_ROUND2(uint32x4_p8 W[16], uint32x4_p8 S[8],
+                   const uint32x4_p8 K)
+{
+    // Indexes into the W[] array
+    enum {IDX0=(R+0)&amp;0xf, IDX1=(R+1)&amp;0xf,
+          IDX9=(R+9)&amp;0xf, IDX14=(R+14)&amp;0xf};
+
+    const uint32x4_p8 s0 = Vector_sigma0(W[IDX1]);
+    const uint32x4_p8 s1 = Vector_sigma1(W[IDX14]);
+
+    uint32x4_p8 T1 = (W[IDX0] += s0 + s1 + W[IDX9]);
+    T1 += S[H] + VectorSigma1(S[E]) + VecCh(S[E],S[F],S[G]) + K;
+    uint32x4_p8 T2 = VectorSigma0(S[A]) + VecMaj(S[A],S[B],S[C]);
+
+    S[H] = S[G]; S[G] = S[F]; S[F] = S[E];
+    S[E] = S[D] + T1;
+    S[D] = S[C]; S[C] = S[B]; S[B] = S[A];
+    S[A] = T1 + T2;
+}
+</programlisting>
+    <para>
+      <emphasis role="bold">VecPack.</emphasis>
+    </para>
+    <programlisting>uint32x4_p8 VecPack(const uint32x4_p8 a, const uint32x4_p8 b,
+                    const uint32x4_p8 c, const uint32x4_p8 d)
+{
+    const uint8x16_p8 m1 = {0,1,2,3, 16,17,18,19,
+                            0,0,0,0, 0,0,0,0};
+    const uint8x16_p8 m2 = {0,1,2,3, 4,5,6,7,
+                            16,17,18,19, 20,21,22,23};
+    return vec_perm(vec_perm(a,b,m1), vec_perm(c,d,m1), m2);
+}
+</programlisting>
   </section>
   <section id="sha_sha512">
     <title>SHA-512</title>

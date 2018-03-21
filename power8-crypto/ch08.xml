@@ -2,7 +2,7 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="ch09">
   <title>Performance</title>
-  <para><indexterm><primary>Performance</primary></indexterm><indexterm><primary>Benchmark</primary></indexterm>This chapter presents benchmarking numbers and discusses some of the issues that affect performance. Benchmarking an application is an art and can be tricky to collect accurate results.</para>
+  <para><indexterm><primary>Performance</primary></indexterm><indexterm><primary>Benchmarks</primary></indexterm>This chapter presents benchmarking numbers and discusses some of the issues that affect performance. Benchmarking an application is an art and can be tricky to collect accurate results.</para>
   <section id="perf_powersave">
     <title>Power states</title>
     <para><indexterm><primary>Powersave</primary></indexterm><indexterm><primary>On-demand</primary></indexterm><indexterm><primary>Performance</primary></indexterm><indexterm><primary>Power state</primary><secondary>powersave</secondary></indexterm><indexterm><primary>Power state</primary><secondary>on-demand</secondary></indexterm><indexterm><primary>Power state</primary><secondary>performance</secondary></indexterm>Linux desktop systems are usually configured in either <systemitem>on-demand</systemitem> or <systemitem>powersave</systemitem> mode. The configuration is usually a kernel parameter, and the default energy states are usually efficient states that use less power. Before benchmarking you should leave <systemitem>on-demand</systemitem> or <systemitem>powersave</systemitem> mode, and enter a <systemitem>performance</systemitem> state.</para>

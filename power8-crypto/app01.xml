@@ -13,44 +13,44 @@ typedef __vector unsigned long uint64x2_p;
   <section id="app01_loads">
     <title>Loads</title>
     <section id="app01_vld_8x16">
-      <title>VectorLoad8x16</title>
+      <title>VecLoad8x16</title>
       <programlisting>template &lt;class T&gt;
-uint8x16_p VectorLoad8x16(const T* mem_addr, int offset);
+uint8x16_p VecLoad8x16(const T* mem_addr, int offset);
 </programlisting>
       <para>Loads an <emphasis>aligned</emphasis> memory location specified by <systemitem>mem_addr</systemitem> and <systemitem>offset</systemitem> into a vector and returns <systemitem>uint8x16_p</systemitem>.</para>
     </section>
     <section id="app01_vld_8x16u">
-      <title>VectorLoad8x16u</title>
+      <title>VecLoad8x16u</title>
       <programlisting>template &lt;class T&gt;
-uint8x16_p VectorLoad8x16u(const T* mem_addr, int offset);
+uint8x16_p VecLoad8x16u(const T* mem_addr, int offset);
 </programlisting>
       <para>Loads an <emphasis>unaligned</emphasis> memory location specified by <systemitem>mem_addr</systemitem> and <systemitem>offset</systemitem> into a vector and returns <systemitem>uint8x16_p</systemitem>.</para>
     </section>
     <section id="app01_vld_32x4">
-      <title>VectorLoad32x4</title>
+      <title>VecLoad32x4</title>
       <programlisting>template &lt;class T&gt;
-uint32x4_p VectorLoad32x4(const T* mem_addr, int offset);
+uint32x4_p VecLoad32x4(const T* mem_addr, int offset);
 </programlisting>
       <para>Loads an <emphasis>aligned</emphasis> memory location specified by <systemitem>mem_addr</systemitem> and <systemitem>offset</systemitem> into a vector and returns <systemitem>uint32x4_p</systemitem>.</para>
     </section>
     <section id="app01_vld_32x4u">
-      <title>VectorLoad32x4u</title>
+      <title>VecLoad32x4u</title>
       <programlisting>template &lt;class T&gt;
-uint32x4_p VectorLoad32x4(const T* mem_addr, int offset);
+uint32x4_p VecLoad32x4(const T* mem_addr, int offset);
 </programlisting>
       <para>Loads an <emphasis>unaligned</emphasis> memory location specified by <systemitem>mem_addr</systemitem> and <systemitem>offset</systemitem> into a vector and returns <systemitem>uint32x4_p</systemitem>.</para>
     </section>
     <section id="app01_vld_64x2">
-      <title>VectorLoad64x2</title>
+      <title>VecLoad64x2</title>
       <programlisting>template &lt;class T&gt;
-uint64x2_p VectorLoad64x2(const T* mem_addr, int offset);
+uint64x2_p VecLoad64x2(const T* mem_addr, int offset);
 </programlisting>
       <para>Loads an <emphasis>aligned</emphasis> memory location specified by <systemitem>mem_addr</systemitem> and <systemitem>offset</systemitem> into a vector and returns <systemitem>uint64x2_p</systemitem>.</para>
     </section>
     <section id="app01_vld_64x2u">
-      <title>VectorLoad64x2u</title>
+      <title>VecLoad64x2u</title>
       <programlisting>template &lt;class T&gt;
-uint64x2_p VectorLoad64x2u(const T* mem_addr, int offset);
+uint64x2_p VecLoad64x2u(const T* mem_addr, int offset);
 </programlisting>
       <para>Loads an <emphasis>unaligned</emphasis> memory location specified by <systemitem>mem_addr</systemitem> and <systemitem>offset</systemitem> into a vector and returns <systemitem>uint64x2_p</systemitem>.</para>
     </section>

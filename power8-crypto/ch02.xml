@@ -130,7 +130,7 @@
     <para>Vector shifts and rotates perform as expected on big-endian machines. Little-endian machines need a special handling to produce correct results and the <ulink url="http://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>. If you are like many other developers then you will literally waste hours trying to figure it out what happened the first time you experience it.</para>
     <para>The issue is <ulink url="http://stackoverflow.com/q/46341923/608639">shifts and rotates are endian sensitive</ulink>, and you have to use <systemitem>16-n</systemitem> and swap vector arguments on little-endian systems. The C++ source code provides the following template function to compensate for the little-endian behavior.</para>
     <programlisting>template &lt;unsigned int N, class T&gt;
-T VectorShiftLeft(const T val1, const T val2)
+T VecShiftLeft(const T val1, const T val2)
 {
 #if __LITTLE_ENDIAN__
     enum {R = (16-N)&amp;0xf};
@@ -158,8 +158,8 @@ T VectorRotateLeft(const T val)
   <section id="power8_permute">
     <title>Vector permutes</title>
     <para>Vector permutes allow you to rearrange elements in a vector. The values to be permuted can be in any arrangement like 64x2 or 32x4, but the mask is always an octet mask using an 8x16 arrangement.</para>
-    <para>The Altivec permute is very powerful and it stands out among architectures like ARM, Aarch64 and x86. The POWER permute allows you to select elements from two source vectors. When an index in the mask is in the range <systemitem>[0,15]</systemitem> then elements from the first vector are selected, and index values in the the range <systemitem>[16,31]</systemitem> select elements from the second vector.</para>
-    <para>As an example, suppose you have a big-endian byte array like a message to be hashed using SHA-256. SHA operates on 32-bit words so the message needs a permute on little-endian systems. The code to perform the permute on a little-endian machine would look like below.</para>
+    <para>The Altivec permute is very powerful and it stands out among architectures like ARM, Aarch64 and x86. The instruction allows you to select elements from two source vectors. When an index in the mask is in the range <systemitem>[0,15]</systemitem> then elements from the first vector are selected, and index values in the the range <systemitem>[16,31]</systemitem> select elements from the second vector.</para>
+    <para>As an example, suppose you have a big-endian byte array like a message to be hashed using SHA-256. SHA operates on 32-bit words so the message needs a shuffle on little-endian systems. The code to perform the permute on a little-endian machine would look like below.</para>
     <programlisting>uint32x4_p msg = vec_ld(/*load from memory*/);
 uint8x16_p mask = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
 msg = vec_perm(msg, msg, mask);
@@ -175,7 +175,7 @@ uint32x4_p c = vec_perm(a, b, m);
     <para/>
     <mediaobject>
       <imageobject>
-        <imagedata fileref="images/vecperm.gif" width="5.5in" scalefit="1" format="GIF"/>
+        <imagedata fileref="images/vecperm.gif" width="5.25in" scalefit="1" format="GIF"/>
       </imageobject>
       <textobject>
         <phrase>Permute 16 8-bit integer elements.</phrase>
@@ -184,7 +184,7 @@ uint32x4_p c = vec_perm(a, b, m);
   </section>
   <section id="power8_eff_addr">
     <title>Effective addresses</title>
-    <para>Some vector operations, like loads and stores, can be sensitive to the effective address of an operation. Operations like <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive, and the documentation clearly states it.</para>
+    <para>Some vector operations, like loads and stores, can be sensitive to the alignment of a memory address. Operations like <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive, and the documentation clearly states it.</para>
     <para>The effective address is a simple sum consisting of the memory address plus the offset into the address with the result rounded down to a multiple of 16. Effective addresses follow integer arithmetic and not pointer arithmetic.</para>
     <para>You can calculate an effective address using the following code. Notice after calculating the sum the bottom 4 bits are masked to yield a multiple of 16.</para>
     <programlisting>uintptr_t maddr = (uintptr_t)mem_addr;
@@ -222,7 +222,7 @@ uint8x16_p r2 = vec_ld(off2, ptr2);
     <para>You can use the Altivec loads and stores when you <emphasis>control</emphasis> buffers and ensure they are 16-byte aligned, like an AES key schedule table. Otherwise just use <link linkend="power8_unaligned_ld_st">unaligned loads and stores</link> to avoid trouble.</para>
     <para>The C/C++ code to perform a load using <systemitem>vec_ld</systemitem> should look similar to below. Notice the <systemitem>assert</systemitem> to warn you of problems in debug builds.</para>
     <programlisting>template &lt;class T&gt;
-uint32x4_p8 VectorLoad(const T* mem_addr, int offset)
+uint32x4_p8 VecLoad(const T* mem_addr, int offset)
 {
 #ifndef NDEBUG
     uintptr_t maddr = (uintptr_t)mem_addr;
@@ -236,7 +236,7 @@ uint32x4_p8 VectorLoad(const T* mem_addr, int offset)
 </programlisting>
     <para>The C/C++ code to perform a store using <systemitem>vec_st</systemitem> should look similar to below.</para>
     <programlisting>template &lt;class T&gt;
-void VectorStore(const uint32x4_p8 val, T* mem_addr, int offset)
+void VecStore(const uint32x4_p8 val, T* mem_addr, int offset)
 {
 #ifndef NDEBUG
     uintptr_t maddr = (uintptr_t)mem_addr;
@@ -255,7 +255,7 @@ void VectorStore(const uint32x4_p8 val, T* mem_addr, int offset)
     <para>You should use the POWER7 loads and stores whenever you <emphasis>do not control</emphasis> buffers or their alignments, like a message in a buffer supplied by the user.</para>
     <para>The C/C++ code to perform a load using <systemitem>vec_xl</systemitem> and <systemitem>vec_vsx_ld</systemitem> should look similar to below. The function name has a <systemitem>u</systemitem> added to indicate unaligned.</para>
     <programlisting>template &lt;class T&gt;
-uint32x4_p8 VectorLoadu(const T* mem_addr, int offset)
+uint32x4_p8 VecLoadu(const T* mem_addr, int offset)
 {
 #if defined(__xlc__) || defined(__xlC__)
     return (uint32x4_p8)vec_xl(offset, mem_addr);
@@ -266,7 +266,7 @@ uint32x4_p8 VectorLoadu(const T* mem_addr, int offset)
 </programlisting>
     <para>The C/C++ code to perform a store using <systemitem>vec_xst</systemitem> and <systemitem>vec_vsx_st</systemitem> should look similar to below.</para>
     <programlisting>template &lt;class T&gt;
-void VectorStoreu(const uint32x4_p8 val, T* mem_addr, int offset)
+void VecStoreu(const uint32x4_p8 val, T* mem_addr, int offset)
 {
 #if defined(__xlc__) || defined(__xlC__)
     vec_xst((uint8x16_p8)val, offset, mem_addr);
@@ -315,7 +315,7 @@ SHA256_SCHEDULE(unsigned int*, unsigned char const*):
 }
 
 template &lt;class T&gt; static inline
-uint32x4_p8 VectorLoadMsg32x4(const T* data, int offset)
+uint32x4_p8 VecLoadMsg32x4(const T* data, int offset)
 {
 #if __LITTLE_ENDIAN__
     const uint8x16_p8 mask = {11,10,9,8, 15,14,13,12, 3,2,1,0, 7,6,5,4};
