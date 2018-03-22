@@ -137,20 +137,22 @@ bool HasCrypto()
   <section id="feature_cache_size">
     <title>L1 Data Cache</title>
     <para><indexterm><primary>L1 data cache</primary></indexterm>The L1 data cache line size is an important security parameter that can be used to avoid leaking information through timing attacks. IBM POWER System S822, like <systemitem>gcc112</systemitem> and <systemitem>gcc119</systemitem>, have a 128-byte L1 data cache line size.</para>
-    <para><indexterm><primary>L1 data cache</primary><secondary>AIX</secondary></indexterm><systemitem>gcc119</systemitem> runs AIX and a program can query the L1 data cache line size as shown below.</para>
+    <para><indexterm><primary>L1 data cache</primary><secondary>AIX</secondary></indexterm><systemitem>gcc119</systemitem> runs AIX and L1 data cache line size can be queried as shown below.</para>
     <programlisting><indexterm><primary>getsystemcfg</primary></indexterm><indexterm><primary>SC_L1C_DLS</primary></indexterm>#include &lt;sys/systemcfg.h&gt;
 
 int cacheLineSize = getsystemcfg(SC_L1C_DLS);
 if (cacheLineSize) &lt;= 0)
     cacheLineSize = DEFAULT_L1_CACHE_LINE_SIZE;
 </programlisting>
-    <para><indexterm><primary>L1 data cache</primary><secondary>Linux</secondary></indexterm><systemitem>gcc112</systemitem> runs Linux and a program can query the L1 data cache line size as shown below.</para>
-    <programlisting><indexterm><primary>sysconf</primary></indexterm><indexterm><primary>_SC_LEVEL1_DCACHE_LINESIZE</primary></indexterm>#include &lt;sys/sysconf.h&gt;
+    <para><indexterm><primary>L1 data cache</primary><secondary>Linux</secondary></indexterm><systemitem>gcc112</systemitem> runs Linux and L1 data cache line size can be queried as shown below. However, the call requires Glibc 2.26 and Linux kernel 4.10.</para>
+    <programlisting><indexterm><primary>sysconf</primary></indexterm><indexterm><primary>_SC_LEVEL1_DCACHE_LINESIZE</primary></indexterm>#include &lt;unistd.h&gt;
 
 int cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
 if (cacheLineSize) &lt;= 0)
     cacheLineSize = DEFAULT_L1_CACHE_LINE_SIZE;
 </programlisting>
-    <para>It is important to check the return value from <systemitem>sysconf</systemitem> on Linux. <systemitem>gcc112</systemitem> runs CentOS 7.4 and the machine returns 0 for the L1 cache line query. Also see <ulink url="https://lists.centos.org/pipermail/centos/2017-September/166236.html">sysconf and _SC_LEVEL1_DCACHE_LINESIZE returns 0?</ulink> on the CentOS mailing list and <ulink url="https://bugs.centos.org/view.php?id=14599">Issue 14599: sysconf(_SC_LEVEL1_DCACHE_LINESIZE) returns 0 instead of 128</ulink> in the CentOS issue tracker.</para>
+    <para>It is important to check the return value from <systemitem>sysconf</systemitem> on Linux. CentOS 7.4 on <systemitem>gcc112</systemitem> returns 0 for the query because Glibc is version 2.17 and the Linux kernel is version 3.10. In addition to -1, you should consider a return value of 0 as failure.</para>
+    <para>You should have a fallback strategy that includes a sane default set for <systemitem>DEFAULT_L1_CACHE_LINE_SIZE</systemitem> because Glibc does not return a failure. On 32-bit systems you can usually use 32-bytes as a default, and on 64-bit systems you can usually use 64-bytes as a default.</para>
+    <para>Returning success with a value of 0 for an unimplemented <systemitem>sysconf</systemitem> parameter appears to be a Glibc bug. Also see <ulink url="https://lists.centos.org/pipermail/centos/2017-September/166236.html">sysconf and _SC_LEVEL1_DCACHE_LINESIZE returns 0?</ulink> on the CentOS mailing list and <ulink url="https://bugs.centos.org/view.php?id=14599">Issue 14599: sysconf(_SC_LEVEL1_DCACHE_LINESIZE) returns 0 instead of 128</ulink> in the CentOS issue tracker.</para>
   </section>
 </chapter>

@@ -78,6 +78,7 @@ vcrypto
 cputable
 systemcfg
 datatypes
+fallback
 epi8
 inline
 
@@ -93,6 +94,8 @@ constexpr
 online
 powersave
 coprocessor
+builtin
+fallback
 S822
 
 v0
