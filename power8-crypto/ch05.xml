@@ -11,10 +11,10 @@
     <para>SHA provides a lot of freedom to an implementation. You can approach your SHA implementation in several ways, but most of them will result in an under-performing SHA. This section provides one of the strategies for a better performing implementation.</para>
     <para>The first design element is to perform everything in vector registers. The only integer operations should be reading 2 longs or 4 integers from memory during a load, and writing 2 longs or 4 integers after the round during a store.</para>
     <para>Second, when you need an integer for a calculation you will shift it out from a vector register to another vector register using <systemitem>vec_sld</systemitem>. Most of the time you only care about element 0 in a vector register, and the remainder of elements are "don't care" elements.</para>
-    <para>Third, don't maintain a full <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> table. Use <systemitem>W[16]</systemitem> instead, and each element will be a vector in a 32x4 or 64x2 arrangement. <systemitem>W[16]</systemitem> elements get transformed in-place using a rolling strategy.</para>
+    <para>Third, don't maintain a full <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> table. Use <systemitem>X[16]</systemitem> instead, and transform each element in-place using a rolling strategy.</para>
     <para>Fourth, the eight working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> each get their own vector register. The one you care about is located at element 0, the remainder of the elements in the vector are "don't care" elements.</para>
     <para>It does not matter if you rotate the working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> in the caller or in the callee. Both designs have nearly the same performance characteristics.</para>
-    <para>Since you are operating on <systemitem>W[16]</systemitem> instead of <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> the main body of your compression function will look similar to below.</para>
+    <para>Since you are operating on <systemitem>X[16]</systemitem> in a rolling fashion instead of <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> the main body of your compression function will look similar to below.</para>
     <programlisting>// SHA-256 partial compression function
 uint32x4_p8 X[16];
 ...
@@ -99,7 +99,7 @@ uint32x4_p8 VecSigma1(const uint32x4_p8 val)
 uint32x4_p8 efgh = VecLoad32x4u(state+4, 0);
 
 enum {A=0,B=1,C,D,E,F,G,H};
-uint32x4_p8 W[16], S[8];
+uint32x4_p8 X[16], S[8];
 
 S[A] = abcd; S[E] = efgh;
 S[B] = VecShiftLeft&lt;4&gt;(S[A]);
@@ -118,34 +118,34 @@ unsigned int i, offset=0;
 
 vk = VecLoad32x4(k, offset);
 vm = VecLoadMsg32x4(m, offset);
-SHA256_ROUND1&lt;0&gt;(W,S, vk,vm);
-SHA256_ROUND1&lt;1&gt;(W,S, VecShiftLeft&lt;4&gt;(vk), VecShiftLeft&lt;4&gt;(vm));
-SHA256_ROUND1&lt;2&gt;(W,S, VecShiftLeft&lt;8&gt;(vk), VecShiftLeft&lt;8&gt;(vm));
-SHA256_ROUND1&lt;3&gt;(W,S, VecShiftLeft&lt;12&gt;(vk), VecShiftLeft&lt;12&gt;(vm));
+SHA256_ROUND1&lt;0&gt;(X,S, vk,vm);
+SHA256_ROUND1&lt;1&gt;(X,S, VecShiftLeft&lt;4&gt;(vk), VecShiftLeft&lt;4&gt;(vm));
+SHA256_ROUND1&lt;2&gt;(X,S, VecShiftLeft&lt;8&gt;(vk), VecShiftLeft&lt;8&gt;(vm));
+SHA256_ROUND1&lt;3&gt;(X,S, VecShiftLeft&lt;12&gt;(vk), VecShiftLeft&lt;12&gt;(vm));
 offset+=16;
 
 vk = VecLoad32x4(k, offset);
 vm = VecLoadMsg32x4(m, offset);
-SHA256_ROUND1&lt;4&gt;(W,S, vk,vm);
-SHA256_ROUND1&lt;5&gt;(W,S, VecShiftLeft&lt;4&gt;(vk), VecShiftLeft&lt;4&gt;(vm));
-SHA256_ROUND1&lt;6&gt;(W,S, VecShiftLeft&lt;8&gt;(vk), VecShiftLeft&lt;8&gt;(vm));
-SHA256_ROUND1&lt;7&gt;(W,S, VecShiftLeft&lt;12&gt;(vk), VecShiftLeft&lt;12&gt;(vm));
+SHA256_ROUND1&lt;4&gt;(X,S, vk,vm);
+SHA256_ROUND1&lt;5&gt;(X,S, VecShiftLeft&lt;4&gt;(vk), VecShiftLeft&lt;4&gt;(vm));
+SHA256_ROUND1&lt;6&gt;(X,S, VecShiftLeft&lt;8&gt;(vk), VecShiftLeft&lt;8&gt;(vm));
+SHA256_ROUND1&lt;7&gt;(X,S, VecShiftLeft&lt;12&gt;(vk), VecShiftLeft&lt;12&gt;(vm));
 offset+=16;
 
 vk = VecLoad32x4(k, offset);
 vm = VecLoadMsg32x4(m, offset);
-SHA256_ROUND1&lt;8&gt;(W,S, vk,vm);
-SHA256_ROUND1&lt;9&gt;(W,S, VecShiftLeft&lt;4&gt;(vk), VecShiftLeft&lt;4&gt;(vm));
-SHA256_ROUND1&lt;10&gt;(W,S, VecShiftLeft&lt;8&gt;(vk), VecShiftLeft&lt;8&gt;(vm));
-SHA256_ROUND1&lt;11&gt;(W,S, VecShiftLeft&lt;12&gt;(vk), VecShiftLeft&lt;12&gt;(vm));
+SHA256_ROUND1&lt;8&gt;(X,S, vk,vm);
+SHA256_ROUND1&lt;9&gt;(X,S, VecShiftLeft&lt;4&gt;(vk), VecShiftLeft&lt;4&gt;(vm));
+SHA256_ROUND1&lt;10&gt;(X,S, VecShiftLeft&lt;8&gt;(vk), VecShiftLeft&lt;8&gt;(vm));
+SHA256_ROUND1&lt;11&gt;(X,S, VecShiftLeft&lt;12&gt;(vk), VecShiftLeft&lt;12&gt;(vm));
 offset+=16;
 
 vk = VecLoad32x4(k, offset);
 vm = VecLoadMsg32x4(m, offset);
-SHA256_ROUND1&lt;12&gt;(W,S, vk,vm);
-SHA256_ROUND1&lt;13&gt;(W,S, VecShiftLeft&lt;4&gt;(vk), VecShiftLeft&lt;4&gt;(vm));
-SHA256_ROUND1&lt;14&gt;(W,S, VecShiftLeft&lt;8&gt;(vk), VecShiftLeft&lt;8&gt;(vm));
-SHA256_ROUND1&lt;15&gt;(W,S, VecShiftLeft&lt;12&gt;(vk), VecShiftLeft&lt;12&gt;(vm));
+SHA256_ROUND1&lt;12&gt;(X,S, vk,vm);
+SHA256_ROUND1&lt;13&gt;(X,S, VecShiftLeft&lt;4&gt;(vk), VecShiftLeft&lt;4&gt;(vm));
+SHA256_ROUND1&lt;14&gt;(X,S, VecShiftLeft&lt;8&gt;(vk), VecShiftLeft&lt;8&gt;(vm));
+SHA256_ROUND1&lt;15&gt;(X,S, VecShiftLeft&lt;12&gt;(vk), VecShiftLeft&lt;12&gt;(vm));
 offset+=16;
 </programlisting>
     <para><emphasis role="bold">Part 3.</emphasis> Perform the remaining rounds.
@@ -153,31 +153,31 @@ offset+=16;
     <programlisting>for (i=16; i&lt;64; i+=16)
 {
     vk = VecLoad32x4(k, offset);
-    SHA256_ROUND2&lt;0&gt;(W,S, vk);
-    SHA256_ROUND2&lt;1&gt;(W,S, VecShiftLeft&lt;4&gt;(vk));
-    SHA256_ROUND2&lt;2&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
-    SHA256_ROUND2&lt;3&gt;(W,S, VecShiftLeft&lt;12&gt;(vk));
+    SHA256_ROUND2&lt;0&gt;(X,S, vk);
+    SHA256_ROUND2&lt;1&gt;(X,S, VecShiftLeft&lt;4&gt;(vk));
+    SHA256_ROUND2&lt;2&gt;(X,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA256_ROUND2&lt;3&gt;(X,S, VecShiftLeft&lt;12&gt;(vk));
     offset+=16;
 
     vk = VecLoad32x4(k, offset);
-    SHA256_ROUND2&lt;4&gt;(W,S, vk);
-    SHA256_ROUND2&lt;5&gt;(W,S, VecShiftLeft&lt;4&gt;(vk));
-    SHA256_ROUND2&lt;6&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
-    SHA256_ROUND2&lt;7&gt;(W,S, VecShiftLeft&lt;12&gt;(vk));
+    SHA256_ROUND2&lt;4&gt;(X,S, vk);
+    SHA256_ROUND2&lt;5&gt;(X,S, VecShiftLeft&lt;4&gt;(vk));
+    SHA256_ROUND2&lt;6&gt;(X,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA256_ROUND2&lt;7&gt;(X,S, VecShiftLeft&lt;12&gt;(vk));
     offset+=16;
 
     vk = VecLoad32x4(k, offset);
-    SHA256_ROUND2&lt;8&gt;(W,S, vk);
-    SHA256_ROUND2&lt;9&gt;(W,S, VecShiftLeft&lt;4&gt;(vk));
-    SHA256_ROUND2&lt;10&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
-    SHA256_ROUND2&lt;11&gt;(W,S, VecShiftLeft&lt;12&gt;(vk));
+    SHA256_ROUND2&lt;8&gt;(X,S, vk);
+    SHA256_ROUND2&lt;9&gt;(X,S, VecShiftLeft&lt;4&gt;(vk));
+    SHA256_ROUND2&lt;10&gt;(X,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA256_ROUND2&lt;11&gt;(X,S, VecShiftLeft&lt;12&gt;(vk));
     offset+=16;
 
     vk = VecLoad32x4(k, offset);
-    SHA256_ROUND2&lt;12&gt;(W,S, vk);
-    SHA256_ROUND2&lt;13&gt;(W,S, VecShiftLeft&lt;4&gt;(vk));
-    SHA256_ROUND2&lt;14&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
-    SHA256_ROUND2&lt;15&gt;(W,S, VecShiftLeft&lt;12&gt;(vk));
+    SHA256_ROUND2&lt;12&gt;(X,S, vk);
+    SHA256_ROUND2&lt;13&gt;(X,S, VecShiftLeft&lt;4&gt;(vk));
+    SHA256_ROUND2&lt;14&gt;(X,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA256_ROUND2&lt;15&gt;(X,S, VecShiftLeft&lt;12&gt;(vk));
     offset+=16;
 }
 </programlisting>
@@ -206,12 +206,12 @@ uint32x4_p8 VecLoadMsg32x4(const T* data, int offset)
     <para><emphasis role="bold">SHA256_ROUND1.</emphasis> Mix state with a round key and user message.
     </para>
     <programlisting>template &lt;unsigned int R&gt;
-void SHA256_ROUND1(uint32x4_p8 W[16], uint32x4_p8 S[8],
+void SHA256_ROUND1(uint32x4_p8 X[16], uint32x4_p8 S[8],
                    const uint32x4_p8 K, const uint32x4_p8 M)
 {
     uint32x4_p8 T1, T2;
 
-    W[R] = M;
+    X[R] = M;
     T1 = S[H] + VecSigma1(S[E]);
     T1 += VecCh(S[E],S[F],S[G]) + K + M;
     T2 = VecSigma0(S[A]) + VecMaj(S[A],S[B],S[C]);
@@ -225,17 +225,17 @@ void SHA256_ROUND1(uint32x4_p8 W[16], uint32x4_p8 S[8],
     <para><emphasis role="bold">SHA256_ROUND2.</emphasis> Mix state with a round key.
     </para>
     <programlisting>template &lt;unsigned int R&gt;
-void SHA256_ROUND2(uint32x4_p8 W[16], uint32x4_p8 S[8],
+void SHA256_ROUND2(uint32x4_p8 X[16], uint32x4_p8 S[8],
                    const uint32x4_p8 K)
 {
-    // Indexes into the W[] array
+    // Indexes into the X[] array
     enum {IDX0=(R+0)&amp;0xf, IDX1=(R+1)&amp;0xf,
           IDX9=(R+9)&amp;0xf, IDX14=(R+14)&amp;0xf};
 
-    const uint32x4_p8 s0 = Vec_sigma0(W[IDX1]);
-    const uint32x4_p8 s1 = Vec_sigma1(W[IDX14]);
+    const uint32x4_p8 s0 = Vec_sigma0(X[IDX1]);
+    const uint32x4_p8 s1 = Vec_sigma1(X[IDX14]);
 
-    uint32x4_p8 T1 = (W[IDX0] += s0 + s1 + W[IDX9]);
+    uint32x4_p8 T1 = (X[IDX0] += s0 + s1 + X[IDX9]);
     T1 += S[H] + VecSigma1(S[E]) + VecCh(S[E],S[F],S[G]) + K;
     uint32x4_p8 T2 = VecSigma0(S[A]) + VecMaj(S[A],S[B],S[C]);
 
@@ -267,7 +267,7 @@ uint64x2_p8 gh = VecLoad64x2u(state+6, 0);
 
 // Indexes into the S[] array
 enum {A=0, B=1, C, D, E, F, G, H};
-uint64x2_p8 W[16], S[8];
+uint64x2_p8 X[16], S[8];
 
 S[A] = ab; S[C] = cd;
 S[E] = ef; S[G] = gh;
@@ -282,50 +282,50 @@ const uint64_t* m = reinterpret_cast&lt;const uint64_t*&gt;(data);
 
 vk = VecLoad64x2(k, offset);
 vm = VecLoadMsg64x2(m, offset);
-SHA512_ROUND1&lt;0&gt;(W,S, vk,vm);
-SHA512_ROUND1&lt;1&gt;(W,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
+SHA512_ROUND1&lt;0&gt;(X,S, vk,vm);
+SHA512_ROUND1&lt;1&gt;(X,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
 offset+=16;
 
 vk = VecLoad64x2(k, offset);
 vm = VecLoadMsg64x2(m, offset);
-SHA512_ROUND1&lt;2&gt;(W,S, vk,vm);
-SHA512_ROUND1&lt;3&gt;(W,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
+SHA512_ROUND1&lt;2&gt;(X,S, vk,vm);
+SHA512_ROUND1&lt;3&gt;(X,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
 offset+=16;
 
 vk = VecLoad64x2(k, offset);
 vm = VecLoadMsg64x2(m, offset);
-SHA512_ROUND1&lt;4&gt;(W,S, vk,vm);
-SHA512_ROUND1&lt;5&gt;(W,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
+SHA512_ROUND1&lt;4&gt;(X,S, vk,vm);
+SHA512_ROUND1&lt;5&gt;(X,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
 offset+=16;
 
 vk = VecLoad64x2(k, offset);
 vm = VecLoadMsg64x2(m, offset);
-SHA512_ROUND1&lt;6&gt;(W,S, vk,vm);
-SHA512_ROUND1&lt;7&gt;(W,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
+SHA512_ROUND1&lt;6&gt;(X,S, vk,vm);
+SHA512_ROUND1&lt;7&gt;(X,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
 offset+=16;
 
 vk = VecLoad64x2(k, offset);
 vm = VecLoadMsg64x2(m, offset);
-SHA512_ROUND1&lt;8&gt;(W,S, vk,vm);
-SHA512_ROUND1&lt;9&gt;(W,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
+SHA512_ROUND1&lt;8&gt;(X,S, vk,vm);
+SHA512_ROUND1&lt;9&gt;(X,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
 offset+=16;
 
 vk = VecLoad64x2(k, offset);
 vm = VecLoadMsg64x2(m, offset);
-SHA512_ROUND1&lt;10&gt;(W,S, vk,vm);
-SHA512_ROUND1&lt;11&gt;(W,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
+SHA512_ROUND1&lt;10&gt;(X,S, vk,vm);
+SHA512_ROUND1&lt;11&gt;(X,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
 offset+=16;
 
 vk = VecLoad64x2(k, offset);
 vm = VecLoadMsg64x2(m, offset);
-SHA512_ROUND1&lt;12&gt;(W,S, vk,vm);
-SHA512_ROUND1&lt;13&gt;(W,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
+SHA512_ROUND1&lt;12&gt;(X,S, vk,vm);
+SHA512_ROUND1&lt;13&gt;(X,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
 offset+=16;
 
 vk = VecLoad64x2(k, offset);
 vm = VecLoadMsg64x2(m, offset);
-SHA512_ROUND1&lt;14&gt;(W,S, vk,vm);
-SHA512_ROUND1&lt;15&gt;(W,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
+SHA512_ROUND1&lt;14&gt;(X,S, vk,vm);
+SHA512_ROUND1&lt;15&gt;(X,S, VecShiftLeft&lt;8&gt;(vk),VecShiftLeft&lt;8&gt;(vm));
 offset+=16;
 </programlisting>
     <para><emphasis role="bold">Part 3.</emphasis> Perform the remaining rounds.
@@ -333,43 +333,43 @@ offset+=16;
     <programlisting>for (i=16; i&lt;80; i+=16)
 {
     vk = VecLoad64x2(k, offset);
-    SHA512_ROUND2&lt;0&gt;(W,S, vk);
-    SHA512_ROUND2&lt;1&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA512_ROUND2&lt;0&gt;(X,S, vk);
+    SHA512_ROUND2&lt;1&gt;(X,S, VecShiftLeft&lt;8&gt;(vk));
     offset+=16;
 
     vk = VecLoad64x2(k, offset);
-    SHA512_ROUND2&lt;2&gt;(W,S, vk);
-    SHA512_ROUND2&lt;3&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA512_ROUND2&lt;2&gt;(X,S, vk);
+    SHA512_ROUND2&lt;3&gt;(X,S, VecShiftLeft&lt;8&gt;(vk));
     offset+=16;
 
     vk = VecLoad64x2(k, offset);
-    SHA512_ROUND2&lt;4&gt;(W,S, vk);
-    SHA512_ROUND2&lt;5&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA512_ROUND2&lt;4&gt;(X,S, vk);
+    SHA512_ROUND2&lt;5&gt;(X,S, VecShiftLeft&lt;8&gt;(vk));
     offset+=16;
 
     vk = VecLoad64x2(k, offset);
-    SHA512_ROUND2&lt;6&gt;(W,S, vk);
-    SHA512_ROUND2&lt;7&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA512_ROUND2&lt;6&gt;(X,S, vk);
+    SHA512_ROUND2&lt;7&gt;(X,S, VecShiftLeft&lt;8&gt;(vk));
     offset+=16;
 
     vk = VecLoad64x2(k, offset);
-    SHA512_ROUND2&lt;8&gt;(W,S, vk);
-    SHA512_ROUND2&lt;9&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA512_ROUND2&lt;8&gt;(X,S, vk);
+    SHA512_ROUND2&lt;9&gt;(X,S, VecShiftLeft&lt;8&gt;(vk));
     offset+=16;
 
     vk = VecLoad64x2(k, offset);
-    SHA512_ROUND2&lt;10&gt;(W,S, vk);
-    SHA512_ROUND2&lt;11&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA512_ROUND2&lt;10&gt;(X,S, vk);
+    SHA512_ROUND2&lt;11&gt;(X,S, VecShiftLeft&lt;8&gt;(vk));
     offset+=16;
 
     vk = VecLoad64x2(k, offset);
-    SHA512_ROUND2&lt;12&gt;(W,S, vk);
-    SHA512_ROUND2&lt;13&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA512_ROUND2&lt;12&gt;(X,S, vk);
+    SHA512_ROUND2&lt;13&gt;(X,S, VecShiftLeft&lt;8&gt;(vk));
     offset+=16;
 
     vk = VecLoad64x2(k, offset);
-    SHA512_ROUND2&lt;14&gt;(W,S, vk);
-    SHA512_ROUND2&lt;15&gt;(W,S, VecShiftLeft&lt;8&gt;(vk));
+    SHA512_ROUND2&lt;14&gt;(X,S, vk);
+    SHA512_ROUND2&lt;15&gt;(X,S, VecShiftLeft&lt;8&gt;(vk));
     offset+=16;
 }
 </programlisting>
@@ -402,12 +402,12 @@ uint32x4_p8 VecLoadMsg64x2(const T* data, int offset)
     <para><emphasis role="bold">SHA512_ROUND1.</emphasis> Mix state with a round key and user message.
     </para>
     <programlisting>template &lt;unsigned int R&gt;
-void SHA512_ROUND1(uint64x2_p8 W[16], uint64x2_p8 S[8],
+void SHA512_ROUND1(uint64x2_p8 X[16], uint64x2_p8 S[8],
                    const uint64x2_p8 K, const uint64x2_p8 M)
 {
     uint64x2_p8 T1, T2;
 
-    W[R] = M;
+    X[R] = M;
     T1 = S[H] + VecSigma1(S[E]);
     T1 += VecCh(S[E],S[F],S[G]) + K + M;
     T2 = VecSigma0(S[A]) + VecMaj(S[A],S[B],S[C]);
@@ -421,17 +421,17 @@ void SHA512_ROUND1(uint64x2_p8 W[16], uint64x2_p8 S[8],
     <para><emphasis role="bold">SHA512_ROUND2.</emphasis> Mix state with a round key.
     </para>
     <programlisting>template &lt;unsigned int R&gt;
-void SHA512_ROUND2(uint64x2_p8 W[16], uint64x2_p8 S[8],
+void SHA512_ROUND2(uint64x2_p8 X[16], uint64x2_p8 S[8],
                    const uint64x2_p8 K)
 {
-    // Indexes into the W[] array
+    // Indexes into the X[] array
     enum {IDX0=(R+0)&amp;0xf, IDX1=(R+1)&amp;0xf,
           IDX9=(R+9)&amp;0xf, IDX14=(R+14)&amp;0xf};
 
-    const uint64x2_p8 s0 = Vec_sigma0(W[IDX1]);
-    const uint64x2_p8 s1 = Vec_sigma1(W[IDX14]);
+    const uint64x2_p8 s0 = Vec_sigma0(X[IDX1]);
+    const uint64x2_p8 s1 = Vec_sigma1(X[IDX14]);
 
-    uint64x2_p8 T1 = (W[IDX0] += s0 + s1 + W[IDX9]);
+    uint64x2_p8 T1 = (X[IDX0] += s0 + s1 + X[IDX9]);
     T1 += S[H] + VecSigma1(S[E]) + VecCh(S[E],S[F],S[G]) + K;
     uint64x2_p8 T2 = VecSigma0(S[A]) + VecMaj(S[A],S[B],S[C]);
 

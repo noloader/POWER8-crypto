@@ -148,6 +148,9 @@ vsldoi
 vshasigmad
 vshasigmaw
 
+vec
+sld
+
 gcc
 clang
 xlc
@@ -185,6 +188,9 @@ VecLoad8x16
 VecLoad8x16u
 VecLoadMsg32x4
 VecLoadMsg64x2
+
+VecCh
+VecMaj
 
 ppc
 ppc64
