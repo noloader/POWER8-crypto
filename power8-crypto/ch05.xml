@@ -463,5 +463,42 @@ T VecCh(T x, T y, T z)
     return vec_sel(z,y,x);
 }
 </programlisting>
+    <para>Templates do not work the Sigma functions and you will have to supply C++ overloaded functions as shown below.</para>
+    <programlisting>uint64x2_p8 Vec_sigma0(const uint64x2_p8 val)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    return __vshasigmad(val, 0, 0);
+#else
+    return __builtin_crypto_vshasigmad(val, 0, 0);
+#endif
+}
+
+uint64x2_p8 Vec_sigma1(const uint64x2_p8 val)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    return __vshasigmad(val, 0, 0xf);
+#else
+    return __builtin_crypto_vshasigmad(val, 0, 0xf);
+#endif
+}
+
+uint64x2_p8 VecSigma0(const uint64x2_p8 val)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    return __vshasigmad(val, 1, 0);
+#else
+    return __builtin_crypto_vshasigmad(val, 1, 0);
+#endif
+}
+
+uint64x2_p8 VecSigma1(const uint64x2_p8 val)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    return __vshasigmad(val, 1, 0xf);
+#else
+    return __builtin_crypto_vshasigmad(val, 1, 0xf);
+#endif
+}
+</programlisting>
   </section>
 </chapter>
