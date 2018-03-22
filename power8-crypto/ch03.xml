@@ -12,7 +12,7 @@
   <section id="feature_aix">
     <title>AIX features</title>
     <para><indexterm><primary>Feature detection</primary><secondary>AIX</secondary></indexterm>The AIX system header <systemitem>&lt;systemcfg.h&gt;</systemitem> defines the <systemitem>_system_configuration</systemitem> structure that identifies system characteristics. The header also provides macros to access various fields of the structure. Runtime code to perform the POWER8 cryptography check should look similar to below.</para>
-    <programlisting><indexterm><primary>__power_8_andup</primary></indexterm>#include &lt;sys/systemcfg.h&gt;
+    <programlisting><indexterm><primary>__power_7_andup</primary></indexterm><indexterm><primary>__power_8_andup</primary></indexterm>#include &lt;sys/systemcfg.h&gt;
 
 #ifndef __power_7_andup
 # define __power_7_andup() 0
@@ -22,7 +22,6 @@
 # define __power_8_andup() 0
 #endif
 
-// POWER8 and above
 bool HasPower7()
 {
     if (__power_7_andup() != 0)
@@ -30,7 +29,6 @@ bool HasPower7()
     return false;
 }
 
-// POWER8 and above
 bool HasPower8()
 {
     if (__power_8_andup() != 0)
@@ -66,7 +64,7 @@ if (__power_set(0xffffffffU&lt;&lt;16))
         <para>RHEL 7 and later</para>
       </listitem>
     </itemizedlist>
-    <para>Below is a screen capture using the loader's diagnostics to print the auxiliary vector for the <systemitem>/bin/true</systemitem> program on <systemitem>gcc112</systemitem>.</para>
+    <para><indexterm><primary>LD_SHOW_AUXV</primary></indexterm>Below is a screen capture using the loader's diagnostics to print the auxiliary vector for the <systemitem>/bin/true</systemitem> program on <systemitem>gcc112</systemitem>.</para>
     <screen>$ LD_SHOW_AUXV=1 /bin/true
 AT_DCACHEBSIZE:  0x80
 AT_ICACHEBSIZE:  0x80
@@ -94,7 +92,7 @@ AT_PLATFORM:     power8
 AT_BASE_PLATFORM:power8
 </screen>
     <para><indexterm><primary>Feature detection</primary><secondary>Glibc</secondary></indexterm>Linux systems with Glibc version 2.16 can use <systemitem>getauxval</systemitem> to determine CPU features. However, defines like <systemitem>PPC_FEATURE2_ARCH_2_07</systemitem> and <systemitem>PPC_FEATURE2_VEC_CRYPTO</systemitem> require Glibc 2.24. Runtime code to perform the check should look similar to below. The defines below were taken from the Linux kernel's <ulink url="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/powerpc/include/asm/cputable.h">cputable.h</ulink>.</para>
-    <programlisting><indexterm><primary>getauxval</primary></indexterm>#ifndef AT_HWCAP
+    <programlisting><indexterm><primary>getauxval</primary></indexterm><indexterm><primary>AT_HWCAP</primary></indexterm><indexterm><primary>AT_HWCAP2</primary></indexterm><indexterm><primary>PPC_FEATURE_ARCH_2_06</primary></indexterm><indexterm><primary>PPC_FEATURE2_ARCH_2_07</primary></indexterm><indexterm><primary>PPC_FEATURE2_VEC_CRYPTO</primary></indexterm>#ifndef AT_HWCAP
 # define AT_HWCAP 16
 #endif
 #ifndef AT_HWCAP2
@@ -110,7 +108,6 @@ AT_BASE_PLATFORM:power8
 # define PPC_FEATURE2_VEC_CRYPTO  0x02000000
 #endif
 
-// POWER7 and above
 bool HasPower7()
 {
     if (getauxval(AT_HWCAP) &amp; PPC_FEATURE_ARCH_2_06 != 0)
@@ -118,7 +115,6 @@ bool HasPower7()
     return false;
 }
 
-// POWER8 and above
 bool HasPower8()
 {
     if (getauxval(AT_HWCAP2) &amp; PPC_FEATURE2_ARCH_2_07 != 0)
