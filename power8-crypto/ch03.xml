@@ -5,9 +5,9 @@
   <para><indexterm><primary>Feature detection</primary></indexterm><indexterm><primary>Feature detection</primary><secondary>AIX</secondary></indexterm>Runtime feature detections allows code to switch to a faster implementation when the hardware permits. This chapter shows you how to determine POWER8 cryptography availability at runtime on AIX and Linux PowerPC platforms.</para>
   <section id="feature_strategy">
     <title>Strategy</title>
-    <para>The strategy to detect availability of in-core cryptography on POWER processors is check for ISA 2.07 or above. Cryptography is ingrained in ISA 2.07, and they cannot be disgorged. All POWER8 and above machines implement ISA 2.07.</para>
-    <para>AIX does not provide separate bits for AES, SHA and polynomial multiplies. You infer the availability of the cryptography support based on the ISA level.</para>
-    <para>There is no need to perform <systemitem>SIGILL</systemitem> probes on AIX or Linux with Glibc 2.24 or newer.</para>
+    <para>The strategy to detect availability of in-core cryptography on POWER processors is check for ISA 2.07 or above. Cryptography is an ISA 2.07 and POWER8 requirement, and the cryptography support cannot be disgorged.</para>
+    <para>AIX systems should check for POWER8. AIX does not provide separate bits for AES, SHA and polynomial multiplies. The ISA level signals the availability of the cryptography on AIX. Linux supplies separate bits for ISA 2.07 and vector cryptography, but you only need to check the ISA level.</para>
+    <para>There is no need to perform <systemitem>SIGILL</systemitem> probes on AIX or newer Linux systems. If you are using older versions of Glibc or Linux kernel then you may have to fallback to <systemitem>SIGILL</systemitem> probes. Older versions include Glibc 2.24 and Linux kernel 4.08 (and earlier).</para>
   </section>
   <section id="feature_aix">
     <title>AIX features</title>
