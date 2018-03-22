@@ -247,7 +247,7 @@ void VecStore(const uint32x4_p8 val, T* mem_addr, int offset)
   </section>
   <section id="power8_unaligned_ld_st">
     <title>Unaligned data references</title>
-    <para>POWER7 (PowerISA 2.07) introduced unaligned loads and stores that avoid the aligned memory requirements. The preferred built-in functions for unaligned loads and stores are <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem>.  The built-ins are available on all currently supported versions of GCC and XLC; however, older versions of GCC such as those installed on many enterprise Linux distributions do not supply them.  For compatibility with these older compilers, you may use <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> for GCC.</para>
+    <para>POWER7 introduced unaligned loads and stores that avoid the aligned memory requirements. The preferred built-in functions for unaligned loads and stores are <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem>. The built-ins are available on all currently supported versions of GCC and XLC. However, older versions of GCC such as those installed on many enterprise Linux distributions do not supply them. For compatibility with these older compilers, you may use <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> for GCC.</para>
     <para>You should use the POWER7 loads and stores whenever you <emphasis>do not control</emphasis> buffers or their alignments, like a message in a buffer supplied by the user.</para>
     <para>The C/C++ code to perform a load using <systemitem>vec_xl</systemitem> and <systemitem>vec_vsx_ld</systemitem> should look similar to below. The function name has a <systemitem>u</systemitem> added to indicate unaligned.</para>
     <programlisting>template &lt;class T&gt;
@@ -273,12 +273,13 @@ void VecStoreu(const uint32x4_p8 val, T* mem_addr, int offset)
 </programlisting>
     <para>If your code will only be compiled with supported compilers, you may simplify it to use the vec_xl and vec_xst variants for both XLC and GCC.</para>
   </section>
+  <!--
   <section id="power8_vec_ld_be">
     <title>Big-endian data references</title>
     <para>POWER7 introduced <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> which perform big-endian loads and stores. The big-endian load compiles/assembles to <systemitem>lxvw4x/lxvd2x</systemitem>, and the store compiles/assembles to <systemitem>stxvw4x/stxvd2x</systemitem>.</para>
     <para>The big-endian variants can save two instructions on little-endian systems when the little-endian byte swap is not needed. This usually happens when you need to permute the data after a load or before a store.</para>
     <para>The extraneous permutes can be seen in the disassembly below. The interleaved instructions were removed. The instructions which remain are (1) a load of the value, (2) a load of the mask, and (3) three permutations instead of one.</para>
-    <programlisting>$ objdump --disassemble sha256-p8.exe
+    <programlisting>$ objdump &#45;&#45;disassemble sha256-p8.exe
 
 SHA256_SCHEDULE(unsigned int*, unsigned char const*):
 ...
@@ -323,6 +324,7 @@ uint32x4_p8 VecLoadMsg32x4(const T* data, int offset)
 }
 </programlisting>
   </section>
+-->
   <section id="power8_vec_deref">
     <title>Vector dereferences</title>
     <para>
