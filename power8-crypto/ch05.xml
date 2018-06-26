@@ -181,8 +181,7 @@ offset+=16;
     offset+=16;
 }
 </programlisting>
-    <para><emphasis role="bold">Part 4.</emphasis> Repack and store the new state.
-    </para>
+    <para><emphasis role="bold">Part 4.</emphasis> Repack and store the new state.</para>
     <programlisting>abcd += VecPack(S[A],S[B],S[C],S[D]);
 efgh += VecPack(S[E],S[F],S[G],S[H]);
 

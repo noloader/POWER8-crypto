@@ -36,7 +36,7 @@ then
         [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
     fi
 
-    echo "Foramtting source code..."
+    echo "Formatting source code..."
     for file in *.xml
     do
 	if xmllint --format "$file" --output "$file.format"

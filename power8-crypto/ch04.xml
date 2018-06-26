@@ -6,20 +6,108 @@
     <primary>AES</primary>
   </indexterm>
   <para>AES is the Advanced Encryption Standard. AES is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.197.pdf">FIPS 197, Advanced Encryption Standard (AES)</ulink>. You should read the standard if you are not familiar with the block cipher.</para>
-  <para>Three topics are discussed for AES. The first is encryption, the second is decryption, and the third is keying. Keying is discussed last because encryption and decryption uses the golden key schedule from FIPS 197.</para>
+  <para>Four topics are discussed for AES. The first is the FIPS 197 golden key which allows you to independently test key derivation and encryption or decryption. The second part is encryption, and the third part is decryption. The final part is keying and it includes a discussion of generating the subkey or round key table provided like the one provided in FIPS 197 Appendix B.</para>
+  <para>GCC and XL C/C++ use different data types and intrinsics to perform AES. GCC uses a 64x2 arrangement and IBM XL C/C++ uses a 8x16 arrangement.</para>
+  <para>POWER8 offers instructions to perform encryption and decryption only. The ISA does not supply instructions that assist in key generation, like Intel's <systemitem>AESKEYGENASSIST</systemitem>.</para>
   <section id="aes_strategy">
     <title>Strategy</title>
-    <para>Strategy</para>
+    <para>The strategy to perform AES encryption and decryption is straight forward. First the subkey or round key table is created based on the user or master key. Second, load the user's message into the state array. Finally the AES encryption or decryption round function is applied to the state array the required number of times. Each application of the round function is accompanied by a loading of a subkey.</para>
   </section>
-  <section id="aes_encryption">
+  <section id="aes_golden_key" xreflabel="AES Golden Key">
+    <title>AES Golden Key</title>
+    <para>The sections <xref linkend="aes_encryption"/> and <xref linkend="aes_decryption"/> below uses the expanded "golden key" from FIPS 197 Appendix B. It side steps the key derivation part of the AES algorithm.</para>
+    <para>FIPS 197 effectively provides two parameters. The first is the AES key supplied by the user. The second is the expanded subkey or round key table.</para>
+    <programlisting>const uint8_t key[16] = {
+     0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d,
+     0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34
+};</programlisting>
+    <para>The round keys for AES-128 are as follows. Since we control the round key buffer we can make it aligned. The aligned loads will save a tiny amount of time during each load of a round key.</para>
+    <programlisting>__attribute__((aligned(16)))
+const uint8_t subkeys[10][16] = {
+     {0xA0, 0xFA, 0xFE, 0x17, 0x88, 0x54, 0x2c, 0xb1,
+        0x23, 0xa3, 0x39, 0x39, 0x2a, 0x6c, 0x76, 0x05},
+     {0xF2, 0xC2, 0x95, 0xF2, 0x7a, 0x96, 0xb9, 0x43,
+        0x59, 0x35, 0x80, 0x7a, 0x73, 0x59, 0xf6, 0x7f},
+     {0x3D, 0x80, 0x47, 0x7D, 0x47, 0x16, 0xFE, 0x3E,
+        0x1E, 0x23, 0x7E, 0x44, 0x6D, 0x7A, 0x88, 0x3B},
+     {0xEF, 0x44, 0xA5, 0x41, 0xA8, 0x52, 0x5B, 0x7F,
+        0xB6, 0x71, 0x25, 0x3B, 0xDB, 0x0B, 0xAD, 0x00},
+     {0xD4, 0xD1, 0xC6, 0xF8, 0x7C, 0x83, 0x9D, 0x87,
+        0xCA, 0xF2, 0xB8, 0xBC, 0x11, 0xF9, 0x15, 0xBC},
+     {0x6D, 0x88, 0xA3, 0x7A, 0x11, 0x0B, 0x3E, 0xFD,
+        0xDB, 0xF9, 0x86, 0x41, 0xCA, 0x00, 0x93, 0xFD},
+     {0x4E, 0x54, 0xF7, 0x0E, 0x5F, 0x5F, 0xC9, 0xF3,
+        0x84, 0xA6, 0x4F, 0xB2, 0x4E, 0xA6, 0xDC, 0x4F},
+     {0xEA, 0xD2, 0x73, 0x21, 0xB5, 0x8D, 0xBA, 0xD2,
+        0x31, 0x2B, 0xF5, 0x60, 0x7F, 0x8D, 0x29, 0x2F},
+     {0xAC, 0x77, 0x66, 0xF3, 0x19, 0xFA, 0xDC, 0x21,
+        0x28, 0xD1, 0x29, 0x41, 0x57, 0x5c, 0x00, 0x6E},
+     {0xD0, 0x14, 0xF9, 0xA8, 0xC9, 0xEE, 0x25, 0x89,
+        0xE1, 0x3F, 0x0c, 0xC8, 0xB6, 0x63, 0x0C, 0xA6}
+};</programlisting>
+  </section>
+  <section id="aes_encryption" xreflabel="AES Encryption">
     <title>AES encryption</title>
     <indexterm>
       <primary>AES</primary>
       <secondary>Encryption</secondary>
     </indexterm>
-    <para>TODO</para>
+    <para>AES encryption consists of three steps. First, the user's message is loaded into a state buffer. The second part loads a subkey and applies the AES round function. The second part is repeated a required number of times. For example, AES with 128-bit key applies the round function 10 times. The third part stores the result of encrypting the state.</para>
+    <para>The first round loads the user or master key and performs an XOR. The remaining rounds use the expanded subkey table. The last round uses a different encryption instruction that is applied to the last round only.</para>
+    <para><emphasis role="bold">Part 1.</emphasis> Load the user message into the state vector. The 64x2 arrangement tells this is a GCC code path.</para>
+    <programlisting>uint64x2_p8 s = VecLoad64x2u(input);
+uint64x2_p8 k = VecLoad64x2u(key);
+s = VecXor(s, k);</programlisting>
+    <para><emphasis role="bold">Part 2.</emphasis> Load a subkey and encrypt the state buffer. Lather, rinse and repeat the required number of times Note the last round uses a different encryption instruction that avoids a final XOR present in other rounds. Also notice the subkey table is aligned so you can use <systemitem>VecLoad64x2</systemitem> rather then <systemitem>VecLoad64x2u</systemitem>.</para>
+    <programlisting>k = VecLoad64x2(subkeys[0]);
+s = __builtin_crypto_vcipher(s, k);
+
+k = VecLoad64x2(subkeys[1]);
+s = __builtin_crypto_vcipher(s, k);
+
+k = VecLoad64x2(subkeys[2]);
+s = __builtin_crypto_vcipher(s, k);
+
+...
+
+k = VecLoad64x2(subkeys[7]);
+s = __builtin_crypto_vcipher(s, k);
+
+k = VecLoad64x2(subkeys[8]);
+s = __builtin_crypto_vcipher(s, k);
+
+k = VecLoad64x2(subkeys[9]);
+s = __builtin_crypto_vcipherlast(s, k);</programlisting>
+    <para><emphasis role="bold">Part 3.</emphasis> Store the new state which is the encrypted block.</para>
+    <programlisting>VecStore64x2u(s, output);</programlisting>
+    <para>The AES-128 code shown above demonstrates a GCC code path using the 64x2 arrangement. Below is the IBM XL C/C++ code path using an 8x16 arrangement.</para>
+    <programlisting>uint8x16_p8 s = VecLoad8x16u(input);
+uint8x16_p8 k = VecLoad8x16u(key);
+s = VecXor(s, k);
+
+k = VecLoad8x16(subkeys[0]);
+s = __vcipher(s, k);
+
+k = VecLoad8x16(subkeys[1]);
+s = __vcipher(s, k);
+
+k = VecLoad8x16(subkeys[2]);
+s = __vcipher(s, k);
+
+...
+
+k = VecLoad8x16(subkeys[7]);
+s = __vcipher(s, k);
+
+k = VecLoad8x16(subkeys[8]);
+s = __vcipher(s, k);
+
+k = VecLoad8x16(subkeys[9]);
+s = __vcipherlast(s, k);
+
+VecStore8x16u(s, output);</programlisting>
   </section>
-  <section id="aes_decryption">
+  <section id="aes_decryption" xreflabel="AES Decryption">
     <title>AES decryption</title>
     <indexterm>
       <primary>AES</primary>
