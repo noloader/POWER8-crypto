@@ -14,7 +14,7 @@
     <para>The strategy to perform AES encryption and decryption is straight forward. First the subkey or round key table is created based on the user key. The round keys are stored in big-endian format so a swap is avoided when loading a round key. Second, the message is loaded into the AES state array and an endian swap is performed as required. Third the the AES encryption or decryption round function is applied to the state array the required number of times. Each application of the round function is accompanied by a loading of a subkey. Finally the encrypted or decrypted message is stored after performing an endian swap as needed.</para>
   </section>
   <section id="aes_endianness" xreflabel="AES Endianness">
-    <title>AES endianness</title>
+    <title>Endianness</title>
     <para>The AES hardware operates in big-endian mode. On little-endian systems like <systemitem>gcc112</systemitem> you have to convert from little-endian to big-endian during loads and stores. The code to perform the conversion is shown below. Also recall from <xref linkend="power8_unaligned_ld_st"/> POWER7 provides unaligned loads and stores so POWER8 has them available.</para>
     <programlisting>uint8x16_p VecReverse8x16(const uint8x16_p src)
 {
@@ -82,7 +82,7 @@ void VecStore64x2(const uint64x2_p src, uint8_t dest[16])
 }</programlisting>
   </section>
   <section id="aes_functions" xreflabel="AES Functions">
-    <title>AES functions</title>
+    <title>Functions</title>
     <para>GCC and IBM XL C/C++ uses different intrinsics and different datatypes for encryption and decryption. GCC uses a 64x2 vector arrangement while IBM XL CC++ uses a 8x16 arrangement. An intrinsics based implementation should wrap two functions for encryption and two functions for decryption.</para>
     <para>For the encryption operation POWER8 provides a standard round function and a function to encrypt the last round. Source code should look similar to below.</para>
     <programlisting>template &lt;class T&gt;
@@ -142,7 +142,7 @@ T VecDecryptLast(const T state, const T rkey)
 }</programlisting>
   </section>
   <section id="aes_golden_key" xreflabel="AES Golden Key">
-    <title>AES golden key</title>
+    <title>Golden key</title>
     <para>FIPS 197 Appendix B provides a user key expanded into round keys. We refer to it as the "golden key" and it allows us to independently test round key derivation, encryption and decryption. The sections <xref linkend="aes_encryption"/> and <xref linkend="aes_decryption"/> use the golden key to simplify the discussions.</para>
     <para>Appendix B provides two key parameters. The first is the AES key supplied by the user. The second is the expanded subkey or round key table. Below is the user key supplied by Appendix B.</para>
     <programlisting>const uint8_t key[16] = {
@@ -175,7 +175,7 @@ const uint8_t subkeys[10][16] = {
 };</programlisting>
   </section>
   <section id="aes_keying" xreflabel="AES Key Schedule">
-    <title>AES key schedule</title>
+    <title>Key schedule</title>
     <indexterm>
       <primary>AES</primary>
       <secondary>Key schedule</secondary>
@@ -184,7 +184,7 @@ const uint8_t subkeys[10][16] = {
     <para>A brief discussion of an POWER8 optimized key schedule can be found at <ulink url="https://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/index.html">POWER8 in-core cryptography</ulink>.</para>
   </section>
   <section id="aes_encryption" xreflabel="AES Encryption">
-    <title>AES encryption</title>
+    <title>Encryption</title>
     <indexterm>
       <primary>AES</primary>
       <secondary>Encryption</secondary>
@@ -247,7 +247,7 @@ s = VecEncryptLast(s, k);
 VecStore8x16(s, output);</programlisting>
   </section>
   <section id="aes_decryption" xreflabel="AES Decryption">
-    <title>AES decryption</title>
+    <title>Decryption</title>
     <indexterm>
       <primary>AES</primary>
       <secondary>Decryption</secondary>
@@ -310,7 +310,7 @@ s = VecDecryptLast(s, k);
 VecStore8x16(s, output);</programlisting>
   </section>
   <section id="aes_performance" xreflabel="AES Performance">
-    <title>AES performance</title>
+    <title>Performance</title>
     <indexterm>
       <primary>AES</primary>
       <secondary>Performance</secondary>
