@@ -21,12 +21,12 @@
 T VecEncrypt(const T state, const T rkey)
 {
 #if defined(__xlc__) || defined(__xlC__)
-    uint8x16_p8 s = (uint8x16_p8)state;
-    uint8x16_p8 k = (uint8x16_p8)rkey;
+    uint8x16_p s = (uint8x16_p)state;
+    uint8x16_p k = (uint8x16_p)rkey;
     return (T)__vcipher(s, k);
 #else
-    uint64x2_p8 s = (uint64x2_p8)state;
-    uint64x2_p8 k = (uint64x2_p8)rkey;
+    uint64x2_p s = (uint64x2_p)state;
+    uint64x2_p k = (uint64x2_p)rkey;
     return (T)__builtin_crypto_vcipher(s, k);
 #endif
 }
@@ -35,12 +35,12 @@ template &lt;class T&gt;
 T VecEncryptLast(const T state, const T rkey)
 {
 #if defined(__xlc__) || defined(__xlC__)
-    uint8x16_p8 s = (uint8x16_p8)state;
-    uint8x16_p8 k = (uint8x16_p8)rkey;
+    uint8x16_p s = (uint8x16_p)state;
+    uint8x16_p k = (uint8x16_p)rkey;
     return (T)__vcipherlast(s, k);
 #else
-    uint64x2_p8 s = (uint64x2_p8)state;
-    uint64x2_p8 k = (uint64x2_p8)rkey;
+    uint64x2_p s = (uint64x2_p)state;
+    uint64x2_p k = (uint64x2_p)rkey;
     return (T)__builtin_crypto_vcipherlast(s, k);
 #endif
 }</programlisting>
@@ -49,12 +49,12 @@ T VecEncryptLast(const T state, const T rkey)
 T VecDecrypt(const T state, const T rkey)
 {
 #if defined(__xlc__) || defined(__xlC__)
-    uint8x16_p8 s = (uint8x16_p8)state;
-    uint8x16_p8 k = (uint8x16_p8)rkey;
+    uint8x16_p s = (uint8x16_p)state;
+    uint8x16_p k = (uint8x16_p)rkey;
     return (T)__vncipher(s, k);
 #else
-    uint64x2_p8 s = (uint64x2_p8)state;
-    uint64x2_p8 k = (uint64x2_p8)rkey;
+    uint64x2_p s = (uint64x2_p)state;
+    uint64x2_p k = (uint64x2_p)rkey;
     return (T)__builtin_crypto_vncipher(s, k);
 #endif
 }
@@ -63,12 +63,12 @@ template &lt;class T&gt;
 T VecDecryptLast(const T state, const T rkey)
 {
 #if defined(__xlc__) || defined(__xlC__)
-    uint8x16_p8 s = (uint8x16_p8)state;
-    uint8x16_p8 k = (uint8x16_p8)rkey;
+    uint8x16_p s = (uint8x16_p)state;
+    uint8x16_p k = (uint8x16_p)rkey;
     return (T)__vncipherlast(s, k);
 #else
-    uint64x2_p8 s = (uint64x2_p8)state;
-    uint64x2_p8 k = (uint64x2_p8)rkey;
+    uint64x2_p s = (uint64x2_p)state;
+    uint64x2_p k = (uint64x2_p)rkey;
     return (T)__builtin_crypto_vncipherlast(s, k);
 #endif
 }</programlisting>
@@ -115,8 +115,8 @@ const uint8_t subkeys[10][16] = {
     <para>AES encryption consists of three steps. First, the user's message is loaded into a state buffer. The second part loads a subkey and applies the AES round function. The second part is repeated a required number of times. For example, AES with 128-bit key applies the round function 10 times. The third part stores the result of encrypting the state, which is the encrypted block.</para>
     <para>The first round loads the user or master key and performs an XOR. The remaining rounds use the expanded subkey table. The last round uses a different encryption instruction that is applied to the last round only.</para>
     <para><emphasis role="bold">Part 1.</emphasis> Load the user message into the state vector. The 64x2 arrangement tells this is a GCC code path.</para>
-    <programlisting>uint64x2_p8 s = VecLoad64x2u(input);
-uint64x2_p8 k = VecLoad64x2u(key);
+    <programlisting>uint64x2_p s = VecLoad64x2u(input);
+uint64x2_p k = VecLoad64x2u(key);
 s = VecXor(s, k);</programlisting>
     <para><emphasis role="bold">Part 2.</emphasis> Load a subkey and encrypt the state buffer. Lather, rinse and repeat the required number of times Note the last round uses a different encryption instruction that avoids a final XOR present in other rounds. Also notice the subkey table is aligned so you can use <systemitem>VecLoad64x2</systemitem> rather then <systemitem>VecLoad64x2u</systemitem>.</para>
     <para>In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__builtin_crypto_vcipher</primary></indexterm>
@@ -144,8 +144,8 @@ s = VecEncryptLast(s, k);</programlisting>
     <programlisting>VecStore64x2u(s, output);</programlisting>
     <para>The AES-128 code shown above demonstrates a GCC code path using the 64x2 arrangement. Below is the IBM XL C/C++ code path using an 8x16 arrangement. In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__vcipher</primary></indexterm>
       <indexterm><primary>__vcipherlast</primary></indexterm></para>
-    <programlisting>uint8x16_p8 s = VecLoad8x16u(input);
-uint8x16_p8 k = VecLoad8x16u(key);
+    <programlisting>uint8x16_p s = VecLoad8x16u(input);
+uint8x16_p k = VecLoad8x16u(key);
 s = VecXor(s, k);
 
 k = VecLoad8x16(subkeys[0]);
@@ -180,8 +180,8 @@ VecStore8x16u(s, output);</programlisting>
     <para>AES decryption has two minor differences from the encryption algorithm. First the subkeys or round keys are iterated in reverse order. Second, the user or master key is used last instead of first.</para>
     <para>The code below demonstrates AES-128 using the GCC code path. GCC uses the 64x2 arrangement. In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__builtin_crypto_vncipher</primary></indexterm>
       <indexterm><primary>__builtin_crypto_vncipherlast</primary></indexterm></para>
-    <programlisting>uint64x2_p8 s = VecLoad64x2u(input);
-uint64x2_p8 k = VecLoad64x2u(subkeys[9]);
+    <programlisting>uint64x2_p s = VecLoad64x2u(input);
+uint64x2_p k = VecLoad64x2u(subkeys[9]);
 s = VecXor(s, k);
 
 k = VecLoad64x2(subkeys[8]);
@@ -207,8 +207,8 @@ s = VecDecryptLast(s, k);
 VecStore8x16u(s, output);</programlisting>
     <para>As with AES encryption there is a different code path for IBM XL C/C++ using the 8x16 datatypes. The code below shows XL C/C++ decryption using the 8x16 datatype. In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__vncipher</primary></indexterm>
       <indexterm><primary>__vncipherlast</primary></indexterm></para>
-    <programlisting>uint8x16_p8 s = VecLoad8x16u(input);
-uint8x16_p8 k = VecLoad8x16u(subkeys[9]);
+    <programlisting>uint8x16_p s = VecLoad8x16u(input);
+uint8x16_p k = VecLoad8x16u(subkeys[9]);
 s = VecXor(s, k);
 
 k = VecLoad8x16(subkeys[8]);
@@ -253,16 +253,16 @@ VecStore8x16u(s, output);</programlisting>
     <para>The code below processes 16*8 or 128-bytes of data at a time using the GCC code path. The IBM code path would be similar.</para>
     <para>In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__builtin_crypto_vcipher</primary></indexterm>
       <indexterm><primary>__builtin_crypto_vcipherlast</primary></indexterm></para>
-    <programlisting>uint64x2_p8 k = VecLoad64x2u(key);
+    <programlisting>uint64x2_p k = VecLoad64x2u(key);
 
-uint64x2_p8 s0 = VecLoad64x2u(input+0);
-uint64x2_p8 s1 = VecLoad64x2u(input+16);
-uint64x2_p8 s2 = VecLoad64x2u(input+32);
-uint64x2_p8 s3 = VecLoad64x2u(input+48);
-uint64x2_p8 s4 = VecLoad64x2u(input+64);
-uint64x2_p8 s5 = VecLoad64x2u(input+72);
-uint64x2_p8 s6 = VecLoad64x2u(input+96);
-uint64x2_p8 s7 = VecLoad64x2u(input+112);
+uint64x2_p s0 = VecLoad64x2u(input+0);
+uint64x2_p s1 = VecLoad64x2u(input+16);
+uint64x2_p s2 = VecLoad64x2u(input+32);
+uint64x2_p s3 = VecLoad64x2u(input+48);
+uint64x2_p s4 = VecLoad64x2u(input+64);
+uint64x2_p s5 = VecLoad64x2u(input+72);
+uint64x2_p s6 = VecLoad64x2u(input+96);
+uint64x2_p s7 = VecLoad64x2u(input+112);
 
 s0 = VecXor(s0, k);
 s1 = VecXor(s1, k);
