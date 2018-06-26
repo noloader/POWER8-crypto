@@ -13,6 +13,8 @@ GitHub
 FIPS
 NIST
 OpenSSL
+subkey
+subkeys
 
 Andy
 Polyakov
@@ -250,4 +252,7 @@ mem
 memalign
 
 TODO
+
+MiB
+GiB
 

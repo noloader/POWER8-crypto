@@ -4,7 +4,7 @@
   <title>Vector programming</title>
   <para>Several topics need to be discussed to minimize trouble when using the Altivec and POWER8 extensions. They include PowerPC compilers and options, Altivec headers, machine endianness, vector datatypes, memory and alignment, and loads and stores. It is enough information to get to the point you can use AES and SHA but not much more.</para>
   <para>Memory alignment, loads, stores and shifts will probably cause the most trouble for someone new to PowerPC vector programming. If you are new to the platform you may want to read this chapter twice. If you are experienced with the platform then you probably want to skip this chapter.</para>
-  <section id="power8_compilers">
+  <section id="power8_compilers" xreflabel="PowerPC Compilers">
     <title>PowerPC compilers</title>
     <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++ (XLC). Both produce high quality code. LLVM's Clang was not tested. The compile farm lacks a Clang installation.</para>
     <para>The GCC and XLC compilers are mostly the same but accept slightly different options. The difference usually reduces to GCC accepts architecture options using <systemitem>-march</systemitem> and <systemitem>-mcpu</systemitem>, while XLC uses <systemitem>-qarch</systemitem>.</para>
@@ -17,7 +17,7 @@
     <para>Both compilers consume <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem> for GCC and <systemitem>-qpic</systemitem> for XLC.</para>
     <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be mindful of the default GCC compiler. It may be GCC 4.8.5 which is a bit old and unsupported. You usually enjoy better code generation and performance with a modern GCC like 7.2. A newer compiler is usually located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
   </section>
-  <section id="power8_header">
+  <section id="power8_header" xreflabel="Altivec Headers">
     <title>Altivec headers</title>
     <para>The header required for datatypes and functions is <systemitem>&lt;altivec.h&gt;</systemitem>. To support compiles with a C++ compiler <systemitem>__vector</systemitem> keyword is used rather than <systemitem>vector</systemitem>. A typical Altivec include looks as shown below.</para>
     <programlisting>#if defined(__ALTIVEC__)
@@ -55,7 +55,7 @@
       </listitem>
     </itemizedlist>
   </section>
-  <section id="power8_endianess">
+  <section id="power8_endianess" xreflabel="Machine Endianness">
     <title>Machine endianness</title>
     <para>You will experience both little-endian and big-endian machines in the field when working with a modern PowerPC architecture. Linux is generally little-endian, while AIX is big-endian.</para>
     <para>When writing portable source code you should check the value of preprocessor macros <systemitem>__LITTLE_ENDIAN__</systemitem> or <systemitem>__BIG_ENDIAN__</systemitem> to determine the configuration. The value of the macros <systemitem>__BIG_ENDIAN__</systemitem> and <systemitem>__LITTLE_ENDIAN__</systemitem> are defined to non-0 to activate the macro. Source code checking endianness should look similar to the code shown below.</para>
@@ -94,13 +94,13 @@
 #define __HHW_BIG_ENDIAN__ 1
 </screen>
   </section>
-  <section id="power8_alloc">
+  <section id="power8_alloc" xreflabel="Memory Allocation">
     <title>Memory allocation</title>
     <para>System calls like <systemitem>malloc</systemitem> and <systemitem>calloc</systemitem> (and friends) are used to acquire memory from the heap. The system calls <emphasis>do not</emphasis> guarantee alignment to any particular boundary on all platforms. Linux generally returns a pointer that is at least 16-byte aligned on all platforms, including ARM, PPC, MIPS and x86. AIX <emphasis>does not</emphasis> provide the same <ulink url="http://stackoverflow.com/q/48373188/608639">alignment behavior</ulink>.</para>
     <para>To avoid unexpected surprises when using heap allocations you should use <ulink url="http://pubs.opengroup.org/onlinepubs/009695399/functions/posix_memalign.html"><systemitem>posix_memalign</systemitem></ulink> to acquire heap memory aligned to a particular boundary and <systemitem>free</systemitem> to return it to the system.</para>
     <para>AIX provides routines for vector memory allocation and alignment. They are <systemitem>vec_malloc</systemitem> and <systemitem>vec_free</systemitem>, and you can use them like <systemitem>_mm_malloc</systemitem> on Intel machines with Streaming SIMD Extensions (SSE).</para>
   </section>
-  <section id="power8_datatypes">
+  <section id="power8_datatypes" xreflabel="Vector Datatypes">
     <title>Vector datatypes</title>
     <para>Three vector datatypes are needed for in-core programming. The three types used for crypto are listed below.</para>
     <itemizedlist mark="bullet">
@@ -124,7 +124,7 @@
     <para>POWER8 added <systemitem>__vector unsigned long</systemitem> and associated vector operations. <systemitem>__vector unsigned long</systemitem> is arranged as 2 each 64-bit double words, and it is a typedef to <systemitem>uint64x2_p</systemitem>.</para>
     <para>The typedef naming was selected to convey the arrangement, like <systemitem>32x4</systemitem> and <systemitem>64x2</systemitem>. The trailing <systemitem>_p</systemitem> was selected to convey the POWER architecture and avoid collisions with ARM NEON vector data types. The suffix <systemitem>_p8</systemitem> (for POWER8 architecture) or <systemitem>_v</systemitem> (for Vector) would work just as well.</para>
   </section>
-  <section id="power8_shift">
+  <section id="power8_shift" xreflabel="Vector Shifts">
     <title>Vector shifts</title>
     <para>Altivec shifts and rotates are performed using <emphasis>Vector Shift Left Double by Octet Immediate</emphasis>. The vector shift and rotate built-in is <systemitem>vec_sld</systemitem> and it compiles/assembles to <systemitem>vsldoi</systemitem>. Both shift and rotate operate on a concatenation of two vectors. Bytes are shifted out on the left and shifted in on the right. The instructions need an integral constant in the range 0 - 15, inclusive.</para>
     <para>Vector shifts and rotates perform as expected on big-endian machines. Little-endian machines need a special handling to produce correct results and the <ulink url="http://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>. If you are like many other developers then you will literally waste hours trying to figure it out what happened the first time you experience it.</para>
@@ -155,7 +155,7 @@ T VecRotateLeft(const T val)
 }
 </programlisting>
   </section>
-  <section id="power8_permute">
+  <section id="power8_permute" xreflabel="Vector Permutes">
     <title>Vector permutes</title>
     <para>Vector permutes allow you to rearrange elements in a vector. The values to be permuted can be in any arrangement like 64x2 or 32x4, but the mask is always an octet mask using an 8x16 arrangement.</para>
     <para>The Altivec permute is very powerful and it stands out among architectures like ARM, Aarch64 and x86. The instruction allows you to select elements from two source vectors. When an index in the mask is in the range <systemitem>[0,15]</systemitem> then elements from the first vector are selected, and index values in the the range <systemitem>[16,31]</systemitem> select elements from the second vector.</para>
@@ -182,7 +182,7 @@ uint32x4_p c = vec_perm(a, b, m);
       </textobject>
     </mediaobject>
   </section>
-  <section id="power8_eff_addr">
+  <section id="power8_eff_addr" xreflabel="Effective Addresses">
     <title>Effective addresses</title>
     <para>Some vector operations, like loads and stores, can be sensitive to the alignment of a memory address. Operations like <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive, and the documentation clearly states it.</para>
     <para>The effective address is a simple sum consisting of the memory address plus the offset into the address with the result rounded down to a multiple of 16. Effective addresses follow integer arithmetic and not pointer arithmetic.</para>
@@ -211,7 +211,7 @@ uint8x16_p r2 = vec_ld(off2, ptr2);
 </programlisting>
     <para>The application of effective addresses are discussed more below in <xref linkend="power8_aligned_ld_st"/> and <xref linkend="power8_unaligned_ld_st"/>.</para>
   </section>
-  <section id="power8_aligned_ld_st">
+  <section id="power8_aligned_ld_st" xreflabel="Aligned Data References">
     <title>Aligned data references</title>
     <para>Altivec loads and stores have traditionally been performed using <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> since at least the POWER4 days in the early 2000s. <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive to alignment of the effective address. Effective addresses were discussed in <xref linkend="power8_eff_addr"/>.</para>
     <para>Altivec <emphasis>does not</emphasis> raise a <systemitem>SIGBUS</systemitem> to indicate a misaligned load or store. Instead, the bottom 4 bits of the sum <systemitem>address+offset</systemitem> are masked-off and then the memory at the effective address is loaded.</para>
@@ -245,7 +245,7 @@ void VecStore(const uint32x4_p val, T* mem_addr, int offset)
 }
 </programlisting>
   </section>
-  <section id="power8_unaligned_ld_st">
+  <section id="power8_unaligned_ld_st" xreflabel="Unaligned Data References">
     <title>Unaligned data references</title>
     <para>POWER7 introduced unaligned loads and stores that avoid the aligned memory requirements. The preferred built-in functions for unaligned loads and stores are <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem>. The built-ins are available on all currently supported versions of GCC and XLC. However, older versions of GCC such as those installed on many enterprise Linux distributions do not supply them. For compatibility with these older compilers you may use <systemitem>vec_vsx_ld</systemitem> and <systemitem>vec_vsx_st</systemitem> for GCC.</para>
     <para>You should use the POWER7 loads and stores whenever you <emphasis>do not control</emphasis> buffers or their alignments, like a message in a buffer supplied by the user.</para>
@@ -274,7 +274,7 @@ void VecStoreu(const uint32x4_p val, T* mem_addr, int offset)
     <para>If your code will only be compiled with supported compilers, you may simplify it to use the <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem> variants for both XLC and GCC.</para>
   </section>
   <!--
-  <section id="power8_vec_ld_be">
+  <section id="power8_vec_ld_be"  xreflabel="Big-endian Data References">
     <title>Big-endian data references</title>
     <para>POWER7 introduced <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> which perform big-endian loads and stores. The big-endian load compiles/assembles to <systemitem>lxvw4x/lxvd2x</systemitem>, and the store compiles/assembles to <systemitem>stxvw4x/stxvd2x</systemitem>.</para>
     <para>The big-endian variants can save two instructions on little-endian systems when the little-endian byte swap is not needed. This usually happens when you need to permute the data after a load or before a store.</para>
@@ -325,7 +325,7 @@ uint32x4_p VecLoadMsg32x4(const T* data, int offset)
 </programlisting>
   </section>
 -->
-  <section id="power8_vec_deref">
+  <section id="power8_vec_deref" xreflabel="Vector Dereferences">
     <title>Vector dereferences</title>
     <para>
       The <ulink url="https://openpowerfoundation.org/?resource_lib=64-bit-elf-v2-abi-specification-power-architecture">OpenPOWER ELF V2 ABI Specification</ulink>, version 1.4, incorrectly states that accessing vectors on Power should preferably be done with vector pointers and the dereference operator *.  However, this is only permitted for aligned vector references.  Examples in Chapter 6 of the ABI document show use of casting operations that represent undefined behavior according to the C standard.  An errata document that corrects the ABI may be found <ulink url="https://openpowerfoundation.org/?resource_lib=openpower-elfv2-errata-elfv2-abi-version-1-4">at the OpenPOWER Foundation website</ulink>.  Subsequent sections describe the proper way to use loads and stores of aligned and unaligned data.

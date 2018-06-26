@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
-<chapter id="ch05">
+<chapter id="ch05" xreflabel="SHA">
   <title>Secure Hash Standard</title>
   <indexterm>
     <primary>SHA</primary>
   </indexterm>
   <para>SHA is the Secure Hash Standard. SHA is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>. You should read the standard if you are not familiar with the hash family.</para>
   <para>The code below is available online at <ulink url="https://github.com/noloader/SHA-Intrinsics">SHA Intrinsics</ulink>. The GitHub provides accelerated SHA for Intel, ARMv8 and POWER8.</para>
-  <section id="sha_strategy">
-    <title>Strategy</title>
+  <section id="sha_strategy" xreflabel="SHA Strategy">
+    <title>SHA Strategy</title>
     <para>SHA provides a lot of freedom to an implementation. You can approach your SHA implementation in several ways, but most of them will result in an under-performing SHA. This section provides one of the strategies for a better performing implementation.</para>
     <para>The first design element is to perform everything in vector registers. The only integer operations should be reading 2 longs or 4 integers from memory during a load, and writing 2 longs or 4 integers after the round during a store.</para>
     <para>Second, when you need an integer for a calculation you will shift it out from a vector register to another vector register using <systemitem>vec_sld</systemitem>. Most of the time you only care about element 0 in a vector register, and the remainder of elements are "don't care" elements.</para>
@@ -34,7 +34,7 @@ for (i = 16; i &lt; 64; i++)
 }
 </programlisting>
   </section>
-  <section id="sha_ch">
+  <section id="sha_ch" xreflabel="Ch Function">
     <title>Ch function</title>
     <para><indexterm><primary>SHA</primary><secondary>Ch function</secondary></indexterm>The SHA <systemitem>Ch</systemitem> function is implemented in POWER systems using the <systemitem>vsel</systemitem> instruction or the <systemitem>vec_sel</systemitem> built-in. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p</systemitem> arguments. The important piece of information is <systemitem>x</systemitem> used as the selector.</para>
     <programlisting>uint32x4_p
@@ -43,7 +43,7 @@ VecCh(uint32x4_p x, uint32x4_p y, uint32x4_p z)
     return vec_sel(z, y, x);
 }</programlisting>
   </section>
-  <section id="sha_maj">
+  <section id="sha_maj" xreflabel="Maj Function">
     <title>Maj function</title>
     <para><indexterm><primary>SHA</primary><secondary>Maj function</secondary></indexterm>The SHA <systemitem>Maj</systemitem> function is implemented in POWER systems using the <systemitem>vsel</systemitem> instruction or the <systemitem>vec_sel</systemitem> built-in. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p</systemitem> arguments. The important piece of information is <systemitem>x^y</systemitem> used as the selector.</para>
     <programlisting>uint32x4_p
@@ -52,7 +52,7 @@ VecCh(uint32x4_p x, uint32x4_p y, uint32x4_p z)
     return vec_sel(y, z, vec_xor(x, y));
 }</programlisting>
   </section>
-  <section id="sha_insn">
+  <section id="sha_insn" xreflabel="Signma Functions">
     <title>Sigma functions</title>
     <para><indexterm><primary>SHA</primary><secondary>Sigma functions</secondary></indexterm>POWER8 provides the <systemitem>vshasigmaw</systemitem> and <systemitem>vshasigmad</systemitem> instructions to accelerate SHA calculations for 32-bit and 64-bit words, respectively. The instructions take two integer arguments and the constants are used to select among <systemitem>Sigma0</systemitem>, <systemitem>Sigma1</systemitem>, <systemitem>sigma0</systemitem> and <systemitem>sigma1</systemitem>.</para>
     <para><indexterm><primary>__builtin_crypto_vshasigmaw</primary></indexterm><indexterm><primary>__builtin_crypto_vshasigmad</primary></indexterm><indexterm><primary>__vshasigmaw</primary></indexterm><indexterm><primary>__vshasigmad</primary></indexterm>The built-in GCC functions for the instructions are <systemitem>__builtin_crypto_vshasigmaw</systemitem> and <systemitem>__builtin_crypto_vshasigmad</systemitem>. The XLC functions for the instructions are <systemitem>__vshasigmaw</systemitem> and <systemitem>__vshasigmad</systemitem>. The C/C++ wrapper for the SHA-256 functions should look similar to below.</para>
@@ -92,7 +92,7 @@ uint32x4_p VecSigma1(const uint32x4_p val)
 #endif
 }</programlisting>
   </section>
-  <section id="sha_sha256">
+  <section id="sha_sha256" xreflabel="SHA256">
     <title>SHA-256</title>
     <para><indexterm><primary>SHA</primary><secondary>SHA-256</secondary></indexterm>The SHA-256 implementation has four parts. The first part is loads the existing state and creates working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem>. The second part loads the message and performs the first 16 rounds. The third part performs the remaining rounds. The final part stores the new state.</para>
     <para><emphasis role="bold">Part 1.</emphasis> Load the existing state and create working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem>.</para>
@@ -256,7 +256,7 @@ void SHA256_ROUND2(uint32x4_p X[16], uint32x4_p S[8],
 }
 </programlisting>
   </section>
-  <section id="sha_sha512">
+  <section id="sha_sha512" xreflabel="SHA512">
     <title>SHA-512</title>
     <para><indexterm><primary>SHA</primary><secondary>SHA-512</secondary></indexterm>The SHA-512 implementation is like SHA-256 and has four parts. The first part is loads the existing state and creates working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem>. The second part loads the message and performs the first 16 rounds. The third part performs the remaining rounds. The final part stores the new state.</para>
     <para><emphasis role="bold">Part 1.</emphasis> Load the existing state and create working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem>.</para>

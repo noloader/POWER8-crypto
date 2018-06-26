@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
-<chapter id="ch04">
+<chapter id="ch04" xreflabel="AES">
   <title>Advanced Encryption Standard</title>
   <indexterm>
     <primary>AES</primary>
@@ -9,12 +9,12 @@
   <para>GCC and XL C/C++ use different data types and intrinsics to perform AES. GCC uses a 64x2 arrangement and IBM XL C/C++ uses a 8x16 arrangement. GCC uses <indexterm><primary>__builtin_crypto_vcipher</primary></indexterm><systemitem>__builtin_crypto_vcipher</systemitem>, <indexterm><primary>__builtin_crypto_vcipherlast</primary></indexterm><systemitem>__builtin_crypto_vcipherlast</systemitem>, <indexterm><primary>__builtin_crypto_vncipher</primary></indexterm><systemitem>__builtin_crypto_vncipher</systemitem> and <indexterm><primary>__builtin_crypto_vncipherlast</primary></indexterm><systemitem>__builtin_crypto_vncipherlast</systemitem> intrinsics. IBM XL C/C++ uses <indexterm><primary>__vcipher</primary></indexterm><systemitem>__vcipher</systemitem>, <indexterm><primary>__vcipherlast</primary></indexterm><systemitem>__vcipherlast</systemitem>, <indexterm><primary>__vncipher</primary></indexterm><systemitem>__vncipher</systemitem> and <indexterm><primary>__vncipherlast</primary></indexterm><systemitem>__vncipherlast</systemitem> intrinsics.</para>
   <para>POWER8 offers instructions to perform encryption and decryption only. The ISA does not supply instructions that assist in key generation, like Intel's <systemitem>AESKEYGENASSIST</systemitem>.</para>
   <para>Finally the code below is available online at <ulink url="https://github.com/noloader/AES-Intrinsics">AES Intrinsics</ulink>. The GitHub provides accelerated AES for Intel, ARMv8 and POWER8.</para>
-  <section id="aes_strategy">
+  <section id="aes_strategy" xreflabel="AES Strategy">
     <title>Strategy</title>
-    <para>The strategy to perform AES encryption and decryption is straight forward. First the subkey or round key table is created based on the user or master key. Second, load the message into the AES state array. Finally apply the AES encryption or decryption round function to the state array the required number of times. Each application of the round function is accompanied by a loading of a subkey.</para>
+    <para>The strategy to perform AES encryption and decryption is straight forward. First the subkey or round key table is created based on the user key. The round keys are stored in big-endian format so a swap is avoided when loading a round key. Second, the message is loaded into the AES state array and an endian swap is performed as required. Third the the AES encryption or decryption round function is applied to the state array the required number of times. Each application of the round function is accompanied by a loading of a subkey. Finally the encrypted or decrypted message is stored after performing an endian swap as needed.</para>
   </section>
-  <section id="aes_endian-ness">
-    <title>AES endian-ness</title>
+  <section id="aes_endianness" xreflabel="AES Endianness">
+    <title>AES endianness</title>
     <para>The AES hardware operates in big-endian mode. On little-endian systems like <systemitem>gcc112</systemitem> you have to convert from little-endian to big-endian during loads and stores. The code to perform the conversion is shown below. Also recall from <xref linkend="power8_unaligned_ld_st"/> POWER7 provides unaligned loads and stores so POWER8 has them available.</para>
     <programlisting>uint8x16_p VecReverse8x16(const uint8x16_p src)
 {
@@ -81,7 +81,7 @@ void VecStore64x2(const uint64x2_p src, uint8_t dest[16])
 #endif
 }</programlisting>
   </section>
-  <section id="aes_functions">
+  <section id="aes_functions" xreflabel="AES Functions">
     <title>AES functions</title>
     <para>GCC and IBM XL C/C++ uses different intrinsics and different datatypes for encryption and decryption. GCC uses a 64x2 vector arrangement while IBM XL CC++ uses a 8x16 arrangement. An intrinsics based implementation should wrap two functions for encryption and two functions for decryption.</para>
     <para>For the encryption operation POWER8 provides a standard round function and a function to encrypt the last round. Source code should look similar to below.</para>
@@ -174,7 +174,7 @@ const uint8_t subkeys[10][16] = {
         0xE1, 0x3F, 0x0c, 0xC8, 0xB6, 0x63, 0x0C, 0xA6}
 };</programlisting>
   </section>
-  <section id="aes_keying">
+  <section id="aes_keying" xreflabel="AES Key Schedule">
     <title>AES key schedule</title>
     <indexterm>
       <primary>AES</primary>
@@ -190,7 +190,7 @@ const uint8_t subkeys[10][16] = {
       <secondary>Encryption</secondary>
     </indexterm>
     <para>AES encryption consists of three steps. First, the user's message is loaded into a state buffer. On little-endian machines the byte order will be reversed. Second, a round key is loaded and the AES round function is applied. The second part is repeated a required number of times. For example, AES with 128-bit key applies the round function 10 times. The third part stores the result of encrypting the state, which is the encrypted block. On little-endian machines the byte order will be reversed.</para>
-    <para><emphasis role="bold">Part 1.</emphasis> Load the user message into the state vector. <systemitem>VecLoad64x2</systemitem> swaps endian-ness as required. The 64x2 arrangement tells this is a GCC code path.</para>
+    <para><emphasis role="bold">Part 1.</emphasis> Load the user message into the state vector. <systemitem>VecLoad64x2</systemitem> swaps endianness as required. The 64x2 arrangement tells this is a GCC code path.</para>
     <programlisting>uint64x2_p s = VecLoad64x2(input);
 uint64x2_p k = VecLoad64x2(key);
 s = VecXor(s, k);</programlisting>
@@ -216,7 +216,7 @@ s = VecEncrypt(s, k);
 
 k = VecLoad64x2(subkeys[9]);
 s = VecEncryptLast(s, k);</programlisting>
-    <para><emphasis role="bold">Part 3.</emphasis> Store the new state which is the encrypted block. <systemitem>VecStore64x2</systemitem> swaps endian-ness as required.</para>
+    <para><emphasis role="bold">Part 3.</emphasis> Store the new state which is the encrypted block. <systemitem>VecStore64x2</systemitem> swaps endianness as required.</para>
     <programlisting>VecStore64x2(s, output);</programlisting>
     <para>The AES-128 code shown above demonstrates a GCC code path using the 64x2 arrangement. Below is the IBM XL C/C++ code path using an 8x16 arrangement. In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__vcipher</primary></indexterm>
       <indexterm><primary>__vcipherlast</primary></indexterm></para>
@@ -309,7 +309,7 @@ s = VecDecryptLast(s, k);
 
 VecStore8x16(s, output);</programlisting>
   </section>
-  <section id="aes_performance">
+  <section id="aes_performance" xreflabel="AES Performance">
     <title>AES performance</title>
     <indexterm>
       <primary>AES</primary>
