@@ -271,7 +271,7 @@ void VecStoreu(const uint32x4_p val, T* mem_addr, int offset)
 #endif
 }
 </programlisting>
-    <para>If your code will only be compiled with supported compilers, you may simplify it to use the vec_xl and vec_xst variants for both XLC and GCC.</para>
+    <para>If your code will only be compiled with supported compilers, you may simplify it to use the <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem> variants for both XLC and GCC.</para>
   </section>
   <!--
   <section id="power8_vec_ld_be">
