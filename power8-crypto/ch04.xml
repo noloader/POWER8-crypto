@@ -16,19 +16,20 @@
   <section id="aes_endianess">
     <title>AES endianess</title>
     <para>The AES hardware operates in big-endian mode. On little-endian systems like <systemitem>gcc112</systemitem> you have to convert from little-endian to big-endian during loads and stores. The code to perform the conversion is shown below. Also recall from <xref linkend="power8_unaligned_ld_st"/> POWER7 provides unaligned loads and stores so POWER8 has them available.</para>
-    <programlisting>uint8x16_p8 VecReverse8x16(const uint8x16_p8 src)
+    <programlisting>uint8x16_p VecReverse8x16(const uint8x16_p src)
 {
-    uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+    uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
     return vec_perm(src, src, mask);
 }
 
-uint64x2_p8 VecReverse64x2(const uint64x2_p8 src)
+uint64x2_p VecReverse64x2(const uint64x2_p src)
 {
-    uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-    return (uint64x2_p8)vec_perm((uint8x16_p8)src, src, mask);
+    uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+    uint8x16_p val = (uint8x16_p) src;
+    return (uint64x2_p)vec_perm(val, val, mask);
 }
 
-uint8x16_p8 VecLoad8x16(const uint8_t src[16])
+uint8x16_p VecLoad8x16(const uint8_t src[16])
 {
 #if defined(__xlc__) || defined(__xlC__)
     return vec_xl_be(0, (uint8_t*)src);
@@ -41,7 +42,7 @@ uint8x16_p8 VecLoad8x16(const uint8_t src[16])
 #endif
 }
 
-void VecStore8x16(const uint8x16_p8 src, uint8_t dest[16])
+void VecStore8x16(const uint8x16_p src, uint8_t dest[16])
 {
 #if defined(__xlc__) || defined(__xlC__)
     vec_xst_be(src, 0, (uint8_t*)dest);
@@ -54,28 +55,28 @@ void VecStore8x16(const uint8x16_p8 src, uint8_t dest[16])
 #endif
 }
 
-uint64x2_p8 VecLoad64x2(const uint8_t src[16])
+uint64x2_p VecLoad64x2(const uint8_t src[16])
 {
 #if defined(__xlc__) || defined(__xlC__)
-    return (uint64x2_p8)vec_xl_be(0, (uint8_t*)src);
+    return (uint64x2_p)vec_xl_be(0, (uint8_t*)src);
 #else
 # if (__LITTLE_ENDIAN__)
-    return (uint64x2_p8)VecReverse8x16(vec_vsx_ld(0, src));
+    return (uint64x2_p)VecReverse8x16(vec_vsx_ld(0, src));
 # else
-    return (uint64x2_p8)vec_vsx_ld(0, src);
+    return (uint64x2_p)vec_vsx_ld(0, src);
 # endif
 #endif
 }
 
-void VecStore64x2(const uint64x2_p8 src, uint8_t dest[16])
+void VecStore64x2(const uint64x2_p src, uint8_t dest[16])
 {
 #if defined(__xlc__) || defined(__xlC__)
-    vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
+    vec_xst_be((uint8x16_p)src, 0, (uint8_t*)dest);
 #else
 # if (__LITTLE_ENDIAN__)
-    vec_vsx_st(VecReverse8x16((uint8x16_p8)src), 0, dest);
+    vec_vsx_st(VecReverse8x16((uint8x16_p)src), 0, dest);
 # else
-    vec_vsx_st((uint8x16_p8)src, 0, dest);
+    vec_vsx_st((uint8x16_p)src, 0, dest);
 # endif
 #endif
 }</programlisting>
