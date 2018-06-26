@@ -13,10 +13,70 @@
     <title>Strategy</title>
     <para>The strategy to perform AES encryption and decryption is straight forward. First the subkey or round key table is created based on the user or master key. Second, load the message into the AES state array. Finally apply the AES encryption or decryption round function to the state array the required number of times. Each application of the round function is accompanied by a loading of a subkey.</para>
   </section>
+  <section id="aes_functions">
+    <title>AES functions</title>
+    <para>GCC and IBM XL C/C++ uses different intrinsics and different datatypes for encryption and decryption. GCC uses a 64x2 vector arrangement while IBM XL CC++ uses a 8x16 arrangement. An intrinsics based implementation should wrap two functions for encryption and two functions for decryption.</para>
+    <para>For the encryption operation POWER8 provides a standard round function and a function to encrypt the last round. Source code should look similar to below.</para>
+    <programlisting>template &lt;class T&gt;
+T VecEncrypt(const T state, const T rkey)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    uint8x16_p8 s = (uint8x16_p8)state;
+    uint8x16_p8 k = (uint8x16_p8)rkey;
+    return (T)__vcipher(s, k);
+#else
+    uint64x2_p8 s = (uint64x2_p8)state;
+    uint64x2_p8 k = (uint64x2_p8)rkey;
+    return (T)__builtin_crypto_vcipher(s, k);
+#endif
+}
+
+template &lt;class T&gt;
+T VecEncryptLast(const T state, const T rkey)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    uint8x16_p8 s = (uint8x16_p8)state;
+    uint8x16_p8 k = (uint8x16_p8)rkey;
+    return (T)__vcipherlast(s, k);
+#else
+    uint64x2_p8 s = (uint64x2_p8)state;
+    uint64x2_p8 k = (uint64x2_p8)rkey;
+    return (T)__builtin_crypto_vcipherlast(s, k);
+#endif
+}</programlisting>
+    <para>And the corresponding decryption functions are shown below.</para>
+    <programlisting>template &lt;class T&gt;
+T VecDecrypt(const T state, const T rkey)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    uint8x16_p8 s = (uint8x16_p8)state;
+    uint8x16_p8 k = (uint8x16_p8)rkey;
+    return (T)__vncipher(s, k);
+#else
+    uint64x2_p8 s = (uint64x2_p8)state;
+    uint64x2_p8 k = (uint64x2_p8)rkey;
+    return (T)__builtin_crypto_vncipher(s, k);
+#endif
+}
+
+template &lt;class T&gt;
+T VecDecryptLast(const T state, const T rkey)
+{
+#if defined(__xlc__) || defined(__xlC__)
+    uint8x16_p8 s = (uint8x16_p8)state;
+    uint8x16_p8 k = (uint8x16_p8)rkey;
+    return (T)__vncipherlast(s, k);
+#else
+    uint64x2_p8 s = (uint64x2_p8)state;
+    uint64x2_p8 k = (uint64x2_p8)rkey;
+    return (T)__builtin_crypto_vncipherlast(s, k);
+#endif
+}</programlisting>
+  </section>
   <section id="aes_golden_key" xreflabel="AES Golden Key">
     <title>AES golden key</title>
-    <para>FIPS 197 Appendix B provides an expanded key. We refer to it as the "golden key" and it allows us to independently test key derivation, encryption and decryption. The sections <xref linkend="aes_encryption"/> and <xref linkend="aes_decryption"/> below use the golden key to simplify the discussions.</para>
-    <para>Appendix B provides two key parameters. The first is the AES key supplied by the user. The second is the expanded subkey or round key table.</para>
+    <para>FIPS 197 Appendix B provides a user key expanded into round keys. We refer to it as the "golden key" and it allows us to independently test round key derivation, encryption and decryption. The sections <xref linkend="aes_encryption"/> and <xref linkend="aes_decryption"/> use the golden key to simplify the discussions.</para>
+    <para>Appendix B provides two key parameters. The first is the AES key supplied by the user. The second is the expanded subkey or round key table. Below is the user key supplied by Appendix B.</para>
     <programlisting>const uint8_t key[16] = {
      0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d,
      0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34
@@ -62,24 +122,24 @@ s = VecXor(s, k);</programlisting>
     <para>In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__builtin_crypto_vcipher</primary></indexterm>
       <indexterm><primary>__builtin_crypto_vcipherlast</primary></indexterm></para>
     <programlisting>k = VecLoad64x2(subkeys[0]);
-s = __builtin_crypto_vcipher(s, k);
+s = VecEncrypt(s, k);
 
 k = VecLoad64x2(subkeys[1]);
-s = __builtin_crypto_vcipher(s, k);
+s = VecEncrypt(s, k);
 
 k = VecLoad64x2(subkeys[2]);
-s = __builtin_crypto_vcipher(s, k);
+s = VecEncrypt(s, k);
 
 ...
 
 k = VecLoad64x2(subkeys[7]);
-s = __builtin_crypto_vcipher(s, k);
+s = VecEncrypt(s, k);
 
 k = VecLoad64x2(subkeys[8]);
-s = __builtin_crypto_vcipher(s, k);
+s = VecEncrypt(s, k);
 
 k = VecLoad64x2(subkeys[9]);
-s = __builtin_crypto_vcipherlast(s, k);</programlisting>
+s = VecEncryptLast(s, k);</programlisting>
     <para><emphasis role="bold">Part 3.</emphasis> Store the new state which is the encrypted block.</para>
     <programlisting>VecStore64x2u(s, output);</programlisting>
     <para>The AES-128 code shown above demonstrates a GCC code path using the 64x2 arrangement. Below is the IBM XL C/C++ code path using an 8x16 arrangement. In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__vcipher</primary></indexterm>
@@ -89,24 +149,24 @@ uint8x16_p8 k = VecLoad8x16u(key);
 s = VecXor(s, k);
 
 k = VecLoad8x16(subkeys[0]);
-s = __vcipher(s, k);
+s = VecEncrypt(s, k);
 
 k = VecLoad8x16(subkeys[1]);
-s = __vcipher(s, k);
+s = VecEncrypt(s, k);
 
 k = VecLoad8x16(subkeys[2]);
-s = __vcipher(s, k);
+s = VecEncrypt(s, k);
 
 ...
 
 k = VecLoad8x16(subkeys[7]);
-s = __vcipher(s, k);
+s = VecEncrypt(s, k);
 
 k = VecLoad8x16(subkeys[8]);
-s = __vcipher(s, k);
+s = VecEncrypt(s, k);
 
 k = VecLoad8x16(subkeys[9]);
-s = __vcipherlast(s, k);
+s = VecEncryptLast(s, k);
 
 VecStore8x16u(s, output);</programlisting>
   </section>
@@ -125,24 +185,24 @@ uint64x2_p8 k = VecLoad64x2u(subkeys[9]);
 s = VecXor(s, k);
 
 k = VecLoad64x2(subkeys[8]);
-s = __builtin_crypto_vncipher(s, k);
+s = VecDecrypt(s, k);
 
 k = VecLoad64x2(subkeys[7]);
-s = __builtin_crypto_vncipher(s, k);
+s = VecDecrypt(s, k);
 
 k = VecLoad64x2(subkeys[6]);
-s = __builtin_crypto_vncipher(s, k);
+s = VecDecrypt(s, k);
 
 ...
 
 k = VecLoad64x2(subkeys[1]);
-s = __builtin_crypto_vncipher(s, k);
+s = VecDecrypt(s, k);
 
 k = VecLoad64x2(subkeys[0]);
-s = __builtin_crypto_vncipher(s, k);
+s = VecDecrypt(s, k);
 
 k = VecLoad64x2(key);
-s = __builtin_crypto_vncipherlast(s, k);
+s = VecDecryptLast(s, k);
 
 VecStore8x16u(s, output);</programlisting>
     <para>As with AES encryption there is a different code path for IBM XL C/C++ using the 8x16 datatypes. The code below shows XL C/C++ decryption using the 8x16 datatype. In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__vncipher</primary></indexterm>
@@ -152,24 +212,24 @@ uint8x16_p8 k = VecLoad8x16u(subkeys[9]);
 s = VecXor(s, k);
 
 k = VecLoad8x16(subkeys[8]);
-s = __vncipher(s, k);
+s = VecDecrypt(s, k);
 
 k = VecLoad8x16(subkeys[7]);
-s = __vncipher(s, k);
+s = VecDecrypt(s, k);
 
 k = VecLoad8x16(subkeys[6]);
-s = __vncipher(s, k);
+s = VecDecrypt(s, k);
 
 ...
 
 k = VecLoad8x16(subkeys[1]);
-s = __vncipher(s, k);
+s = VecDecrypt(s, k);
 
 k = VecLoad8x16(subkeys[0]);
-s = __vncipher(s, k);
+s = VecDecrypt(s, k);
 
 k = VecLoad8x16(key);
-s = __vncipherlast(s, k);
+s = VecDecryptLast(s, k);
 
 VecStore8x16u(s, output);</programlisting>
   </section>
@@ -179,7 +239,7 @@ VecStore8x16u(s, output);</programlisting>
       <primary>AES</primary>
       <secondary>Key schedule</secondary>
     </indexterm>
-    <para>TODO. We don't have optimized code for key scheduling. Use Paulo Barreto's code to generate the key table in C/C++. It is available all around the internet.</para>
+    <para>TODO. We don't have optimized code for key scheduling. Use Paulo Barreto's code to generate the key table in C/C++. It is available on the internet.</para>
     <para>A brief discussion of an POWER8 optimized key schedule can be found at <ulink url="https://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/index.html">POWER8 in-core cryptography</ulink>.</para>
   </section>
   <section id="aes_performance">
@@ -190,7 +250,7 @@ VecStore8x16u(s, output);</programlisting>
     </indexterm>
     <para>The code in <xref linkend="aes_encryption"/> and <xref linkend="aes_decryption"/> provided the basic AES algorithms. They will perform well when compared to C/C++ but there is room for improvement. You can improve the code to run closer to 1 to 2 cycle-per-byte (cpb) by processing multiple blocks at a time.</para>
     <para>Experimentation shows 6 or 8 blocks at a time is a good place to be. Crypto++ processes 6 blocks at a time while Botan processes 8 blocks at a time. The Linux kernel processes 12 blocks at a time for some POWER8 algorithms.</para>
-    <para>The code below processes 16*6 or 96-bytes of data at a time using the GCC code path. The IBM code path would be similar.</para>
+    <para>The code below processes 16*8 or 128-bytes of data at a time using the GCC code path. The IBM code path would be similar.</para>
     <para>In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__builtin_crypto_vcipher</primary></indexterm>
       <indexterm><primary>__builtin_crypto_vcipherlast</primary></indexterm></para>
     <programlisting>uint64x2_p8 k = VecLoad64x2u(key);
@@ -201,6 +261,8 @@ uint64x2_p8 s2 = VecLoad64x2u(input+32);
 uint64x2_p8 s3 = VecLoad64x2u(input+48);
 uint64x2_p8 s4 = VecLoad64x2u(input+64);
 uint64x2_p8 s5 = VecLoad64x2u(input+72);
+uint64x2_p8 s6 = VecLoad64x2u(input+96);
+uint64x2_p8 s7 = VecLoad64x2u(input+112);
 
 s0 = VecXor(s0, k);
 s1 = VecXor(s1, k);
@@ -208,31 +270,39 @@ s2 = VecXor(s2, k);
 s3 = VecXor(s3, k);
 s4 = VecXor(s4, k);
 s5 = VecXor(s5, k);
+s6 = VecXor(s6, k);
+s7 = VecXor(s7, k);
 
 for (size_t i=1; i&lt;rounds-1; ++i)
 {
     k = VecLoad64x2(subkeys[i]);
-    s0 = __builtin_crypto_vcipher(s0, k);
-    s1 = __builtin_crypto_vcipher(s1, k);
-    s2 = __builtin_crypto_vcipher(s2, k);
-    s3 = __builtin_crypto_vcipher(s3, k);
-    s4 = __builtin_crypto_vcipher(s4, k);
-    s5 = __builtin_crypto_vcipher(s5, k);
+    s0 = VecEncrypt(s0, k);
+    s1 = VecEncrypt(s1, k);
+    s2 = VecEncrypt(s2, k);
+    s3 = VecEncrypt(s3, k);
+    s4 = VecEncrypt(s4, k);
+    s5 = VecEncrypt(s5, k);
+    s6 = VecEncrypt(s6, k);
+    s7 = VecEncrypt(s7, k);
 }
 
 k = VecLoad64x2(subkeys[rounds-1]);
-s0 = __builtin_crypto_vcipherlast(s0, k);
-s1 = __builtin_crypto_vcipherlast(s1, k);
-s2 = __builtin_crypto_vcipherlast(s2, k);
-s3 = __builtin_crypto_vcipherlast(s3, k);
-s4 = __builtin_crypto_vcipherlast(s4, k);
-s5 = __builtin_crypto_vcipherlast(s5, k);
+s0 = VecEncryptLast(s0, k);
+s1 = VecEncryptLast(s1, k);
+s2 = VecEncryptLast(s2, k);
+s3 = VecEncryptLast(s3, k);
+s4 = VecEncryptLast(s4, k);
+s5 = VecEncryptLast(s5, k);
+s6 = VecEncryptLast(s6, k);
+s7 = VecEncryptLast(s7, k);
 
 VecStore64x2u(s0, output+0);
 VecStore64x2u(s1, output+16);
 VecStore64x2u(s2, output+32);
 VecStore64x2u(s3, output+48);
 VecStore64x2u(s4, output+64);
-VecStore64x2u(s5, output+72);</programlisting>
+VecStore64x2u(s5, output+72);
+VecStore64x2u(s6, output+96);
+VecStore64x2u(s7, output+112);</programlisting>
   </section>
 </chapter>
