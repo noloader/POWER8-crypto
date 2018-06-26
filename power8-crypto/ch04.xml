@@ -9,6 +9,7 @@
   <para>Four topics are discussed for AES. The first is the FIPS 197 golden key which allows you to independently test key derivation and encryption or decryption. The second part is encryption, and the third part is decryption. The final part is keying and it includes a discussion of generating the subkey or round key table provided like the one provided in FIPS 197 Appendix B.</para>
   <para>GCC and XL C/C++ use different data types and intrinsics to perform AES. GCC uses a 64x2 arrangement and IBM XL C/C++ uses a 8x16 arrangement.</para>
   <para>POWER8 offers instructions to perform encryption and decryption only. The ISA does not supply instructions that assist in key generation, like Intel's <systemitem>AESKEYGENASSIST</systemitem>.</para>
+  <para>Finally the code below is available online at <ulink url="https://github.com/noloader/AES-Intrinsics">AES Intrinsics</ulink>. The GitHub provides accelerated AES for Intel, ARMv8 and POWER8.</para>
   <section id="aes_strategy">
     <title>Strategy</title>
     <para>The strategy to perform AES encryption and decryption is straight forward. First the subkey or round key table is created based on the user or master key. Second, load the user's message into the state array. Finally the AES encryption or decryption round function is applied to the state array the required number of times. Each application of the round function is accompanied by a loading of a subkey.</para>
@@ -52,7 +53,7 @@ const uint8_t subkeys[10][16] = {
       <primary>AES</primary>
       <secondary>Encryption</secondary>
     </indexterm>
-    <para>AES encryption consists of three steps. First, the user's message is loaded into a state buffer. The second part loads a subkey and applies the AES round function. The second part is repeated a required number of times. For example, AES with 128-bit key applies the round function 10 times. The third part stores the result of encrypting the state.</para>
+    <para>AES encryption consists of three steps. First, the user's message is loaded into a state buffer. The second part loads a subkey and applies the AES round function. The second part is repeated a required number of times. For example, AES with 128-bit key applies the round function 10 times. The third part stores the result of encrypting the state, which is the encrypted block.</para>
     <para>The first round loads the user or master key and performs an XOR. The remaining rounds use the expanded subkey table. The last round uses a different encryption instruction that is applied to the last round only.</para>
     <para><emphasis role="bold">Part 1.</emphasis> Load the user message into the state vector. The 64x2 arrangement tells this is a GCC code path.</para>
     <programlisting>uint64x2_p8 s = VecLoad64x2u(input);
@@ -113,7 +114,60 @@ VecStore8x16u(s, output);</programlisting>
       <primary>AES</primary>
       <secondary>Decryption</secondary>
     </indexterm>
-    <para>TODO</para>
+    <para>AES decryption is literally the reverse operation of AES encryption. There are three parts as with AES encryption. First, the encrypted message is loaded into a state buffer. The second part loads a subkey and applies the AES round function. The second part is repeated a required number of times. For example, AES with 128-bit key applies the round function 10 times. The third part stores the result of decrypting the state, which is the decrypted block.</para>
+    <para>AES decryption has two minor differences from the encryption algorithm. First the subkeys or round keys are accessed in reverse order. Second, the user or master key is used last instead of first.</para>
+    <para>The code below demonstrates the GCC code path which uses a 64x2 arrangement.</para>
+    <programlisting>uint64x2_p8 s = VecLoad64x2u(input);
+uint64x2_p8 k = VecLoad64x2u(subkeys[9]);
+s = VecXor(s, k);
+
+k = VecLoad64x2(subkeys[8]);
+s = __builtin_crypto_vncipher(s, k);
+
+k = VecLoad64x2(subkeys[7]);
+s = __builtin_crypto_vncipher(s, k);
+
+k = VecLoad64x2(subkeys[6]);
+s = __builtin_crypto_vncipher(s, k);
+
+...
+
+k = VecLoad64x2(subkeys[1]);
+s = __builtin_crypto_vncipher(s, k);
+
+k = VecLoad64x2(subkeys[0]);
+s = __builtin_crypto_vncipher(s, k);
+
+k = VecLoad64x2(key);
+s = __builtin_crypto_vncipherlast(s, k);
+
+VecStore8x16u(s, output);</programlisting>
+    <para>As with AES encryption there is a different code path for IBM XL C/C++ using the 8x16 datatypes. The code below shows XL C/C++ decryption using the 8x16 datatype.</para>
+    <programlisting>uint8x16_p8 s = VecLoad8x16u(input);
+uint8x16_p8 k = VecLoad8x16u(subkeys[9]);
+s = VecXor(s, k);
+
+k = VecLoad8x16(subkeys[8]);
+s = __vncipher(s, k);
+
+k = VecLoad8x16(subkeys[7]);
+s = __vncipher(s, k);
+
+k = VecLoad8x16(subkeys[6]);
+s = __vncipher(s, k);
+
+...
+
+k = VecLoad8x16(subkeys[1]);
+s = __vncipher(s, k);
+
+k = VecLoad8x16(subkeys[0]);
+s = __vncipher(s, k);
+
+k = VecLoad8x16(key);
+s = __vncipherlast(s, k);
+
+VecStore8x16u(s, output);</programlisting>
   </section>
   <section id="aes_keying">
     <title>AES key schedule</title>
@@ -121,6 +175,7 @@ VecStore8x16u(s, output);</programlisting>
       <primary>AES</primary>
       <secondary>Key schedule</secondary>
     </indexterm>
-    <para>TODO</para>
+    <para>TODO. We don't have optimized code for key scheduling. Use Paulo Barreto's code to generate the key table in C/C++. It is available all around the internet.</para>
+    <para>A brief discussion of an POWER8 optimized key schedule can be found at <ulink url="https://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/index.html">POWER8 in-core cryptography</ulink>.</para>
   </section>
 </chapter>

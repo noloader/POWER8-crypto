@@ -6,6 +6,7 @@
     <primary>SHA</primary>
   </indexterm>
   <para>SHA is the Secure Hash Standard. SHA is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>. You should read the standard if you are not familiar with the hash family.</para>
+  <para>The code below is available online at <ulink url="https://github.com/noloader/SHA-Intrinsics">SHA Intrinsics</ulink>. The GitHub provides accelerated SHA for Intel, ARMv8 and POWER8.</para>
   <section id="sha_strategy">
     <title>Strategy</title>
     <para>SHA provides a lot of freedom to an implementation. You can approach your SHA implementation in several ways, but most of them will result in an under-performing SHA. This section provides one of the strategies for a better performing implementation.</para>
