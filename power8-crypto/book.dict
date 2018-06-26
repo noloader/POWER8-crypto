@@ -192,6 +192,16 @@ VecLoadMsg64x2
 VecCh
 VecMaj
 
+vcipher
+vcipherlast
+vncipher
+vncipherlast
+
+VecEncrypt
+VecEncryptLast
+VecDecrypt
+VecDecryptLast
+
 ppc
 ppc64
 power7
