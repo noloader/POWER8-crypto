@@ -22,7 +22,8 @@
   <section id="intro_src_code">
     <title>Source code</title>
     <para><indexterm><primary>Source code</primary></indexterm>The source code in the book is a mix of C and C++. The SHA-256 and SHA-512 samples were written in C++ to avoid compile errors due to the SHA API requiring 4-bit literal constants. We could not pass parameters through functions and obtain the necessary <systemitem>constexpr-ness</systemitem> so template parameters were used instead.</para>
-    <para>There is no source code library to download <emphasis>per se</emphasis>. The code is taken from Botan, Crypto++ and OpenSSL free software projects. Some code is taken from Andy Polyakov and Cryptogams. Some code is taken from GitHub projects. And some code was written and thrown away after testing. The code for AES and SHA was collected and placed at <ulink url="https://github.com/noloader/AES-Intrinsics">AES Intrinsics</ulink> and <ulink url="https://github.com/noloader/SHA-Intrinsics">SHA Intrinsics</ulink> GitHubs but the code is not in library format. Rather they are stand alone proof of concepts.</para>
+    <para>There is no source code library to download <emphasis>per se</emphasis>. The code is taken from Botan, Crypto++ and OpenSSL free software projects. Some code is taken from Andy Polyakov and Cryptogams. Some code is taken from GitHub projects. And some code was written and thrown away after testing.</para>
+    <para>The code for AES and SHA was collected and placed at <ulink url="https://github.com/noloader/AES-Intrinsics">AES Intrinsics</ulink> and <ulink url="https://github.com/noloader/SHA-Intrinsics">SHA Intrinsics</ulink> GitHubs but the code is not in library format. Rather they are stand alone proof of concepts.</para>
   </section>
   <section id="intro_cfarm">
     <title>Compile Farm</title>
