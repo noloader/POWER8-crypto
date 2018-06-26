@@ -180,12 +180,18 @@ VecRotateLeft
 VecShiftLeft
 VecStore
 VecStoreu
+VecStore8x16
+VecStore8x16u
+VecStore32x4
+VecStore32x4u
+VecStore64x2
+VecStore64x2u
+VecLoad8x16
+VecLoad8x16u
 VecLoad32x4
 VecLoad32x4u
 VecLoad64x2
 VecLoad64x2u
-VecLoad8x16
-VecLoad8x16u
 VecLoadMsg32x4
 VecLoadMsg64x2
 

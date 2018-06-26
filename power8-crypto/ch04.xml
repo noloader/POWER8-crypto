@@ -13,8 +13,8 @@
     <title>Strategy</title>
     <para>The strategy to perform AES encryption and decryption is straight forward. First the subkey or round key table is created based on the user or master key. Second, load the message into the AES state array. Finally apply the AES encryption or decryption round function to the state array the required number of times. Each application of the round function is accompanied by a loading of a subkey.</para>
   </section>
-  <section id="aes_endianess">
-    <title>AES endianess</title>
+  <section id="aes_endian-ness">
+    <title>AES endian-ness</title>
     <para>The AES hardware operates in big-endian mode. On little-endian systems like <systemitem>gcc112</systemitem> you have to convert from little-endian to big-endian during loads and stores. The code to perform the conversion is shown below. Also recall from <xref linkend="power8_unaligned_ld_st"/> POWER7 provides unaligned loads and stores so POWER8 has them available.</para>
     <programlisting>uint8x16_p VecReverse8x16(const uint8x16_p src)
 {
@@ -34,7 +34,7 @@ uint8x16_p VecLoad8x16(const uint8_t src[16])
 #if defined(__xlc__) || defined(__xlC__)
     return vec_xl_be(0, (uint8_t*)src);
 #else
-# if (__LITTLE_ENDIAN__)
+# if __LITTLE_ENDIAN__
     return VecReverse8x16(vec_vsx_ld(0, src));
 # else
     return vec_vsx_ld(0, src);
@@ -47,7 +47,7 @@ void VecStore8x16(const uint8x16_p src, uint8_t dest[16])
 #if defined(__xlc__) || defined(__xlC__)
     vec_xst_be(src, 0, (uint8_t*)dest);
 #else
-# if (__LITTLE_ENDIAN__)
+# if __LITTLE_ENDIAN__
     vec_vsx_st(VecReverse8x16(src), 0, dest);
 # else
     vec_vsx_st(src, 0, dest);
@@ -60,7 +60,7 @@ uint64x2_p VecLoad64x2(const uint8_t src[16])
 #if defined(__xlc__) || defined(__xlC__)
     return (uint64x2_p)vec_xl_be(0, (uint8_t*)src);
 #else
-# if (__LITTLE_ENDIAN__)
+# if __LITTLE_ENDIAN__
     return (uint64x2_p)VecReverse8x16(vec_vsx_ld(0, src));
 # else
     return (uint64x2_p)vec_vsx_ld(0, src);
@@ -73,7 +73,7 @@ void VecStore64x2(const uint64x2_p src, uint8_t dest[16])
 #if defined(__xlc__) || defined(__xlC__)
     vec_xst_be((uint8x16_p)src, 0, (uint8_t*)dest);
 #else
-# if (__LITTLE_ENDIAN__)
+# if __LITTLE_ENDIAN__
     vec_vsx_st(VecReverse8x16((uint8x16_p)src), 0, dest);
 # else
     vec_vsx_st((uint8x16_p)src, 0, dest);
@@ -189,13 +189,12 @@ const uint8_t subkeys[10][16] = {
       <primary>AES</primary>
       <secondary>Encryption</secondary>
     </indexterm>
-    <para>AES encryption consists of three steps. First, the user's message is loaded into a state buffer. The second part loads a subkey and applies the AES round function. The second part is repeated a required number of times. For example, AES with 128-bit key applies the round function 10 times. The third part stores the result of encrypting the state, which is the encrypted block.</para>
-    <para>The first round loads the user or master key and performs an XOR. The remaining rounds use the expanded subkey table. The last round uses a different encryption instruction that is applied to the last round only.</para>
-    <para><emphasis role="bold">Part 1.</emphasis> Load the user message into the state vector. The 64x2 arrangement tells this is a GCC code path.</para>
+    <para>AES encryption consists of three steps. First, the user's message is loaded into a state buffer. On little-endian machines the byte order will be reversed. Second, a round key is loaded and the AES round function is applied. The second part is repeated a required number of times. For example, AES with 128-bit key applies the round function 10 times. The third part stores the result of encrypting the state, which is the encrypted block. On little-endian machines the byte order will be reversed.</para>
+    <para><emphasis role="bold">Part 1.</emphasis> Load the user message into the state vector. <systemitem>VecLoad64x2</systemitem> swaps endian-ness as required. The 64x2 arrangement tells this is a GCC code path.</para>
     <programlisting>uint64x2_p s = VecLoad64x2(input);
 uint64x2_p k = VecLoad64x2(key);
 s = VecXor(s, k);</programlisting>
-    <para><emphasis role="bold">Part 2.</emphasis> Load a subkey and encrypt the state buffer. Lather, rinse and repeat the required number of times.</para>
+    <para><emphasis role="bold">Part 2.</emphasis> Load a subkey and encrypt the state buffer. The round key does not need an endian swap. Lather, rinse and repeat the required number of times.</para>
     <para>In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__builtin_crypto_vcipher</primary></indexterm>
       <indexterm><primary>__builtin_crypto_vcipherlast</primary></indexterm></para>
     <programlisting>k = VecLoad64x2(subkeys[0]);
@@ -217,7 +216,7 @@ s = VecEncrypt(s, k);
 
 k = VecLoad64x2(subkeys[9]);
 s = VecEncryptLast(s, k);</programlisting>
-    <para><emphasis role="bold">Part 3.</emphasis> Store the new state which is the encrypted block.</para>
+    <para><emphasis role="bold">Part 3.</emphasis> Store the new state which is the encrypted block. <systemitem>VecStore64x2</systemitem> swaps endian-ness as required.</para>
     <programlisting>VecStore64x2(s, output);</programlisting>
     <para>The AES-128 code shown above demonstrates a GCC code path using the 64x2 arrangement. Below is the IBM XL C/C++ code path using an 8x16 arrangement. In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__vcipher</primary></indexterm>
       <indexterm><primary>__vcipherlast</primary></indexterm></para>
@@ -253,8 +252,8 @@ VecStore8x16(s, output);</programlisting>
       <primary>AES</primary>
       <secondary>Decryption</secondary>
     </indexterm>
-    <para>AES decryption is the reverse operation of AES encryption. There are three parts as with AES decryption. First, the encrypted message is loaded into a state buffer. The second part loads a subkey and applies the AES inverse round function. The second part is repeated a required number of times. For example, AES with 128-bit key applies the inverse round function 10 times. The third part stores the result of decrypting the state, which is the decrypted block.</para>
-    <para>AES decryption has two minor differences from the encryption algorithm. First the subkeys or round keys are iterated in reverse order. Second, the user or master key is used last instead of first.</para>
+    <para>AES decryption is the reverse operation of AES encryption. There are three parts as with AES decryption. First, the encrypted message is loaded into a state buffer. The message is endian swapped as required. The second part loads a subkey and applies the AES inverse round function. The second part is repeated a required number of times. For example, AES with 128-bit key applies the inverse round function 10 times. The third part stores the result of decrypting the state, which is the decrypted block. The decrypted message is endian swapped as required.</para>
+    <para>AES decryption has two minor differences from the encryption algorithm. First the round keys are iterated in reverse order. Second, the user or master key is used last instead of first.</para>
     <para>The code below demonstrates AES-128 using the GCC code path. GCC uses the 64x2 arrangement. In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__builtin_crypto_vncipher</primary></indexterm>
       <indexterm><primary>__builtin_crypto_vncipherlast</primary></indexterm></para>
     <programlisting>uint64x2_p s = VecLoad64x2(input);
@@ -316,7 +315,7 @@ VecStore8x16(s, output);</programlisting>
       <primary>AES</primary>
       <secondary>Performance</secondary>
     </indexterm>
-    <para>The code in <xref linkend="aes_encryption"/> and <xref linkend="aes_decryption"/> provided the basic AES algorithms. They will perform well when compared to C/C++ but there is room for improvement. You can improve the code to run closer to 1 to 2 cycle-per-byte (cpb) by processing multiple blocks at a time.</para>
+    <para>The code in <xref linkend="aes_encryption"/> and <xref linkend="aes_decryption"/> provides the basic AES algorithms. They will perform well when compared to C/C++ but there is room for improvement. You can improve the code to run closer to 1 to 2 cycle-per-byte (cpb) by processing multiple blocks at a time.</para>
     <para>Experimentation shows 6 or 8 blocks at a time is a good place to be. Crypto++ processes 6 blocks at a time while Botan processes 8 blocks at a time. The Linux kernel processes 12 blocks at a time for some POWER8 algorithms.</para>
     <para>The code below processes 16*8 or 128-bytes of data at a time using the GCC code path. The IBM code path would be similar.</para>
     <para>In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__builtin_crypto_vcipher</primary></indexterm>
