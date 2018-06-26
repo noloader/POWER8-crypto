@@ -327,7 +327,7 @@ uint64x2_p s1 = VecLoad64x2(input+16);
 uint64x2_p s2 = VecLoad64x2(input+32);
 uint64x2_p s3 = VecLoad64x2(input+48);
 uint64x2_p s4 = VecLoad64x2(input+64);
-uint64x2_p s5 = VecLoad64x2(input+72);
+uint64x2_p s5 = VecLoad64x2(input+80);
 uint64x2_p s6 = VecLoad64x2(input+96);
 uint64x2_p s7 = VecLoad64x2(input+112);
 
@@ -368,7 +368,7 @@ VecStore64x2(s1, output+16);
 VecStore64x2(s2, output+32);
 VecStore64x2(s3, output+48);
 VecStore64x2(s4, output+64);
-VecStore64x2(s5, output+72);
+VecStore64x2(s5, output+80);
 VecStore64x2(s6, output+96);
 VecStore64x2(s7, output+112);</programlisting>
   </section>
