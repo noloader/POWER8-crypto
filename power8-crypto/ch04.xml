@@ -173,6 +173,15 @@ const uint8_t subkeys[10][16] = {
         0xE1, 0x3F, 0x0c, 0xC8, 0xB6, 0x63, 0x0C, 0xA6}
 };</programlisting>
   </section>
+  <section id="aes_keying">
+    <title>AES key schedule</title>
+    <indexterm>
+      <primary>AES</primary>
+      <secondary>Key schedule</secondary>
+    </indexterm>
+    <para>TODO. We don't have optimized code for key scheduling. Use Paulo Barreto's code to generate the key table in C/C++. It is available on the internet.</para>
+    <para>A brief discussion of an POWER8 optimized key schedule can be found at <ulink url="https://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/index.html">POWER8 in-core cryptography</ulink>.</para>
+  </section>
   <section id="aes_encryption" xreflabel="AES Encryption">
     <title>AES encryption</title>
     <indexterm>
@@ -299,15 +308,6 @@ k = VecLoad8x16(key);
 s = VecDecryptLast(s, k);
 
 VecStore8x16(s, output);</programlisting>
-  </section>
-  <section id="aes_keying">
-    <title>AES key schedule</title>
-    <indexterm>
-      <primary>AES</primary>
-      <secondary>Key schedule</secondary>
-    </indexterm>
-    <para>TODO. We don't have optimized code for key scheduling. Use Paulo Barreto's code to generate the key table in C/C++. It is available on the internet.</para>
-    <para>A brief discussion of an POWER8 optimized key schedule can be found at <ulink url="https://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/index.html">POWER8 in-core cryptography</ulink>.</para>
   </section>
   <section id="aes_performance">
     <title>AES performance</title>
