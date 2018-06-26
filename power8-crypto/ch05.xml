@@ -8,7 +8,7 @@
   <para>SHA is the Secure Hash Standard. SHA is specified in <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>. You should read the standard if you are not familiar with the hash family.</para>
   <para>The code below is available online at <ulink url="https://github.com/noloader/SHA-Intrinsics">SHA Intrinsics</ulink>. The GitHub provides accelerated SHA for Intel, ARMv8 and POWER8.</para>
   <section id="sha_strategy" xreflabel="SHA Strategy">
-    <title>SHA Strategy</title>
+    <title>Strategy</title>
     <para>SHA provides a lot of freedom to an implementation. You can approach your SHA implementation in several ways, but most of them will result in an under-performing SHA. This section provides one of the strategies for a better performing implementation.</para>
     <para>The first design element is to perform everything in vector registers. The only integer operations should be reading 2 longs or 4 integers from memory during a load, and writing 2 longs or 4 integers after the round during a store.</para>
     <para>Second, when you need an integer for a calculation you will shift it out from a vector register to another vector register using <systemitem>vec_sld</systemitem>. Most of the time you only care about element 0 in a vector register, and the remainder of elements are "don't care" elements.</para>
