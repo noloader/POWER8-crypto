@@ -25,22 +25,22 @@ $ cd cryptogams/</screen>
 $ as -mpower8 sha256le_compress.s -o sha256le_compress.o
 </screen>
     <para>The head notes in <systemitem>sha512p8-ppc.pl</systemitem> do not state the public API. However the source file <systemitem>crypto/ppccap.c</systemitem> says:</para>
-    <screen>$ grep -IR sha256_block_p *
-crypto/ppccap.c:void sha256_block_p(void *ctx, const void *inp,
+    <screen>$ grep -IR sha256_block_p8 *
+crypto/ppccap.c:void sha256_block_p8(void *ctx, const void *inp,
 size_t len);
 ...</screen>
-    <para>In fact the signature for <systemitem>sha256_block_p</systemitem> is better documented as shown below. There are no alignment requirements for <systemitem>state</systemitem> or <systemitem>input</systemitem>.</para>
-    <programlisting>void sha256_block_p(uint32_t *state,
+    <para>In fact the signature for <systemitem>sha256_block_p8</systemitem> is better documented as shown below. There are no alignment requirements for <systemitem>state</systemitem> or <systemitem>input</systemitem>.</para>
+    <programlisting>void sha256_block_p8(uint32_t *state,
             const uint8_t *input, size_t blocks);
 </programlisting>
-    <para>Finally, a program that links to <systemitem>sha256_block_p</systemitem> might look like the following.</para>
+    <para>Finally, a program that links to <systemitem>sha256_block_p8</systemitem> might look like the following.</para>
     <programlisting>$ cat test.cxx
 #include &lt;stdio.h&gt;
 #include &lt;string.h&gt;
 #include &lt;stdint.h&gt;
 
 extern "C" {
-  void sha256_block_p(uint32_t*, const uint8_t*, size_t);
+  void sha256_block_p8(uint32_t*, const uint8_t*, size_t);
 }
 
 int main(int argc, char* argv[])
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
   };
 
   size_t blocks = sizeof(message)/64;
-  sha256_block_p(state, message, blocks);
+  sha256_block_p8(state, message, blocks);
 
   const uint8_t b1 = (uint8_t)(state[0] &gt;&gt; 24);
   const uint8_t b2 = (uint8_t)(state[0] &gt;&gt; 16);
