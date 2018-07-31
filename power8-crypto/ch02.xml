@@ -15,19 +15,12 @@
     <programlisting>$ xlC -qarch=pwr8 -qaltivec test.cxx -o test.exe
 </programlisting>
     <para>Both compilers consume <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem> for GCC and <systemitem>-qpic</systemitem> for XLC.</para>
+    <para>IBM XLC switched to an LLVM backend for the Linux compiler at version 13.1. When compiling with XLC version 13.1 or higher on Linux you will need <systemitem>-qcompatmacros</systemitem>. Without <systemitem>-qcompatmacros</systemitem> the samples will fail to compile because XLC 13.1 does not define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. The lack of preprocessor macros puts XLC 13.1 in the GCC code paths because <systemitem>__GNUC__</systemitem> is defined by LLVM, but the compiler cannot consume the code in the GCC code paths. <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem> is discussed more in <link linkend="intro_cfarm">compile farm</link>.</para>
     <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be mindful of the default GCC compiler. It may be GCC 4.8.5 which is a bit old and unsupported. You usually enjoy better code generation and performance with a modern GCC like 7.2. A newer compiler is usually located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
   </section>
-  <section id="power8_header" xreflabel="Altivec Headers">
-    <title>Altivec headers</title>
-    <para>The header required for datatypes and functions is <systemitem>&lt;altivec.h&gt;</systemitem>. To support compiles with a C++ compiler <systemitem>__vector</systemitem> keyword is used rather than <systemitem>vector</systemitem>. A typical Altivec include looks as shown below.</para>
-    <programlisting>#if defined(__ALTIVEC__)
-# include &lt;altivec.h&gt;
-# undef vector
-# undef pixel
-# undef bool
-#endif
-</programlisting>
-    <para>In addition to <systemitem>__ALTIVEC__</systemitem> preprocessor macro you will see the following defines depending on the platform:</para>
+  <section id="preprocessor_macros" xreflabel="Preprocessor Macros">
+    <title>Preprocessor macros</title>
+    <para>The following preprocessor macroand defines will be encountered depending on the platform and compiler:</para>
     <itemizedlist mark="bullet">
       <listitem>
         <para><systemitem>__powerpc__</systemitem> and <systemitem>__powerpc</systemitem> on AIX
@@ -54,6 +47,33 @@
         </para>
       </listitem>
     </itemizedlist>
+    <para>IBM switched to an LLVM backend for the Linux compiler at version 13.1 as discussed in <xref linkend="power8_compilers"/>. Be mindful of how you use preprocessor macros when LLVM is the backend because the compiler claims to be three different compilers (GCC, Clang and XLC).</para>
+    <programlisting>$ xlc -qxlcompatmacros -qshowmacros -E test.cpp | \
+  egrep -i -E 'xlc|clang|llvm|gnuc'
+#define __GNUC_GNU_INLINE__ 1
+#define __GNUC_MINOR__ 2
+#define __GNUC_PATCHLEVEL__ 1
+#define __GNUC__ 4
+#define __clang__ 1
+#define __clang_major__ 4
+#define __clang_minor__ 0
+#define __clang_patchlevel__ 1
+#define __clang_version__ "4.0.1 (tags/RELEASE_401/final)"
+#define __llvm__ 1
+#define __xlC__ 0x0d01
+#define __xlC_ver__ 0x00000601</programlisting>
+    <para>The backend change broke code in the field because Clang cannot consume GCC builtins and triggered <ulink url="http://bugs.llvm.org/show_bug.cgi?id=38378">LLVM Issue 38378</ulink>.</para>
+  </section>
+  <section id="power8_header" xreflabel="Altivec Headers">
+    <title>Altivec headers</title>
+    <para>The header required for datatypes and functions is <systemitem>&lt;altivec.h&gt;</systemitem>. To support compiles with a C++ compiler <systemitem>__vector</systemitem> keyword is used rather than <systemitem>vector</systemitem>. A typical Altivec include looks as shown below.</para>
+    <programlisting>#if defined(__ALTIVEC__)
+# include &lt;altivec.h&gt;
+# undef vector
+# undef pixel
+# undef bool
+#endif
+</programlisting>
   </section>
   <section id="power8_endianess" xreflabel="Machine Endianness">
     <title>Machine endianness</title>
