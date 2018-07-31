@@ -9,18 +9,16 @@
     <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++ (XLC). Both produce high quality code. LLVM's Clang was not tested. The compile farm lacks a Clang installation.</para>
     <para>The GCC and XLC compilers are mostly the same but accept slightly different options. The difference usually reduces to GCC accepts architecture options using <systemitem>-march</systemitem> and <systemitem>-mcpu</systemitem>, while XLC uses <systemitem>-qarch</systemitem>.</para>
     <para>Compiling a test program with GCC will generally look like below. The important part is <systemitem>-mcpu=power8</systemitem> which selects the POWER8 Instruction Set Architecture (ISA).</para>
-    <programlisting>$ g++ -mcpu=power8 test.cxx -o test.exe
-</programlisting>
+    <programlisting>$ g++ -mcpu=power8 test.cxx -o test.exe</programlisting>
     <para>Compiling a test program with IBM XL C/C++ will generally look like below. The important parts are the C++ compiler name of <systemitem>xlC</systemitem>, and <systemitem>-qarch=pwr8</systemitem> which selects the POWER8 ISA.</para>
-    <programlisting>$ xlC -qarch=pwr8 -qaltivec test.cxx -o test.exe
-</programlisting>
+    <programlisting>$ xlC -qarch=pwr8 -qaltivec test.cxx -o test.exe</programlisting>
     <para>Both compilers consume <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem> for GCC and <systemitem>-qpic</systemitem> for XLC.</para>
     <para>IBM XLC switched to an LLVM backend for the Linux compiler at version 13.1. When compiling with XLC version 13.1 or higher on Linux you will need <systemitem>-qcompatmacros</systemitem>. Without <systemitem>-qcompatmacros</systemitem> the samples will fail to compile because XLC 13.1 does not define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. The lack of preprocessor macros puts XLC 13.1 in the GCC code paths because <systemitem>__GNUC__</systemitem> is defined by LLVM, but the compiler cannot consume the code in the GCC code paths. <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem> is discussed more in <link linkend="intro_cfarm">compile farm</link>.</para>
     <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be mindful of the default GCC compiler. It may be GCC 4.8.5 which is a bit old and unsupported. You usually enjoy better code generation and performance with a modern GCC like 7.2. A newer compiler is usually located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
   </section>
   <section id="preprocessor_macros" xreflabel="Preprocessor Macros">
     <title>Preprocessor macros</title>
-    <para>The following preprocessor macroand defines will be encountered depending on the platform and compiler:</para>
+    <para>The following preprocessor macros and defines will be encountered depending on the platform and compiler:</para>
     <itemizedlist mark="bullet">
       <listitem>
         <para><systemitem>__powerpc__</systemitem> and <systemitem>__powerpc</systemitem> on AIX
@@ -72,8 +70,7 @@
 # undef vector
 # undef pixel
 # undef bool
-#endif
-</programlisting>
+#endif</programlisting>
   </section>
   <section id="power8_endianess" xreflabel="Machine Endianness">
     <title>Machine endianness</title>
@@ -83,8 +80,7 @@
 # pragma message "Little-endian system"
 #else
 # pragma message "Big-endian system"
-#endif
-</programlisting>
+#endif</programlisting>
     <para>The compilers can show the endian-related preprocessor macros available on a platform. Below is from GCC on <systemitem>gcc112</systemitem> from the <link linkend="intro_cfarm">compile farm</link>, which is ppc64-le.</para>
     <screen>$ g++ -dM -E test.cxx | grep -i endian
 #define __ORDER_LITTLE_ENDIAN__ 1234
@@ -142,7 +138,7 @@
     </itemizedlist>
     <para><systemitem>__vector unsigned char</systemitem> is arranged as 16 each 8-bit bytes, and it is a typedef to <systemitem>uint8x16_p</systemitem>. <systemitem>__vector unsigned int</systemitem> is arranged as 4 each 32-bit words, and it is a typedef to <systemitem>uint32x4_p</systemitem>.</para>
     <para>POWER8 added <systemitem>__vector unsigned long</systemitem> and associated vector operations. <systemitem>__vector unsigned long</systemitem> is arranged as 2 each 64-bit double words, and it is a typedef to <systemitem>uint64x2_p</systemitem>.</para>
-    <para>The typedef naming was selected to convey the arrangement, like <systemitem>32x4</systemitem> and <systemitem>64x2</systemitem>. The trailing <systemitem>_p</systemitem> was selected to convey the POWER architecture and avoid collisions with ARM NEON vector data types. The suffix <systemitem>_p8</systemitem> (for POWER8 architecture) or <systemitem>_v</systemitem> (for Vector) would work just as well.</para>
+    <para>The typedef naming was selected to convey the arrangement, like <systemitem>32x4</systemitem> and <systemitem>64x2</systemitem>. The trailing <systemitem>_p</systemitem> was selected to convey the POWER architecture and avoid collisions with ARM NEON vector data types. The suffix <systemitem>_p8</systemitem> (for POWER8 architecture) or <systemitem>_v</systemitem> (for Vector) would work just as well. You should avoid <systemitem>_t</systemitem> because it is reserved for the language by the standards.</para>
   </section>
   <section id="power8_shift" xreflabel="Vector Shifts">
     <title>Vector shifts</title>
@@ -159,8 +155,7 @@ T VecShiftLeft(const T val1, const T val2)
     enum {R = N&amp;0xf};
     return vec_sld(val1, val2, R);
 #endif
-}
-</programlisting>
+}</programlisting>
     <para>A <systemitem>VecRotateLeft</systemitem> would be similar to the code below, if needed. Rotate is a special case of shift where both vector arguments are the same value.</para>
     <programlisting>template &lt;unsigned int N, class T&gt;
 T VecRotateLeft(const T val)
@@ -172,8 +167,7 @@ T VecRotateLeft(const T val)
     enum {R = N&amp;0xf};
     return vec_sld(val, val, R);
 #endif
-}
-</programlisting>
+}</programlisting>
   </section>
   <section id="power8_permute" xreflabel="Vector Permutes">
     <title>Vector permutes</title>
@@ -182,14 +176,12 @@ T VecRotateLeft(const T val)
     <para>As an example, suppose you have a big-endian byte array like a message to be hashed using SHA-256. SHA operates on 32-bit words so the message needs a shuffle on little-endian systems. The code to perform the permute on a little-endian machine would look like below.</para>
     <programlisting>uint32x4_p msg = vec_ld(/*load from memory*/);
 uint8x16_p mask = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
-msg = vec_perm(msg, msg, mask);
-</programlisting>
+msg = vec_perm(msg, msg, mask);</programlisting>
     <para>The previous example only needed one vector so it used <systemitem>msg</systemitem> twice in the call to <systemitem>vec_perm</systemitem>. The Altivec code is similar to <systemitem>_mm_shuffle_epi8</systemitem> on Intel machines. An example that interleaves two different vectors is shown below.</para>
     <programlisting>uint32x4_p a = { 0,  0,  0,  0};  // All 0 bits
 uint32x4_p b = {-1, -1, -1, -1};  // All 1 bits
 uint8x16_p m = {0,1,2,3, 16,17,18,19, 4,5,6,7, 20,21,22,23};
-uint32x4_p c = vec_perm(a, b, m);
-</programlisting>
+uint32x4_p c = vec_perm(a, b, m);</programlisting>
     <para>After the code above executes the vector <systemitem>c</systemitem> will have the value <systemitem>{0, -1, 0, -1}</systemitem>.</para>
     <para>Below is the image IBM provides for the <systemitem>vec_perm</systemitem> documentation. The IBM example shows <systemitem>d = vec_perm(a, b, c)</systemitem>. The light gray blocks in vector <systemitem>d</systemitem> are from the first vector, and dark gray blocks in vector <systemitem>d</systemitem> are from the second vector.</para>
     <para/>
@@ -209,8 +201,7 @@ uint32x4_p c = vec_perm(a, b, m);
     <para>You can calculate an effective address using the following code. Notice the bottom 4 bits are masked after calculating the sum to yield a multiple of 16.</para>
     <programlisting>uintptr_t maddr = (uintptr_t)mem_addr;
 uintptr_t mask = ~(uintptr_t)0xf;
-uintptr_t eaddr = (maddr+offset) &amp; mask;
-</programlisting>
+uintptr_t eaddr = (maddr+offset) &amp; mask;</programlisting>
     <para><systemitem>vec_ld</systemitem> takes a pointer and an offset to load a value into a VSX register. Each of the following yield the same VSX register value because the effective addresses are the same. (Old x86 programmers should reminisce on  segmented memory).</para>
     <programlisting>uint8_t* ptr1 = 0x401000;
 int off1 = 32;
@@ -218,8 +209,7 @@ uint8x16_p r1 = vec_ld(off1, ptr1);
 
 uint8_t* ptr2 = 0x401010;
 int off2 = 16;
-uint8x16_p r2 = vec_ld(off2, ptr2);
-</programlisting>
+uint8x16_p r2 = vec_ld(off2, ptr2);</programlisting>
     <para>The following also yields the same VSX register value because the effective address is the same. If you truly wanted to load 4 bytes beyond <systemitem>ptr</systemitem> then you loaded the wrong value because <systemitem>(0x401010+4)&amp;0xfffffff0 = 0x401010</systemitem>.</para>
     <programlisting>uint8_t* ptr1 = 0x401000;
 int off1 = 16;
@@ -227,8 +217,7 @@ uint8x16_p r1 = vec_ld(off1, ptr1);
 
 uint8_t* ptr2 = 0x401010;
 int off2 = 4;
-uint8x16_p r2 = vec_ld(off2, ptr2);
-</programlisting>
+uint8x16_p r2 = vec_ld(off2, ptr2);</programlisting>
     <para>The application of effective addresses are discussed more below in <xref linkend="power8_aligned_ld_st"/> and <xref linkend="power8_unaligned_ld_st"/>.</para>
   </section>
   <section id="power8_aligned_ld_st" xreflabel="Aligned Data References">
@@ -248,8 +237,7 @@ uint32x4_p VecLoad(const T* mem_addr, int offset)
 #endif
 
     return (uint32x4_p)vec_ld(offset, mem_addr);
-}
-</programlisting>
+}</programlisting>
     <para>The C/C++ code to perform a store using <systemitem>vec_st</systemitem> should look similar to below.</para>
     <programlisting>template &lt;class T&gt;
 void VecStore(const uint32x4_p val, T* mem_addr, int offset)
@@ -262,8 +250,7 @@ void VecStore(const uint32x4_p val, T* mem_addr, int offset)
 #endif
 
     vec_st((uint8x16_p)val, offset, mem_addr);
-}
-</programlisting>
+}</programlisting>
   </section>
   <section id="power8_unaligned_ld_st" xreflabel="Unaligned Data References">
     <title>Unaligned data references</title>
@@ -278,8 +265,7 @@ uint32x4_p VecLoadu(const T* mem_addr, int offset)
 #else
     return (uint32x4_p)vec_vsx_ld(offset, mem_addr);
 #endif
-}
-</programlisting>
+}</programlisting>
     <para>The C/C++ code to perform a store using <systemitem>vec_xst</systemitem> and <systemitem>vec_vsx_st</systemitem> should look similar to below.</para>
     <programlisting>template &lt;class T&gt;
 void VecStoreu(const uint32x4_p val, T* mem_addr, int offset)
@@ -289,8 +275,7 @@ void VecStoreu(const uint32x4_p val, T* mem_addr, int offset)
 #else
     vec_vsx_st((uint8x16_p)val, offset, mem_addr);
 #endif
-}
-</programlisting>
+}</programlisting>
     <para>If your code will only be compiled with supported compilers, you may simplify it to use the <systemitem>vec_xl</systemitem> and <systemitem>vec_xst</systemitem> variants for both XLC and GCC.</para>
   </section>
   <!--
@@ -309,8 +294,7 @@ SHA256_SCHEDULE(unsigned int*, unsigned char const*):
 100008d0:   57 0a 21 f0     xxswapd vs33,vs33
 100008d4:   97 05 00 f0     xxlnand vs32,vs32,vs32
 100008d8:   2b 08 21 10     vperm   v1,v1,v1,v0
-...
-</programlisting>
+...</programlisting>
     <para>While not readily apparent, <systemitem>v0</systemitem> is another name for <systemitem>vs32</systemitem>, and <systemitem>v1</systemitem> is another name for <systemitem>vs33</systemitem>. So the permutation may be thought of as <systemitem>vperm vs33,vs33,vs33,vs32</systemitem> (although this will not assemble). Also see <ulink url="https://stackoverflow.com/q/49132339/608639">What does “vperm v0,v0,v0,v17” with unused v0 do?</ulink>.</para>
     <para>Access to <systemitem>vec_xl_be</systemitem> and <systemitem>vec_st_be</systemitem> was provided for IBM XL C/C++, but GCC only supports these intrinsic functions beginning with version 8 (Spring 2018 release).  For earlier versions of GCC, you must use inline assembly to replace the missing built-ins with <systemitem>VEC_XL_BE</systemitem> and <systemitem>VEC_ST_BE</systemitem>.</para>
     <para>
@@ -341,8 +325,7 @@ uint32x4_p VecLoadMsg32x4(const T* data, int offset)
 #else
     return VEC_XL_BE(offset, data);
 #endif
-}
-</programlisting>
+}</programlisting>
   </section>
 -->
   <section id="power8_vec_deref" xreflabel="Vector Dereferences">
