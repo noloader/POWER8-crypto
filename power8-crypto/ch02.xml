@@ -6,7 +6,7 @@
   <para>Memory alignment, loads, stores and shifts will probably cause the most trouble for someone new to PowerPC vector programming. If you are new to the platform you may want to read this chapter twice. If you are experienced with the platform then you probably want to skip this chapter.</para>
   <section id="power8_compilers" xreflabel="PowerPC Compilers">
     <title>PowerPC compilers</title>
-    <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++ (XLC). Both produce high quality code. LLVM's Clang was not tested. The compile farm lacks a Clang installation.</para>
+    <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++ (XLC). Both produce high quality code. LLVM's Clang was not tested because the <link linkend="intro_cfarm">compile farm </link> lacks a Clang installation.</para>
     <para>The GCC and XLC compilers are mostly the same but accept slightly different options. The difference usually reduces to GCC accepts architecture options using <systemitem>-march</systemitem> and <systemitem>-mcpu</systemitem>, while XLC uses <systemitem>-qarch</systemitem>.</para>
     <para>Compiling a test program with GCC will generally look like below. The important part is <systemitem>-mcpu=power8</systemitem> which selects the POWER8 Instruction Set Architecture (ISA).</para>
     <programlisting>$ g++ -mcpu=power8 test.cxx -o test.exe</programlisting>
@@ -15,6 +15,17 @@
     <para>Both compilers consume <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem> for GCC and <systemitem>-qpic</systemitem> for XLC.</para>
     <para>IBM XLC switched to an LLVM backend for the Linux compiler at version 13.1. When compiling with XLC version 13.1 or higher on Linux you will need <systemitem>-qcompatmacros</systemitem>. Without <systemitem>-qcompatmacros</systemitem> the samples will fail to compile because XLC 13.1 does not define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. The lack of preprocessor macros puts XLC 13.1 in GCC code paths because <systemitem>__GNUC__</systemitem> is defined, but the compiler cannot consume the code in the GCC code paths. Compiler defines, like <systemitem>__xlc__</systemitem> and <systemitem>__xlC__</systemitem>, are discussed more in <xref linkend="preprocessor_macros"/>.</para>
     <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be mindful of the default GCC compiler. It may be GCC 4.8.5 which is a bit old and unsupported. You usually enjoy better code generation and performance with a modern GCC like 7.2. A newer compiler is usually located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
+  </section>
+  <section id="power8_header" xreflabel="Altivec Headers">
+    <title>Altivec headers</title>
+    <para>The header file required for datatypes and functions is <systemitem>&lt;altivec.h&gt;</systemitem>. To support compiles with a C++ compiler <systemitem>__vector</systemitem> keyword is used rather than <systemitem>vector</systemitem>. A typical Altivec include looks as shown below.</para>
+    <programlisting>#if defined(__ALTIVEC__)
+# include &lt;altivec.h&gt;
+# undef vector
+# undef pixel
+# undef bool
+#endif</programlisting>
+    <para>The <systemitem>__ALTIVEC__</systemitem> preprocessor macro will be defined when using <systemitem>-qaltivec</systemitem> or <systemitem>-maltivec</systemitem> compiler options as discussed in <xref linkend="power8_compilers"/>. Macros and definitions are discussed more in <xref linkend="preprocessor_macros"/>.</para>
   </section>
   <section id="preprocessor_macros" xreflabel="Preprocessor Macros">
     <title>Preprocessor macros</title>
@@ -41,6 +52,10 @@
         </para>
       </listitem>
       <listitem>
+        <para><systemitem>__GNUC__</systemitem> when using GCC C/C++ compiler
+        </para>
+      </listitem>
+      <listitem>
         <para><systemitem>__xlc__</systemitem> and <systemitem>__xlC__</systemitem> when using IBM XL C/C++
         </para>
       </listitem>
@@ -60,17 +75,7 @@
 #define __llvm__ 1
 #define __xlC__ 0x0d01
 #define __xlC_ver__ 0x00000601</programlisting>
-    <para>The backend change triggered <ulink url="http://bugs.llvm.org/show_bug.cgi?id=38378">LLVM Issue 38378</ulink> because the compiler entered GCC code paths but the it cannot consume GCC Power8 builtins.</para>
-  </section>
-  <section id="power8_header" xreflabel="Altivec Headers">
-    <title>Altivec headers</title>
-    <para>The header required for datatypes and functions is <systemitem>&lt;altivec.h&gt;</systemitem>. To support compiles with a C++ compiler <systemitem>__vector</systemitem> keyword is used rather than <systemitem>vector</systemitem>. A typical Altivec include looks as shown below.</para>
-    <programlisting>#if defined(__ALTIVEC__)
-# include &lt;altivec.h&gt;
-# undef vector
-# undef pixel
-# undef bool
-#endif</programlisting>
+    <para>The backend change triggered <ulink url="http://bugs.llvm.org/show_bug.cgi?id=38378">LLVM Issue 38378</ulink> for one project because the compiler entered GCC code paths but it cannot consume GCC Power8 builtins.</para>
   </section>
   <section id="power8_endianess" xreflabel="Machine Endianness">
     <title>Machine endianness</title>
@@ -143,8 +148,8 @@
   <section id="power8_shift" xreflabel="Vector Shifts">
     <title>Vector shifts</title>
     <para>Altivec shifts and rotates are performed using <emphasis>Vector Shift Left Double by Octet Immediate</emphasis>. The vector shift and rotate built-in is <systemitem>vec_sld</systemitem> and it compiles/assembles to <systemitem>vsldoi</systemitem>. Both shift and rotate operate on a concatenation of two vectors. Bytes are shifted out on the left and shifted in on the right. The instructions need an integral constant in the range 0 - 15, inclusive.</para>
-    <para>Vector shifts and rotates perform as expected on big-endian machines. Little-endian machines need a special handling to produce correct results and the <ulink url="http://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>. If you are like many other developers then you will literally waste hours trying to figure it out what happened the first time you experience it.</para>
-    <para>The issue is <ulink url="http://stackoverflow.com/q/46341923/608639">shifts and rotates are endian sensitive</ulink>, and you have to use <systemitem>16-n</systemitem> and swap vector arguments on little-endian systems. The C++ source code provides the following template function to compensate for the little-endian behavior.</para>
+    <para>Vector shifts and rotates perform as expected on big-endian machines. Little-endian machines require special handling to produce correct results. The catch is, <ulink url="http://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>.</para>
+    <para>The issue is <ulink url="http://stackoverflow.com/q/46341923/608639">shifts and rotates are endian sensitive</ulink> and you have to use <systemitem>16-n</systemitem> integrals and swap vector arguments on little-endian systems. The C++ source code provides the following template function to compensate for the little-endian behavior.</para>
     <programlisting>template &lt;unsigned int N, class T&gt;
 T VecShiftLeft(const T val1, const T val2)
 {
