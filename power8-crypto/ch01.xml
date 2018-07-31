@@ -25,18 +25,18 @@
     <para>There is no source code library to download <emphasis>per se</emphasis>. The code is taken from Botan, Crypto++ and OpenSSL free software projects. Some code is taken from Andy Polyakov and Cryptogams. Some code is taken from GitHub projects. And some code was written and thrown away after testing.</para>
     <para>The code for AES and SHA was collected and placed at <ulink url="https://github.com/noloader/AES-Intrinsics">AES Intrinsics</ulink> and <ulink url="https://github.com/noloader/SHA-Intrinsics">SHA Intrinsics</ulink> GitHubs but the code is not in library format. Rather they are stand alone proof of concepts.</para>
   </section>
-  <section id="intro_cfarm">
+  <section id="intro_cfarm" xreflabel="Compile Farm">
     <title>Compile Farm</title>
     <para><indexterm><primary>Compile farm</primary></indexterm><indexterm><primary>Compile farm</primary><secondary>gcc112</secondary></indexterm><indexterm><primary>Compile farm</primary><secondary>gcc119</secondary></indexterm>The book makes frequent references to <systemitem class="domainname">gcc112</systemitem> and <systemitem class="domainname">gcc119</systemitem> from the GCC Compile Farm. The Compile Farm offers four 64-bit PowerPC machines, and <systemitem>gcc112</systemitem> and <systemitem>gcc119</systemitem> are the POWER8 iron (the other two are POWER7 hardware). <systemitem>gcc112</systemitem> is a Linux PowerPC, 64-bit, little-endian machine (ppc64-le), and <systemitem>gcc119</systemitem> is an AIX PowerPC, 64-bit, big-endian machine (ppc64-be).</para>
     <para>Both POWER8 machines are IBM POWER System S822 with two CPU cards. <systemitem>gcc112</systemitem> has 160 logical CPUs and runs at 3.4 GHz.  <systemitem>gcc119</systemitem> has 64 logical CPUs and runs at 4.1 GHz. At 4.1 GHz and 192 GB of RAM <systemitem>gcc119</systemitem> is probably a contender for one of the fastest machine you will work on.</para>
     <para>If you are a free and open software developer then you are eligible for a free <ulink url="https://cfarm.tetaneutral.net/">GCC Compile Farm</ulink> account. The Cfarm provides machines for different architectures, including MIPS64, Aarch64 and 64-bit PowerPC. Access is provided through SSH.</para>
     <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be mindful of the default GCC compiler. It is probably GCC 4.8.5, and you usually get better code generation and performance with GCC 7.2 located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
   </section>
-  <section id="intro_contribute">
+  <section id="intro_contribute" xreflabel="Contributing">
     <title>Contributing</title>
     <para><indexterm><primary>Contributing</primary></indexterm>This book is free software. If you see an opportunity for improvement, an error or an omission then please submit a pull request or open a bug report.</para>
   </section>
-  <section id="intro_organization">
+  <section id="intro_organization" xreflabel="Book Organization">
     <title>Organization</title>
     <para><indexterm><primary>Administrivia</primary></indexterm>The book proceeds in eight parts. First, administrivia is discussed, like how to determine machine endianness and how to load and store a vector from memory. A full treatment of vector programming is its own book, but the discussion should be adequate to move on to the more interesting tasks.</para>
     <para><indexterm><primary>Feature detection</primary></indexterm>Second, runtime feature detections is discussed for AIX and Linux. Runtime detection allows you to switch to a faster implementation at runtime when the hardware provides the support.</para>

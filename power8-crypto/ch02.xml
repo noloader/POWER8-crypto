@@ -13,7 +13,7 @@
     <para>Compiling a test program with IBM XL C/C++ will generally look like below. The important parts are the C++ compiler name of <systemitem>xlC</systemitem>, and <systemitem>-qarch=pwr8</systemitem> which selects the POWER8 ISA.</para>
     <programlisting>$ xlC -qarch=pwr8 -qaltivec test.cxx -o test.exe</programlisting>
     <para>Both compilers consume <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem> for GCC and <systemitem>-qpic</systemitem> for XLC.</para>
-    <para>IBM XLC switched to an LLVM backend for the Linux compiler at version 13.1. When compiling with XLC version 13.1 or higher on Linux you will need <systemitem>-qcompatmacros</systemitem>. Without <systemitem>-qcompatmacros</systemitem> the samples will fail to compile because XLC 13.1 does not define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. The lack of preprocessor macros puts XLC 13.1 in the GCC code paths because <systemitem>__GNUC__</systemitem> is defined by LLVM, but the compiler cannot consume the code in the GCC code paths. <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem> is discussed more in <link linkend="intro_cfarm">compile farm</link>.</para>
+    <para>IBM XLC switched to an LLVM backend for the Linux compiler at version 13.1. When compiling with XLC version 13.1 or higher on Linux you will need <systemitem>-qcompatmacros</systemitem>. Without <systemitem>-qcompatmacros</systemitem> the samples will fail to compile because XLC 13.1 does not define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. The lack of preprocessor macros puts XLC 13.1 in GCC code paths because <systemitem>__GNUC__</systemitem> is defined, but the compiler cannot consume the code in the GCC code paths. Compiler defines, like <systemitem>__xlc__</systemitem> and <systemitem>__xlC__</systemitem>, are discussed more in <xref linkend="preprocessor_macros"/>.</para>
     <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be mindful of the default GCC compiler. It may be GCC 4.8.5 which is a bit old and unsupported. You usually enjoy better code generation and performance with a modern GCC like 7.2. A newer compiler is usually located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
   </section>
   <section id="preprocessor_macros" xreflabel="Preprocessor Macros">
@@ -60,7 +60,7 @@
 #define __llvm__ 1
 #define __xlC__ 0x0d01
 #define __xlC_ver__ 0x00000601</programlisting>
-    <para>The backend change broke code in the field because Clang cannot consume GCC builtins and triggered <ulink url="http://bugs.llvm.org/show_bug.cgi?id=38378">LLVM Issue 38378</ulink>.</para>
+    <para>The backend change triggered <ulink url="http://bugs.llvm.org/show_bug.cgi?id=38378">LLVM Issue 38378</ulink> because the compiler entered GCC code paths but the it cannot consume GCC Power8 builtins.</para>
   </section>
   <section id="power8_header" xreflabel="Altivec Headers">
     <title>Altivec headers</title>
@@ -91,7 +91,7 @@
 #define __ORDER_BIG_ENDIAN__ 4321
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
 </screen>
-    <para>And the complimentary view from IBM XL C/C++ on <systemitem>gcc112</systemitem> from the <link linkend="intro_cfarm">compile farm</link>, which is ppc64-le.</para>
+    <para>And the complimentary view from IBM XL C/C++ on <systemitem>gcc112</systemitem> from the <xref linkend="intro_cfarm"/>, which is ppc64-le.</para>
     <screen>$ xlC -qshowmacros -E test.cxx | grep -i endian
 #define _LITTLE_ENDIAN 1
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
