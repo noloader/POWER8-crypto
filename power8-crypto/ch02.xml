@@ -13,7 +13,7 @@
     <para>Compiling a test program with IBM XL C/C++ will generally look like below. The important parts are the C++ compiler name of <systemitem>xlC</systemitem>, and <systemitem>-qarch=pwr8</systemitem> which selects the POWER8 ISA.</para>
     <programlisting>$ xlC -qarch=pwr8 -qaltivec test.cxx -o test.exe</programlisting>
     <para>Both compilers consume <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem> for GCC and <systemitem>-qpic</systemitem> for XLC.</para>
-    <para>IBM XLC switched to an LLVM backend for the Linux compiler at version 13.1. When compiling with XLC version 13.1 or higher on Linux you will need <systemitem>-qcompatmacros</systemitem>. Without <systemitem>-qcompatmacros</systemitem> the samples will fail to compile because XLC 13.1 does not define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. The lack of preprocessor macros puts XLC 13.1 in GCC code paths because <systemitem>__GNUC__</systemitem> is defined, but the compiler cannot consume the code in the GCC code paths. Compiler defines, like <systemitem>__xlc__</systemitem> and <systemitem>__xlC__</systemitem>, are discussed more in <xref linkend="preprocessor_macros"/>.</para>
+    <para>IBM XLC switched to a LLVM backend for the Linux compiler at version 13.1. When compiling with XLC version 13.1 or higher on Linux you need the <systemitem>-qcompatmacros</systemitem> compiler option. Without <systemitem>-qcompatmacros</systemitem> the samples fail to compile because XLC 13.1 does not define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. However, LLVM defines <systemitem>__GNUC__</systemitem> but compililation fails because the compiler cannot consume the GCC Power8 builtins.<footnote><para>LLVM behavior is befuddling to some people. It is the XLC compiler but fails to define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. Then it defines <systemitem>__GNUC__</systemitem> but fails to consume the GCC Power8 builtins.</para></footnote></para>
     <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be mindful of the default GCC compiler. It may be GCC 4.8.5 which is a bit old and unsupported. You usually enjoy better code generation and performance with a modern GCC like 7.2. A newer compiler is usually located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
   </section>
   <section id="power8_header" xreflabel="Altivec Headers">
@@ -26,6 +26,9 @@
 # undef bool
 #endif</programlisting>
     <para>The <systemitem>__ALTIVEC__</systemitem> preprocessor macro will be defined when using <systemitem>-qaltivec</systemitem> or <systemitem>-maltivec</systemitem> compiler options as discussed in <xref linkend="power8_compilers"/>. Macros and definitions are discussed more in <xref linkend="preprocessor_macros"/>.</para>
+    <para>When you need to use the vector datatypes you use the <systemitem>__vector</systemitem> keyword as discussed in the section <xref linkend="power8_datatypes"/>.</para>
+    <programlisting>/* A vector with four elements initialized to 0 */
+__vector unsigned int v = {0,0,0,0};</programlisting>
   </section>
   <section id="preprocessor_macros" xreflabel="Preprocessor Macros">
     <title>Preprocessor macros</title>
@@ -61,7 +64,7 @@
       </listitem>
     </itemizedlist>
     <para>IBM switched to an LLVM backend for the Linux compiler at version 13.1 as discussed in <xref linkend="power8_compilers"/>. Be mindful of how you use preprocessor macros when LLVM is the backend because the compiler claims to be three different compilers (GCC, Clang and XLC).</para>
-    <programlisting>$ xlc -qxlcompatmacros -qshowmacros -E test.cpp | \
+    <programlisting>$ xlc -qxlcompatmacros -qshowmacros -E test.cxx | \
   egrep -i -E 'xlc|clang|llvm|gnuc'
 #define __GNUC_GNU_INLINE__ 1
 #define __GNUC_MINOR__ 2
