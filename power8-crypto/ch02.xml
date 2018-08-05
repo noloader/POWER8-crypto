@@ -75,7 +75,6 @@ __vector unsigned int v = {0,0,0,0};</programlisting>
 #define __clang_major__ 4
 #define __clang_minor__ 0
 #define __clang_patchlevel__ 1
-#define __clang_version__ "4.0.1 (tags/RELEASE_401/final)"
 #define __llvm__ 1
 #define __xlC__ 0x0d01
 #define __xlC_ver__ 0x00000601</programlisting>
