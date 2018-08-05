@@ -9,7 +9,7 @@
     <title>Architecture</title>
     <para>There are two POWER architectures that you will encounter as you are working on your implementation. The first is POWER7, and it is governed by ISA 2.06B documents. The second is POWER8, and it is governed by ISA 2.07B documents.</para>
     <para>In-core cryptography requires POWER8 and ISA 2.07B support. POWER8 is the ISA that has the instructions for AES, SHA and polynomial multiplication. POWER7 provides other useful instructions, like unaligned loads and stores. If you are working with POWER8, then you have everything in POWER7 and earlier.</para>
-    <para>Note that if you are developing for Little-Endian Linux on Power, POWER7 is not available.  ISA 2.07B (POWER8) support is the minimum requirement for LE systems.</para>
+    <para>Note that if you are developing for Little-Endian Linux on Power, POWER7 is not available. ISA 2.07B (POWER8) support is the minimum requirement for LE systems.</para>
     <para>The <ulink url="https://openpowerfoundation.org">OpenPOWER Foundation</ulink> is an open technical community based on the POWER architecture.  Its mission is to create an open ecosystem, using the POWER architecture to share expertise, investment, and server-class intellectual property to serve the evolving needs of customers and industry. The Foundation publishes many technical documents for the POWER architectures in its <ulink url="https://openpowerfoundation.org/technical/resource-catalog/">Resource Catalog</ulink>, including ISA 2.07B.  Change flags in this document show the added content relative to ISA 2.06B, which predates the OpenPOWER Foundation.</para>
   </section>
   <section id="intro_compilers">

@@ -39,7 +39,23 @@ x86
 x86_64
 
 Altivec
+maltivec
+qaltivec
+pwr4
+pwr5
+pwr6
+pwr7
+pwr8
+pwr9
+power4
+power5
+power6
+power7
+power8
+power9
 POWER4
+POWER5
+POWER6
 POWER7
 POWER8
 POWER9
