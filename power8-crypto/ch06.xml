@@ -110,23 +110,23 @@ SwapWords(const T val)
         </tbody>
       </tgroup>
     </informaltable>
-    <para>The basic pieces for polynomial multiplication are now in place. The next step is implement the GCM multiplication and reduction. The GCM multiply using reflected values is shown below. <systemitem>vec_sl</systemitem> bit shifts each word in a vector.</para>
+    <para>The basic pieces for polynomial multiplication are now in place. The next step is implement the GCM multiplication and reduction. The GCM multiply using reflected values is shown below. <systemitem>vec_sl</systemitem> left shifts each word in a vector by the specified number of bits. <systemitem>vec_sr</systemitem> right shifts each word in a vector by the specified number of bits. <systemitem>vec_mergeh</systemitem> creates a new vector from the two source vectors.</para>
     <programlisting><indexterm><primary>GCM_Reduce</primary></indexterm>uint64x2_p
 GCM_Multiply(uint64x2_p c0, uint64x2_p c1, uint64x2_p c2)
 {
     const uint64x2_p m1 = {1,1}, m63 = {63,63};
     const uint64x2_p r = {0xe100000000000000, 0xc200000000000000};
 
-    c1 = VectorXor(c1, VectorShiftRight&lt;8&gt;(c0));
-    c1 = VectorXor(c1, VecPolyMult10(c0, r));
-    c0 = VectorXor(c1, VectorShiftLeft&lt;8&gt;(c0));
+    c1 = VecXor(c1, VecShiftRight&lt;8&gt;(c0));
+    c1 = VecXor(c1, VecPolyMult10(c0, r));
+    c0 = VecXor(c1, VecShiftLeft&lt;8&gt;(c0));
     c0 = VecPolyMult00(vec_sl(c0, m1), r);
-    c2 = VectorXor(c2, c0);
-    c2 = VectorXor(c2, VectorShiftLeft&lt;8&gt;(c1));
+    c2 = VecXor(c2, c0);
+    c2 = VecXor(c2, VecShiftLeft&lt;8&gt;(c1));
     c1 = vec_sr(vec_mergeh(c1, c2), m63);
     c2 = vec_sl(c2, m1);
 
-    return VectorXor(c2, c1);
+    return VecXor(c2, c1);
 }
 
 <indexterm><primary>GCM_Multiply</primary></indexterm>uint64x2_p
@@ -139,5 +139,6 @@ GCM_Multiply(uint64x2_p x, uint64x2_p h)
 
     return GCM_Reduce(c0, c1, c2);
 }</programlisting>
+    <para>Keep in mind the listed code uses a reflective implementation often found on x86 and other little-endian machines. You will have to call <systemitem>SwapWords</systemitem> on parameters to ensure the words in the vectors are arranged in the expected order.</para>
   </section>
 </chapter>
