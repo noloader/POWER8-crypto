@@ -148,5 +148,8 @@ GCM_Multiply(uint64x2_p x, uint64x2_p h)
 
     return GCM_Reduce(c0, c1, c2);
 }</programlisting>
+    <para>A word of caution when implementing <systemitem>GCM_Multiply</systemitem> and <systemitem>GCM_Reduce</systemitem>. You will likely use a reflected algorithm, and nearly everything gets turned on its head. For example, GCM's internal vmull function swaps words on big-endian systems and leaves words alone on little-endian systems. As another example GCM's internal vmull function reads low words with <systemitem>VecGetHigh</systemitem> and high words with <systemitem>VecGetLow</systemitem>.</para>
+    <para>Also see the head notes for POWER8 in the Crypto++ implementation at <ulink url="https://github.com/weidai11/cryptopp/blob/master/gcm-simd.cpp"><systemitem>gcm-simd.cpp</systemitem></ulink>. If you are feeling adventurous then you can find the Cryptogams implementation for OpenSSL at <ulink url="https://github.com/openssl/openssl/blob/master/crypto/modes/asm/ghashp8-ppc.pl"><systemitem>ghashp8-ppc.pl
+</systemitem></ulink>.</para>
   </section>
 </chapter>
