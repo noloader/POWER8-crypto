@@ -139,6 +139,6 @@ GCM_Multiply(uint64x2_p x, uint64x2_p h)
 
     return GCM_Reduce(c0, c1, c2);
 }</programlisting>
-    <para>Keep in mind the listed code uses a reflective implementation often found on x86 and other little-endian machines. You will have to call <systemitem>SwapWords</systemitem> on parameters to ensure the words in the vectors are arranged in the expected order.</para>
+    <para>Keep in mind the listed code uses a reflective implementation often found on x86 and other little-endian machines. You will have to call <systemitem>SwapWords</systemitem> on parameters to ensure the words in the vectors are arranged in the expected order. The additional calls to <systemitem>SwapWords</systemitem> are not shown.</para>
   </section>
 </chapter>
