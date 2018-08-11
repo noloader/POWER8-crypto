@@ -5,7 +5,7 @@
   <para><indexterm><primary>Polynomial multiplication</primary></indexterm>This chapter discusses polynomial multiplication used with CRC codes and the GCM mode of operation for AES.</para>
   <section id="poly_crc">
     <title>CRC-32 and CRC-32C</title>
-    <para><indexterm><primary>CRC-32</primary></indexterm><indexterm><primary>Polynomial multiplication</primary><secondary>CRC-32</secondary></indexterm>CRC checksums on POWER8 are nothing like SSE4 or Aarch64's CRC instructions. Please refer to Anton Blanchard's GitHub at <ulink url="https://github.com/antonblanchard/crc32-vpmsum">CRC32/vpmsum</ulink> for the discussion and sample code.</para>
+    <para><indexterm><primary>CRC-32</primary></indexterm><indexterm><primary>Polynomial multiplication</primary><secondary>CRC-32</secondary></indexterm>CRC checksums on POWER8 are nothing like the SSE4 or Aarch64 CRC instructions. Please refer to Anton Blanchard's GitHub at <ulink url="https://github.com/antonblanchard/crc32-vpmsum">CRC32/vpmsum</ulink> for the discussion and sample code.</para>
   </section>
   <section id="poly_gcm">
     <title>GCM mode</title>
@@ -40,8 +40,8 @@ Breakpoint 1, main (argc=0x1, argv=0x2ff22bb8) at test.cxx:11
 (gdb) p c
 $1 = {0x0, 0x100}</programlisting>
     <para>Three helper functions are needed for GCM mode. The first two are <systemitem>VecGetHigh</systemitem> and <systemitem>VecGetLow</systemitem>. The functions extract the high and low 64-bit double words and return them in a vector. The third is <systemitem>SwapWords</systemitem>. <systemitem>SwapWords</systemitem> exchanges 64-bit double words on little-endian systems after the multiplication.</para>
-    <para><systemitem>VecGetHigh</systemitem> and <systemitem>VecGetLow</systemitem> return a vector padded on the left with 0's. That means the return vector already has one of the terms set to 0 so <systemitem>vpmsumd</systemitem> will act like Aarch64's <indexterm><primary>pmull_p64</primary></indexterm><systemitem>pmull_p64</systemitem> or SSE's <indexterm><primary>_mm_clmulepi64_si128</primary></indexterm><systemitem>_mm_clmulepi64_si128</systemitem>.</para>
-    <para>The source code for the three functions are shown below. Shifts are preferred over permutes or masks because shifts are generally faster and use fewer instructions.</para>
+    <para><systemitem>VecGetHigh</systemitem> and <systemitem>VecGetLow</systemitem> return a vector padded on the left with 0's. That means the return vector already has one of the terms set to 0 so <systemitem>vpmsumd</systemitem> will behave like ARM's <indexterm><primary>pmull_p64</primary></indexterm><systemitem>pmull_p64</systemitem> or Intel's <indexterm><primary>_mm_clmulepi64_si128</primary></indexterm><systemitem>_mm_clmulepi64_si128</systemitem>.</para>
+    <para>The source code for the three functions are shown below. Shifts and rotates are preferred over permutes or masks because shifts are generally faster and use fewer instructions.</para>
     <programlisting><indexterm><primary>VecGetHigh</primary></indexterm>uint64x2_p VecGetHigh(uint64x2_p val)
 {
     return VecShiftRight&lt;8&gt;(val);
@@ -139,7 +139,7 @@ VecPolyMultiply(uint64x2_p a, uint64x2_p b)
       </tgroup>
     </informaltable>
     <para>The next steps are implement the GCM multiplication and reduction routines. The code for multiplication is easy and shown below. The code for reduction is the tricky one and left as an exercise to the reader.</para>
-    <programlisting><indexterm><primary>GCM_Multiply</primary></indexterm>uint64x2_p
+    <programlisting><indexterm><primary>GCM_Multiply</primary></indexterm><indexterm><primary>GCM_Reduce</primary></indexterm>uint64x2_p
 GCM_Multiply(uint64x2_p x, uint64x2_p h)
 {
     uint64x2_p c0 = VecPolyMult00(x, h);
@@ -148,7 +148,7 @@ GCM_Multiply(uint64x2_p x, uint64x2_p h)
 
     return GCM_Reduce(c0, c1, c2);
 }</programlisting>
-    <para>A word of caution when implementing <systemitem>GCM_Multiply</systemitem> and <systemitem>GCM_Reduce</systemitem>. You will likely use a reflected algorithm, and nearly everything gets turned on its head. For example, GCM's internal vmull function swaps words on big-endian systems and leaves words alone on little-endian systems. As another example GCM's internal vmull function reads low words with <systemitem>VecGetHigh</systemitem> and high words with <systemitem>VecGetLow</systemitem>.</para>
+    <para>Implementing <systemitem>GCM_Multiply</systemitem> and <systemitem>GCM_Reduce</systemitem> will require some forethought. You will likely use a reflected algorithm, and nearly everything gets turned on its head. For example, GCM's vpmsum wrapper swaps words on big-endian systems and leaves words alone on little-endian systems. As another example GCM's vpmsum wrapper reads low words with <systemitem>VecGetHigh</systemitem> and high words with <systemitem>VecGetLow</systemitem> to ensure the correct words are presented to the function call.</para>
     <para>Also see the head notes for POWER8 in the Crypto++ implementation at <ulink url="https://github.com/weidai11/cryptopp/blob/master/gcm-simd.cpp"><systemitem>gcm-simd.cpp</systemitem></ulink>. If you are feeling adventurous then you can find the Cryptogams implementation for OpenSSL at <ulink url="https://github.com/openssl/openssl/blob/master/crypto/modes/asm/ghashp8-ppc.pl"><systemitem>ghashp8-ppc.pl
 </systemitem></ulink>.</para>
   </section>

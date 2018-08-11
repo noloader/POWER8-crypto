@@ -16,7 +16,7 @@
     <title>Compilers</title>
     <para><indexterm><primary>GCC</primary></indexterm><indexterm><primary>XL C/C++</primary></indexterm><indexterm><primary>Compiler</primary><secondary>GCC</secondary></indexterm><indexterm><primary>Compiler</primary><secondary>XL C/C++</secondary></indexterm>The book does not discriminate compilers. All the samples will compile with both GCC and IBM XL C/C++. XL C/C++ is IBM's flagship compiler, and it is referred to as XLC on occasion.</para>
     <para>The samples may compile with LLVM's Clang but it was not tested. The compile farm does not have Clang installed so we could not test it. We would like to see how well Clang performs when compared to GCC and XLC. If you encounter a problem using Clang then please report it.</para>
-    <para>The compiler you use can make a measurable difference on you program. For example, you will probably obtain different benchmark results using GCC and XLC. You will even obtain different benchmark results among versions of the same compiler. For example, GCC 7.2 is generally faster than GCC 4.8.5, and both SHA-256 and SHA-512 built-in implementations will speed up by about 2 cycles per byte (cpb) using GCC 7.</para>
+    <para>The compiler you use can make a measurable difference on you program. For example, you will probably obtain different benchmark results using GCC and XLC. You will even obtain different benchmark results among versions of the same compiler. For example, GCC 7.2 is generally faster than GCC 4.8.5, and both SHA-256 and SHA-512 builtin implementations will speed up by about 2 cycles per byte (cpb) using GCC 7.</para>
     <para>Compilers are discussed in more detail at <link linkend="power8_compilers">PowerPC Compilers</link>.</para>
   </section>
   <section id="intro_src_code">
@@ -45,6 +45,6 @@
     <para><indexterm><primary>Polynomial multiplication</primary></indexterm>Fifth, polynomial multiplication is discussed. Polynomial multiplications is important for CRC-32, CRC-32C and GCM mode of operation for AES.</para>
     <para>Sixth, performance is discussed. The implementations are compared against C and C++ routines and assembly language routines from OpenSSL. The OpenSSL routines are high quality and written by Andy Polyakov.</para>
     <para><indexterm><primary>Assembly language</primary></indexterm>Seventh, assembly language integration is discussed. Andy Polyakov dual licenses his cryptographic implementations and you can use his routines once you know how to integrate them.</para>
-    <para><indexterm><primary>Performance</primary></indexterm>Finally, performance and benchmarking is discussed. C/C++, C++ using built-ins and assembly language routines are benchmarked using GCC.</para>
+    <para><indexterm><primary>Performance</primary></indexterm>Finally, performance and benchmarking is discussed. C/C++, C++ using builtins and assembly language routines are benchmarked using GCC.</para>
   </section>
 </chapter>

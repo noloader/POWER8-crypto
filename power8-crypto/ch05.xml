@@ -36,7 +36,7 @@ for (i = 16; i &lt; 64; i++)
   </section>
   <section id="sha_ch" xreflabel="Ch Function">
     <title>Ch function</title>
-    <para><indexterm><primary>SHA</primary><secondary>Ch function</secondary></indexterm>The SHA <systemitem>Ch</systemitem> function is implemented in POWER systems using the <systemitem>vsel</systemitem> instruction or the <systemitem>vec_sel</systemitem> built-in. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p</systemitem> arguments. The important piece of information is <systemitem>x</systemitem> used as the selector.</para>
+    <para><indexterm><primary>SHA</primary><secondary>Ch function</secondary></indexterm>The SHA <systemitem>Ch</systemitem> function is implemented in POWER systems using the <systemitem>vsel</systemitem> instruction or the <systemitem>vec_sel</systemitem> builtin. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p</systemitem> arguments. The important piece of information is <systemitem>x</systemitem> used as the selector.</para>
     <programlisting>uint32x4_p
 VecCh(uint32x4_p x, uint32x4_p y, uint32x4_p z)
 {
@@ -45,7 +45,7 @@ VecCh(uint32x4_p x, uint32x4_p y, uint32x4_p z)
   </section>
   <section id="sha_maj" xreflabel="Maj Function">
     <title>Maj function</title>
-    <para><indexterm><primary>SHA</primary><secondary>Maj function</secondary></indexterm>The SHA <systemitem>Maj</systemitem> function is implemented in POWER systems using the <systemitem>vsel</systemitem> instruction or the <systemitem>vec_sel</systemitem> built-in. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p</systemitem> arguments. The important piece of information is <systemitem>x^y</systemitem> used as the selector.</para>
+    <para><indexterm><primary>SHA</primary><secondary>Maj function</secondary></indexterm>The SHA <systemitem>Maj</systemitem> function is implemented in POWER systems using the <systemitem>vsel</systemitem> instruction or the <systemitem>vec_sel</systemitem> builtin. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p</systemitem> arguments. The important piece of information is <systemitem>x^y</systemitem> used as the selector.</para>
     <programlisting>uint32x4_p
 VecCh(uint32x4_p x, uint32x4_p y, uint32x4_p z)
 {
@@ -55,7 +55,7 @@ VecCh(uint32x4_p x, uint32x4_p y, uint32x4_p z)
   <section id="sha_insn" xreflabel="Signma Functions">
     <title>Sigma functions</title>
     <para><indexterm><primary>SHA</primary><secondary>Sigma functions</secondary></indexterm>POWER8 provides the <systemitem>vshasigmaw</systemitem> and <systemitem>vshasigmad</systemitem> instructions to accelerate SHA calculations for 32-bit and 64-bit words, respectively. The instructions take two integer arguments and the constants are used to select among <systemitem>Sigma0</systemitem>, <systemitem>Sigma1</systemitem>, <systemitem>sigma0</systemitem> and <systemitem>sigma1</systemitem>.</para>
-    <para><indexterm><primary>__builtin_crypto_vshasigmaw</primary></indexterm><indexterm><primary>__builtin_crypto_vshasigmad</primary></indexterm><indexterm><primary>__vshasigmaw</primary></indexterm><indexterm><primary>__vshasigmad</primary></indexterm>The built-in GCC functions for the instructions are <systemitem>__builtin_crypto_vshasigmaw</systemitem> and <systemitem>__builtin_crypto_vshasigmad</systemitem>. The XLC functions for the instructions are <systemitem>__vshasigmaw</systemitem> and <systemitem>__vshasigmad</systemitem>. The C/C++ wrapper for the SHA-256 functions should look similar to below.</para>
+    <para><indexterm><primary>__builtin_crypto_vshasigmaw</primary></indexterm><indexterm><primary>__builtin_crypto_vshasigmad</primary></indexterm><indexterm><primary>__vshasigmaw</primary></indexterm><indexterm><primary>__vshasigmad</primary></indexterm>The builtin GCC functions for the instructions are <systemitem>__builtin_crypto_vshasigmaw</systemitem> and <systemitem>__builtin_crypto_vshasigmad</systemitem>. The XLC functions for the instructions are <systemitem>__vshasigmaw</systemitem> and <systemitem>__vshasigmad</systemitem>. The C/C++ wrapper for the SHA-256 functions should look similar to below.</para>
     <programlisting>uint32x4_p Vec_sigma0(const uint32x4_p val)
 {
 #if defined(__xlc__) || defined(__xlC__)
