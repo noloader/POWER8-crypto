@@ -2,13 +2,142 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="ch06">
   <title>Polynomial multiplication</title>
-  <para><indexterm><primary>Polynomial multiplication</primary></indexterm>The chapter of the document should discuss polynomial multiplication used with CRC codes and the GCM mode of operation for AES. However we have no experience with polynomial multiplication. Please refer to <ulink url="https://github.com/antonblanchard/crc32-vpmsum">GitHub CRC32/vpmsum</ulink>.</para>
+  <para><indexterm><primary>Polynomial multiplication</primary></indexterm>This chapter discusses polynomial multiplication used with CRC codes and the GCM mode of operation for AES.</para>
   <section id="poly_crc">
     <title>CRC-32 and CRC-32C</title>
-    <para><indexterm><primary>CRC-32</primary></indexterm><indexterm><primary>Polynomial multiplication</primary><secondary>CRC-32</secondary></indexterm>No content. Waiting for a contributor.</para>
+    <para><indexterm><primary>CRC-32</primary></indexterm><indexterm><primary>Polynomial multiplication</primary><secondary>CRC-32</secondary></indexterm>CRC checksums on POWER8 are nothing like SSE4 or Aarch64's CRC instructions. Please refer to Anton Blanchard GitHub at <ulink url="https://github.com/antonblanchard/crc32-vpmsum">CRC32/vpmsum</ulink> for the discussion and sample code.</para>
   </section>
   <section id="poly_gcm">
     <title>GCM mode</title>
-    <para><indexterm><primary>GCM mode</primary></indexterm><indexterm><primary>Polynomial multiplication</primary><secondary>GCM mode</secondary></indexterm>No content. Waiting for a contributor.</para>
+    <para><indexterm><primary>GCM mode</primary></indexterm><indexterm><primary>Polynomial multiplication</primary><secondary>GCM mode</secondary></indexterm>POWER8 GCM mode is implemented using the <systemitem>vpmsumd</systemitem> instruction. GCM uses the double-word variant and it performs 64x64 → 128-bit polynomial multiplies. <indexterm><primary>__builtin_crypto_vpmsumd</primary></indexterm><indexterm><primary>__vpmsumd</primary></indexterm>The GCC builtin is <systemitem>__builtin_crypto_vpmsumd</systemitem>, and the XLC intrinsic is <systemitem>__vpmsumd</systemitem>.</para>
+    <para><systemitem>vpmsumd</systemitem> creates two 128-bit products and xor's them together. One product is from the multiplication of the low dwords, and the second product is from the multiplication of the high dwords. The trick to using <systemitem>vpmsumd</systemitem> is to ensure one of the products is 0. You can ensure one of the products is 0 by setting one of the 64-bit dwords to 0.</para>
+    <para>The output of <systemitem>vpmsumd</systemitem> is endian sensitive like <systemitem>vec_sld</systemitem> instruction. On big-endian systems the result of a multiply is <systemitem>{a,b}</systemitem>, where <systemitem>a</systemitem> and <systemitem>b</systemitem> are double words in a vector. The same multiplication on a little-endian system produces <systemitem>{b,a}</systemitem>. On little-endian systems using a reflective algorithm you will have to swap the 64-bit hig and low double words.</para>
+    <para>Three helper functions are needed. The first two are <systemitem>VecGetHigh</systemitem> and <systemitem>VecGetLow</systemitem>. The functions extract the high and low 64-bit double words and return them in a vector. The third is <systemitem>SwapWords</systemitem>. <systemitem>SwapWords</systemitem> swaps 64-bit double words on big-endian systems for use in the reflective GCM algorithm.</para>
+    <para><systemitem>VecGetHigh</systemitem> and <systemitem>VecGetLow</systemitem> return a vector padded on the left with 0's. That means the return vector already has one of the terms set to 0 so <systemitem>vpmsumd</systemitem> will act like Aarch64's <indexterm><primary>pmull_p64</primary></indexterm><systemitem>pmull_p64</systemitem> and <indexterm><primary>pmull_high_p64</primary></indexterm><systemitem>pmull_high_p64</systemitem> or SSE's <indexterm><primary>_mm_clmulepi64_si128</primary></indexterm><systemitem>_mm_clmulepi64_si128</systemitem>.</para>
+    <para>The source code for the three functions are shown below. Shifts are preferred over permutes or masks because shifts are generally faster and use fewer instructions.</para>
+    <programlisting><indexterm><primary>VecGetHigh</primary></indexterm>uint64x2_p VecGetHigh(uint64x2_p val)
+{
+    return VecShiftRight&lt;8&gt;(val);
+}
+
+<indexterm><primary>VecGetLow</primary></indexterm>uint64x2_p VecGetLow(uint64x2_p val)
+{
+    return VecShiftRight&lt;8&gt;(VecShiftLeft&lt;8&gt;(val));
+}
+
+<indexterm><primary>SwapWords</primary></indexterm>template &lt;class T&gt;
+SwapWords(const T val)
+{
+    return (T)VecRotateLeft&lt;8&gt;(val);
+}</programlisting>
+    <para>Using <systemitem>VecGetHigh</systemitem> and <systemitem>VecGetLow</systemitem> the functions <systemitem>pmull_p64(a, b)</systemitem> and <systemitem>_mm_clmulepi64_si128(a, b, 0x00)</systemitem> can be implemented as follows using <systemitem>vpmsumd</systemitem>.</para>
+    <programlisting><indexterm><primary>VecPolyMultiply</primary></indexterm>uint64x2_p VecPolyMultiply(uint64x2_p a, uint64x2_p b)
+{
+#if defined(__xlc__) || defined(__xlC__)
+#  if __BIG_ENDIAN__
+     return __vpmsumd(VecGetLow(a), VecGetLow(b));
+#  else
+     return SwapWords(__vpmsumd(VecGetLow(a), VecGetLow(b)));
+#  endif
+#else
+#  if __BIG_ENDIAN__
+     return __builtin_crypto_vpmsumd(
+                VecGetLow(a), VecGetLow(b));
+#  else
+     return SwapWords(__builtin_crypto_vpmsumd(
+                VecGetLow(a), VecGetLow(b)));
+#  endif
+#endif
+}</programlisting>
+    <para>The code listed above provides Intel's <systemitem>_mm_clmulepi64_si128(a, b, 0x00)</systemitem>. The function may be better named <systemitem>VecPolyMult00</systemitem> because it multiplies the two low 64-bit double words. The table below shows how to create the additional functions.</para>
+    <informaltable frame="all">
+      <tgroup align="center" cols="3">
+        <colspec colname="c1" colwidth="2.0in"/>
+        <colspec colname="c2" colwidth="2.0in"/>
+        <colspec colname="c3" colwidth="2.0in"/>
+        <thead>
+          <row>
+            <entry align="center">Function</entry>
+            <entry align="center">Parameter <systemitem>a</systemitem></entry>
+            <entry align="center">Parameter <systemitem>b</systemitem></entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry align="center">
+              <systemitem>VecPolyMult00</systemitem>
+            </entry>
+            <entry align="center">
+              <systemitem>VecGetLow(a)</systemitem>
+            </entry>
+            <entry align="center">
+              <systemitem>VecGetLow(b)</systemitem>
+            </entry>
+          </row>
+          <row>
+            <entry align="center">
+              <systemitem>VecPolyMult01</systemitem>
+            </entry>
+            <entry align="center">
+              <systemitem>VecGetLow(a)</systemitem>
+            </entry>
+            <entry align="center">
+              <systemitem>VecGetHigh(b)</systemitem>
+            </entry>
+          </row>
+          <row>
+            <entry align="center">
+              <systemitem>VecPolyMult10</systemitem>
+            </entry>
+            <entry align="center">
+              <systemitem>VecGetHigh(a)</systemitem>
+            </entry>
+            <entry align="center">
+              <systemitem>VecGetLow(b)</systemitem>
+            </entry>
+          </row>
+          <row>
+            <entry align="center">
+              <systemitem>VecPolyMult11</systemitem>
+            </entry>
+            <entry align="center">
+              <systemitem>VecGetHigh(a)</systemitem>
+            </entry>
+            <entry align="center">
+              <systemitem>VecGetHigh(b)</systemitem>
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+    <para>The basic pieces for polynomial multiplication are now in place. The next step is implement the GCM multiplication and reduction. The GCM multiply using reflected values is shown below. <systemitem>vec_sl</systemitem> bit shifts each word in a vector.</para>
+    <programlisting><indexterm><primary>GCM_Reduce</primary></indexterm>uint64x2_p
+GCM_Multiply(uint64x2_p c0, uint64x2_p c1, uint64x2_p c2)
+{
+    const uint64x2_p m1 = {1,1}, m63 = {63,63};
+    const uint64x2_p r = {0xe100000000000000, 0xc200000000000000};
+
+    c1 = VectorXor(c1, VectorShiftRight&lt;8&gt;(c0));
+    c1 = VectorXor(c1, VecPolyMult10(c0, r));
+    c0 = VectorXor(c1, VectorShiftLeft&lt;8&gt;(c0));
+    c0 = VecPolyMult00(vec_sl(c0, m1), r);
+    c2 = VectorXor(c2, c0);
+    c2 = VectorXor(c2, VectorShiftLeft&lt;8&gt;(c1));
+    c1 = vec_sr(vec_mergeh(c1, c2), m63);
+    c2 = vec_sl(c2, m1);
+
+    return VectorXor(c2, c1);
+}
+
+<indexterm><primary>GCM_Multiply</primary></indexterm>uint64x2_p
+GCM_Multiply(uint64x2_p x, uint64x2_p h)
+{
+    const uint64x2_t c0 = VecPolyMult00(x, h);
+    const uint64x2_t c2 = VecPolyMult11(x, h);
+    const uint64x2_t c1 = VecXor(VecPolyMult10(x, h),
+                                 VecPolyMult01(x, h));
+
+    return GCM_Reduce(c0, c1, c2);
+}</programlisting>
   </section>
 </chapter>
