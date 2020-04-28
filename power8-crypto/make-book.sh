@@ -9,13 +9,13 @@ BOOKNAME=power8-crypto
 if [[ ! $(command -v xmllint) ]]
 then
     echo "xmllint is not installed. Skipping validation."
-    echo "  You can install libxml2-util for the program."
+    echo "  You can install libxml2-utils for the program."
 fi 
 
 if [[ ! $(command -v xsltproc) ]]
 then
     echo "xsltproc is not installed. Exiting."
-    echo "  You must install libxml2-util for the program."
+    echo "  You must install xsltproc for the program."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi 
 
@@ -66,4 +66,3 @@ echo "Created PDF $BOOKNAME.pdf."
 cp "$BOOKNAME.pdf" ../
 
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
-

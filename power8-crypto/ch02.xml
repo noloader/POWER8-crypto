@@ -4,29 +4,38 @@
   <title>Vector programming</title>
   <para>Several topics need to be discussed to minimize trouble when using the Altivec and POWER8 extensions. They include PowerPC compilers and options, Altivec headers, machine endianness, vector datatypes, memory and alignment, and loads and stores. It is enough information to get to the point you can use AES and SHA but not much more.</para>
   <para>Memory alignment, loads, stores and shifts will probably cause the most trouble for someone new to PowerPC vector programming. If you are new to the platform you may want to read this chapter twice. If you are experienced with the platform then you probably want to skip this chapter.</para>
-  <section id="power8_compilers" xreflabel="PowerPC Compilers">
-    <title>PowerPC compilers</title>
-    <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++ (XLC). Both produce high quality code. LLVM's Clang was not tested because the <link linkend="intro_cfarm">compile farm </link> lacks a Clang installation.</para>
-    <para>The GCC and XLC compilers are mostly the same but accept slightly different options. The difference usually reduces to GCC accepts architecture options using <systemitem>-march</systemitem> and <systemitem>-mcpu</systemitem>, while XLC uses <systemitem>-qarch</systemitem>.</para>
+  <para>Two compilers are used for testing. The first is GCC and the second is IBM XL C/C++ (XLC). Both produce high quality code. The GCC and XLC compilers are mostly the same but accept slightly different options. LLVM's Clang was not tested because the <link linkend="intro_cfarm">compile farm </link> lacks a Clang installation.</para>
+  <section id="gcc_compiler" xreflabel="GCC Compiler">
+    <title>GCC compiler</title>
     <para>Compiling a test program with GCC will generally look like below. The important part is <systemitem>-mcpu=power8</systemitem> which selects the POWER8 Instruction Set Architecture (ISA). The minimum architecture required for Altivec with GCC is <systemitem>-march=power4</systemitem>.</para>
     <programlisting>$ g++ -mcpu=power8 -maltivec test.cxx -o test.exe</programlisting>
-    <para>Compiling a test program with IBM XL C/C++ will generally look like below. The important parts are the C++ compiler name of <systemitem>xlC</systemitem>, and <systemitem>-qarch=pwr8</systemitem> which selects the POWER8 ISA. The minimum architecture required for Altivec with XLC is <systemitem>-qarch=pwr6</systemitem>.</para>
-    <programlisting>$ xlC -qarch=pwr8 -qaltivec test.cxx -o test.exe</programlisting>
-    <para>Both compilers consume <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem> for GCC and <systemitem>-qpic</systemitem> for XLC.</para>
-    <para>IBM XLC switched to a LLVM front-end for the Linux compiler at version 13.1. When compiling with XLC version 13.1 or higher on Linux you need the <systemitem>-qcompatmacros</systemitem> compiler option. Without <systemitem>-qcompatmacros</systemitem> the samples fail to compile because XLC 13.1 does not define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. However, LLVM defines <systemitem>__GNUC__</systemitem> but compilation fails because the compiler cannot consume the GCC Power8 builtins.<footnote><para>LLVM behavior is befuddling to some people. It is the XLC compiler but fails to define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. Then it defines <systemitem>__GNUC__</systemitem> but fails to consume the GCC Power8 builtins.</para></footnote></para>
+    <para>GCC consumes <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem>.</para>
     <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be mindful of the default GCC compiler. It may be GCC 4.8.5 which is a bit old and unsupported. You usually enjoy better code generation and performance with a modern GCC like 7.2. A newer compiler is usually located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
   </section>
-  <section id="power8_header" xreflabel="Altivec Headers">
+  <section id="xlc_compiler" xreflabel="XLC Compiler">
+    <title>XLC compiler</title>
+    <para>Compiling a test program with IBM XL C/C++ will generally look like below. The important parts are the C++ compiler name of <systemitem>xlC</systemitem>, and <systemitem>-qarch=pwr8</systemitem> which selects the POWER8 ISA. The minimum architecture required for Altivec with XLC is <systemitem>-qarch=pwr6</systemitem>.</para>
+    <programlisting>$ xlC -qarch=pwr8 -qaltivec test.cxx -o test.exe</programlisting>
+    <para>XLC consumes <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-qpic</systemitem> for XLC.</para>
+    <para>IBM XLC switched to a LLVM front-end for the Linux compiler at version 13.1 (AIX still uses the IBM front-end). When compiling with XLC version 13.1 or higher on Linux you may need the <systemitem>-qcompatmacros</systemitem> compiler option. Without <systemitem>-qcompatmacros</systemitem> the samples fail to compile because XLC 13.1 does not define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. However, LLVM defines <systemitem>__GNUC__</systemitem> but compilation fails because the compiler cannot consume the GCC POWER8 builtins.<footnote><para>LLVM behavior is befuddling to some people. It is the XLC compiler but fails to define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. Then it defines <systemitem>__GNUC__</systemitem> but fails to consume the GCC POWER8 builtins.</para></footnote></para>
+  </section>
+  <section id="clang_compiler" xreflabel="Clang Compiler">
+    <title>Clang compiler</title>
+    <para>There are two LLVM components you should be aware of. First is the LLVM Clang compiler. The second is the LLVM front-end used by XLC 13.1 and above on Linux. The Clang compiler is what you normally think of. The compiler has its own set of builtins to use for crypto programming on POWER8. The Clang compiler was not tested because the <link linkend="intro_cfarm">compile farm </link> lacks a Clang installation.</para>
+    <para>If you use the Clang compiler then be sure it is version 7.1 or above due to <ulink url="https://bugs.llvm.org/show_bug.cgi?id=39704">Bug 39704</ulink>. The 39704 bug is due to Clang discarding code it believed was illegal due to an unaligned Altivec load. The code was legal because POWER7 and VSX provides the load of data using natural alignment. The code should not have been removed.</para>
+  </section>
+  <section id="altivec_header" xreflabel="Altivec Headers">
     <title>Altivec headers</title>
-    <para>The header file required for datatypes and functions is <systemitem>&lt;altivec.h&gt;</systemitem>. You must enable Altivec using compiler options <systemitem>-maltivec</systemitem> or <systemitem>-qaltivec</systemitem> as discussed in <xref linkend="power8_compilers"/>.</para>
-    <para>To support compiles with a C++ compiler <systemitem>__vector</systemitem> keyword is used rather than <systemitem>vector</systemitem>. A typical Altivec include looks as shown below.</para>
+    <para>The header file required for datatypes and functions is <systemitem>&lt;altivec.h&gt;</systemitem>. You must enable Altivec using compiler options <systemitem>-maltivec</systemitem> or <systemitem>-qaltivec</systemitem> as discussed in <xref linkend="gcc_compiler"/> and <xref linkend="xlc_compiler"/>.</para>
+    <para>To support C++ projects and compilers the <systemitem>__vector</systemitem> keyword is used rather than <systemitem>vector</systemitem>. A typical Altivec include looks as shown below.</para>
     <programlisting>#if defined(__ALTIVEC__)
+# include &lt;altivec.h&gt;
 # include &lt;altivec.h&gt;
 # undef vector
 # undef pixel
 # undef bool
 #endif</programlisting>
-    <para>The <systemitem>__ALTIVEC__</systemitem> preprocessor macro will be defined when using <systemitem>-qaltivec</systemitem> or <systemitem>-maltivec</systemitem> compiler options as discussed in <xref linkend="power8_compilers"/>. Macros and definitions are discussed more in <xref linkend="preprocessor_macros"/>.</para>
+    <para>The <systemitem>__ALTIVEC__</systemitem> preprocessor macro will be defined when using <systemitem>-qaltivec</systemitem> or <systemitem>-maltivec</systemitem> compiler options as discussed in <xref linkend="gcc_compiler"/> and <xref linkend="xlc_compiler"/>. Macros and definitions are discussed more in <xref linkend="preprocessor_macros"/>.</para>
     <para>When you need to use the vector datatypes you use the <systemitem>__vector</systemitem> keyword as discussed in the section <xref linkend="power8_datatypes"/>.</para>
     <programlisting>/* A vector with four elements initialized to 0 */
 __vector unsigned int v = {0,0,0,0};</programlisting>
@@ -64,7 +73,7 @@ __vector unsigned int v = {0,0,0,0};</programlisting>
         </para>
       </listitem>
     </itemizedlist>
-    <para><indexterm><primary>LLVM</primary></indexterm><indexterm><primary>Clang</primary></indexterm>IBM switched to an LLVM front-end for the Linux compiler at version 13.1 as discussed in <xref linkend="power8_compilers"/>. Be mindful of how you use preprocessor macros when LLVM is the front-end because the compiler claims to be three different compilers (GCC, Clang and XLC).</para>
+    <para><indexterm><primary>LLVM</primary></indexterm><indexterm><primary>Clang</primary></indexterm>IBM switched to an LLVM front-end for the Linux compiler at version 13.1 as discussed in <xref linkend="xlc_compiler"/>. Be mindful of how you use preprocessor macros when LLVM is the front-end because the compiler claims to be three different compilers (GCC, Clang and XLC).</para>
     <programlisting>$ xlc -qxlcompatmacros -qshowmacros -E test.cxx | \
   egrep -i -E 'xlc|clang|llvm|gnuc'
 #define __GNUC_GNU_INLINE__ 1
@@ -78,7 +87,7 @@ __vector unsigned int v = {0,0,0,0};</programlisting>
 #define __llvm__ 1
 #define __xlC__ 0x0d01
 #define __xlC_ver__ 0x00000601</programlisting>
-    <para>The front-end change triggered <ulink url="http://bugs.llvm.org/show_bug.cgi?id=38378">LLVM Issue 38378</ulink> for one project because the compiler entered GCC code paths but it cannot consume GCC Power8 builtins.</para>
+    <para>The front-end change triggered <ulink url="http://bugs.llvm.org/show_bug.cgi?id=38378">LLVM Issue 38378</ulink> for one project because the compiler entered GCC code paths but it cannot consume GCC POWER8 builtins.</para>
   </section>
   <section id="power8_endianess" xreflabel="Machine Endianness">
     <title>Machine endianness</title>

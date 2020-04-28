@@ -118,7 +118,7 @@
     <itemizedlist mark="bullet">
       <listitem>
         <para>
-          <ulink url="https://stackoverflow.com/q/46144668/608639">Detect Power8 in-core crypto through getauxval?</ulink>
+          <ulink url="https://stackoverflow.com/q/46144668/608639">Detect POWER8 in-core crypto through getauxval?</ulink>
         </para>
       </listitem>
       <listitem>
