@@ -7,10 +7,10 @@ then
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-for file in *.xml
+IFS="" find "$PWD" -name '*.xml' -print | while read -r file
 do
     echo "***************************************"
-    echo "Spell checking $file"
+    echo "Spell checking $(basename $file)"
 
     grep -o '<para>.*</para>' "$file" | \
         hunspell -d en_US -p book.dict -l -X | grep -v 0x | sort | uniq -i
