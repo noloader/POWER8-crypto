@@ -26,16 +26,33 @@
     <itemizedlist mark="bullet">
       <listitem>
         <para>
+          <indexterm>
+            <primary>Jeffrey Walton</primary>
+          </indexterm>
           <ulink url="https://github.com/noloader/AES-Intrinsics">AES Intrinsics</ulink>
         </para>
       </listitem>
       <listitem>
         <para>
+          <indexterm>
+            <primary>Jeffrey Walton</primary>
+          </indexterm>
           <ulink url="https://github.com/noloader/SHA-Intrinsics">SHA Intrinsics</ulink>
         </para>
       </listitem>
       <listitem>
         <para>
+          <indexterm>
+            <primary>Andy Polyakov</primary>
+          </indexterm>
+          <ulink url="https://github.com/dot-asm/cryptogams">Cryptogams</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <indexterm>
+            <primary>Anton Blanchard</primary>
+          </indexterm>
           <ulink url="https://github.com/antonblanchard/crc32-vpmsum">CRC32/vpmsum</ulink>
         </para>
       </listitem>
@@ -100,12 +117,26 @@
     <itemizedlist mark="bullet">
       <listitem>
         <para>
+          <indexterm>
+            <primary>FIPS 197</primary>
+          </indexterm>
           <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.197.pdf">FIPS 197, Advanced Encryption Standard (AES)</ulink>
         </para>
       </listitem>
       <listitem>
         <para>
+          <indexterm>
+            <primary>FIPS 180</primary>
+          </indexterm>
           <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <indexterm>
+            <primary>SP800-53a</primary>
+          </indexterm>
+          <ulink url="https://csrc.nist.gov/publications/detail/sp/800-53a/rev-4/final">Assessing Security and Privacy Controls in Federal Information Systems and Organizations</ulink>
         </para>
       </listitem>
     </itemizedlist>
