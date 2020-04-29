@@ -29,7 +29,7 @@ $ as -mpower8 sha256le_compress.s -o sha256le_compress.o
 crypto/ppccap.c:void sha256_block_p8(void *ctx, const void *inp,
 size_t len);
 ...</screen>
-    <para>In fact the signature for <systemitem>sha256_block_p8</systemitem> is better documented as shown below. There are no alignment requirements for <systemitem>state</systemitem> or <systemitem>input</systemitem>.</para>
+    <para>The signature using <systemitem>len</systemitem> is a bit misleading since it is a block count, and not a byte count. The signature for <systemitem>sha256_block_p8</systemitem> is better documented as shown below. There are no alignment requirements for <systemitem>state</systemitem> or <systemitem>input</systemitem>.</para>
     <programlisting>void sha256_block_p8(uint32_t *state,
             const uint8_t *input, size_t blocks);
 </programlisting>
@@ -87,10 +87,56 @@ int main(int argc, char* argv[])
 }
 </programlisting>
     <para>Compiling and linking to <systemitem>sha256le_compress.o</systemitem> would look similar to below.</para>
-    <programlisting>$ g++ -mcpu=power8 test.cxx sha256le_compress.o -o test.exe
+    <screen>$ g++ -mcpu=power8 test.cxx sha256le_compress.o -o test.exe
 $ ./test.exe
 SHA256 hash of empty message: E3B0C44298FC1C14...
 Success!
+</screen>
+  </section>
+  <section id="asm_darn">
+    <title>DARN generator</title>
+    <para><indexterm><primary>DARN</primary></indexterm>POWER9 added the DARN random number generator. The DARN generator is a hardware based random number generator like <indexterm><primary>RDRAND</primary></indexterm><systemitem>RDRAND</systemitem> on Intel systems. The generator is accessed using builtins or assembly language.</para>
+    <para><indexterm><primary>__builtin_darn_32</primary></indexterm><systemitem>__builtin_darn_32</systemitem> and <indexterm><primary>__builtin_darn_64</primary></indexterm><systemitem>__builtin_darn_64</systemitem> are available on GCC 7.0 and above, but missing on XLC and Clang. To access the generator under most compilers you should use assembly language. To cover old compilers, like GCC 4.8.5, you can issue the instruction's byte codes.</para>
+    <para>The code below provides a 32-bit random number. The while loop checks for error conditions. On failure <systemitem>0xffffffff:ffffffff</systemitem> is returned, but the Power ISA 3.0 specification recommends only checking the low 32-bit word.</para>
+    <programlisting>inline void DARN32(uint32_t* output)
+{
+  do
+  {
+    // This is "darn r3, 0". When L=0 a 32-bit conditioned
+    // word is returned.
+    __asm__ __volatile__ (
+      #if (__BIG_ENDIAN__)
+      ".byte 0x7c, 0x60, 0x05, 0xe6  \n\t"  // r3 = darn 3, 0
+      "mr %0, 3                      \n\t"  // output = r3
+      #else
+      ".byte 0xe6, 0x05, 0x60, 0x7c  \n\t"  // r3 = darn 3, 0
+      "mr %0, 3                      \n\t"  // output = r3
+      #endif
+      : "=r" (*output) : : "r3"
+    );
+  } while (*output == 0xFFFFFFFF);
+}
 </programlisting>
+    <para>And the following is the 64-bit version of the function. On failure <systemitem>0xffffffff:ffffffff</systemitem> is returned, and the full value is checked.</para>
+    <programlisting>inline void DARN64(uint64_t* output)
+{
+  do
+  {
+    // This is "darn r3, 1". When L=1 a 64-bit conditioned
+    // word is returned.
+    __asm__ __volatile__ (
+      #if (__BIG_ENDIAN__)
+      ".byte 0x7c, 0x61, 0x05, 0xe6  \n\t"  // r3 = darn 3, 1
+      "mr %0, 3                      \n\t"  // output = r3
+      #else
+      ".byte 0xe6, 0x05, 0x61, 0x7c  \n\t"  // r3 = darn 3, 1
+      "mr %0, 3                      \n\t"  // output = r3
+      #endif
+      : "=r" (*output) : : "r3"
+    );
+  } while (*output == 0xFFFFFFFFFFFFFFFFull);
+}
+</programlisting>
+    <para><indexterm><primary>Compile farm</primary></indexterm><indexterm><primary>Compile farm</primary><secondary>gcc135</secondary></indexterm>You can test the code on <systemitem class="domainname">gcc135</systemitem> at the <xref linkend="intro_cfarm"/>.</para>
   </section>
 </chapter>
