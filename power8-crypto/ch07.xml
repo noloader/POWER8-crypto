@@ -103,8 +103,8 @@ Success!
 {
   do
   {
-    // This is "darn r3, 0". When L=0 a 32-bit conditioned
-    // word is returned.
+    // This is "darn r3, 0". When L=0 a conditioned
+    //  32-bit word is returned.
     __asm__ __volatile__ (
       #if (__BIG_ENDIAN__)
       ".byte 0x7c, 0x60, 0x05, 0xe6  \n\t"  // r3 = darn 3, 0
@@ -123,8 +123,8 @@ Success!
 {
   do
   {
-    // This is "darn r3, 1". When L=1 a 64-bit conditioned
-    // word is returned.
+    // This is "darn r3, 1". When L=1 a conditioned
+    // 64-bit word is returned.
     __asm__ __volatile__ (
       #if (__BIG_ENDIAN__)
       ".byte 0x7c, 0x61, 0x05, 0xe6  \n\t"  // r3 = darn 3, 1
