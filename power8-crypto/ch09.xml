@@ -19,7 +19,7 @@
     </itemizedlist>
   </section>
   <section id="github">
-    <title>GitHub</title>
+    <title>GitHubs</title>
     <indexterm>
       <primary>GitHub</primary>
     </indexterm>
@@ -129,6 +129,14 @@
             <primary>FIPS 180</primary>
           </indexterm>
           <ulink url="https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf">FIPS 180-4, Secure Hash Standard (SHS)</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <indexterm>
+            <primary>FIPS 140-2</primary>
+          </indexterm>
+          <ulink url="https://csrc.nist.gov/publications/detail/fips/140/2/final">FIPS 140-2, Security Requirements for Cryptographic Modules</ulink>
         </para>
       </listitem>
       <listitem>
