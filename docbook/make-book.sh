@@ -6,27 +6,36 @@
 # Name without extensions. The final artifact include PDF.
 BOOKNAME=docbook
 
-if [[ ! $(command -v xmllint) ]]
+if [[ ! "$(command -v xmllint)" ]]
 then
     echo "xmllint is not installed. Skipping validation."
-    echo "  You can install libxml2-util for the program."
+    echo "  You can install libxml2-utils for the program."
 fi
 
-if [[ ! $(command -v xsltproc) ]]
+if [[ ! "$(command -v xsltproc)" ]]
 then
     echo "xsltproc is not installed. Exiting."
-    echo "  You must install libxml2-util for the program."
+    echo "  You must install xsltproc for the program."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if [[ ! $(command -v fop) ]]
+DOCBOOK_XSL="$(find /usr/share -name 'docbook.xsl' | grep '/fo/' | head -n 1)"
+
+if [[ -z "$DOCBOOK_XSL" ]]
+then
+    echo "docbook.xsl is not installed. Exiting."
+    echo " You must install stylesheets for the program."
+    [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+fi
+
+if [[ ! "$(command -v fop)" ]]
 then
     echo "fop is not installed. Exiting."
     echo " You must install fop for the program."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if [[ $(command -v xmllint) ]]
+if [[ "$(command -v xmllint)" ]]
 then
 
     echo "Validating book..."
@@ -46,15 +55,8 @@ then
     done
 fi
 
-XSL=/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
-if [[ ! -e "$XSL" ]]
-then
-    echo "Stylesheet is missing. Exiting."
-    [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-fi
-
-echo "Translating document..."
-if ! xsltproc --xinclude "$XSL" book.xml > "$BOOKNAME.fo"
+echo "Creating formatted object..."
+if ! xsltproc --xinclude "$DOCBOOK_XSL" book.xml > "$BOOKNAME.fo"
 then
     echo "Failed to create Formatted Object."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
@@ -73,4 +75,3 @@ echo "Created PDF $BOOKNAME.pdf."
 cp "$BOOKNAME.pdf" ../
 
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
-

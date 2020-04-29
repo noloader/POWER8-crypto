@@ -2,7 +2,8 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <article>
   <articleinfo>
-    <title>DocBook Installation on Ubuntu 16.04</title>
+    <title>DocBook Installation for Ubuntu</title>
+    <subtitle>Ubuntu 16.04 and Ubuntu 18.04</subtitle>
     <author>
       <firstname>Jeffrey</firstname>
       <surname>Walton</surname>

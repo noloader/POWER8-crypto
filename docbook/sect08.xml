@@ -2,24 +2,25 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section id="docbook_fop">
   <title>FO processor</title>
-  <para>The Formatted Object Processor (FOP) is provided by Apache. It is provided by the <systemitem>fop</systemitem> and <systemitem>fop-doc</systemitem> packages. To install the packages issue the following.</para>
+  <para>The Formatted Object Processor (FOP) is an Apache binary. Ubuntu provides <systemitem>fop</systemitem> and <systemitem>fop-doc</systemitem> packages. You can download the Apache binary or install the FOP package.</para>
+  <para>To install the packages issue the following.</para>
   <programlisting>$ sudo apt-get install fop fop-doc
 </programlisting>
   <para>If you are happy with Ubuntu's version of FOP then you are finished. You can move on to the next section.</para>
   <para>Alternatively, you can install the latest Apache FOP by downloading the binary from the Apache website. This can be useful if Ubuntu's version of FOP has trouble. To manually install FOP perform the following.</para>
   <programlisting>$ wget https://mirror.cogentco.com/pub/apache/xmlgraphics/
-  fop/binaries/fop-2.2-bin.tar.gz
-$ tar -xzf fop-2.2-bin.tar.gz
-$ chmod +x fop-2.2/fop/fop
-$ sudo mv fop-2.2 /usr/local/bin
+  fop/binaries/fop-2.4-bin.tar.gz
+$ tar -xzf fop-2.4-bin.tar.gz
+$ chmod +x fop-2.4/fop/fop
+$ sudo mv fop-2.4 /usr/local/bin
 </programlisting>
-  <para>Once <systemitem>fop</systemitem> is installed locally, add a wrapper script to execute it. In the <systemitem>cat</systemitem> below, both <systemitem>JAVA_HOME</systemitem> and <systemitem>CLASSPATH</systemitem> are a single line.</para>
+  <para>Once <systemitem>fop</systemitem> is installed locally, add a wrapper script to execute it. In the <systemitem>cat</systemitem> below, <systemitem>JAVA_HOME</systemitem> is setup for Ubuntu 16. If you are using Ubuntu 18, then use <systemitem>/usr/lib/jvm/java-11-openjdk-amd64</systemitem>.</para>
   <programlisting>$ cat /usr/local/bin/fop
 #!/usr/bin/env bash
 
-JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-CLASSPATH=/usr/local/bin/fop-2.2:/usr/local/bin/fop-2.2/lib \
-    /usr/local/bin/fop-2.2/fop/fop $*
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export CLASSPATH=/usr/local/bin/fop-2.4:/usr/local/bin/fop-2.4/lib
+/usr/local/bin/fop-2.4/fop/fop $*
 </programlisting>
   <para>After you install the processor you should run <systemitem>hash -r</systemitem> to clear Bash's program cache.</para>
 </section>
