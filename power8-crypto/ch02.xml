@@ -309,4 +309,62 @@ void VecStoreu(const uint32x4_p val, T* mem_addr, int offset)
       The <ulink url="https://openpowerfoundation.org/?resource_lib=64-bit-elf-v2-abi-specification-power-architecture">OpenPOWER ELF V2 ABI Specification</ulink>, version 1.4, incorrectly states that accessing vectors on Power should preferably be done with vector pointers and the dereference <systemitem>operator*</systemitem>. However, this is only permitted for aligned vector references.  Examples in Chapter 6 of the ABI document show use of casting operations that represent undefined behavior according to the C standard.  An errata document that corrects the ABI may be found <ulink url="https://openpowerfoundation.org/?resource_lib=openpower-elfv2-errata-elfv2-abi-version-1-4">at the OpenPOWER Foundation website</ulink>. Subsequent sections describe the proper way to use loads and stores of aligned and unaligned data.
     </para>
   </section>
+  <section id="altivec_32" xreflabel="32-bit Altivec">
+    <title>32-bit Altivec</title>
+    <para>Some algorithms you implement may need 64-bit datatypes on Altivec or POWER6. The algorithms would include Salsa, ChaCha, Simon-128 and Speck-128. POWER7 and VSX added <systemitem>__vector unsigned long</systemitem>, and POWER8 added the 64-bit add and subtract, but none of them are available on Altivec or POWER6. In this case you can implement your own <indexterm><primary>VecAdd64</primary></indexterm><systemitem>VecAdd64</systemitem> and <indexterm><primary>VecSub64</primary></indexterm><systemitem>VecSub64</systemitem> using 32-bit datatypes for the algorithms.</para>
+    <para>The code below provides 64-bit add using 32-bit vectors. The code has a small optimization. The code avoids a zero <systemitem>vector {0,0,0,0}</systemitem> and the extra load by using an element that will always be 0. Bytes 1,2, 5,6, 9,10, 13,14 are zero because of using a <systemitem>vector unsigned int</systemitem>. There are no carries into or borrows from those bytes using a <systemitem>vector unsigned int</systemitem>. The code below uses byte 2 for the 0 value.</para>
+    <programlisting>inline uint32x4_p
+VecAdd64(const uint32x4_p vec1, const uint32x4_p vec2)
+{
+    // 64-bit elements available at POWER7 with VSX,
+    // but addudm requires POWER8
+#if defined(_ARCH_PWR8)
+    return (uint32x4_p)vec_add((uint64x2_p)vec1, (uint64x2_p)vec2);
+#else
+    // The carry mask selects carries for elements 1 and 3 and
+    // sets remaining elements to 0. The mask also shifts the
+    // carried values left by 4 bytes so the carries are added
+    // to elements 0 and 2.
+#if defined(__BIG_ENDIAN__)
+    const uint8x16_p cmask = {4,5,6,7, 2,2,2,2, 12,13,14,15, 2,2,2,2};
+#else
+    const uint8x16_p cmask = {2,2,2,2, 0,1,2,3, 2,2,2,2, 8,9,10,11};
+#endif
+
+    uint32x4_p cy = vec_addc(vec1, vec2);
+    cy = vec_perm(cy, cy, cmask);
+    return vec_add(vec_add(vec1, vec2), cy);
+#endif
+}</programlisting>
+    <para>The code below provides 64-bit subtract using 32-bit vectors. The code is a little more complex than <systemitem>VecSub64</systemitem> because the borrow is generated as a compliment. The code has the same small optimization as <systemitem>VecAdd64</systemitem>.</para>
+    <programlisting>inline uint32x4_p
+VecSub64(const uint32x4_p vec1, const uint32x4_p vec2)
+{
+#if defined(_ARCH_PWR8)
+    // 64-bit elements available at POWER7 with VSX,
+    // but subudm requires POWER8
+    return (uint32x4_p)vec_sub((uint64x2_p)vec1, (uint64x2_p)vec2);
+#else
+    // The borrow mask selects borrows for elements 1 and 3 and
+    // sets remaining elements to 0. The mask also shifts the
+    // borrowed values left by 4 bytes so the borrows are
+    // subtracted from elements 0 and 2.
+#if defined(__BIG_ENDIAN__)
+    const uint8x16_p bmask = {4,5,6,7, 2,2,2,2, 12,13,14,15, 2,2,2,2};
+    const uint32x4_p amask = {1, 1, 1, 1};
+#else
+    const uint8x16_p bmask = {2,2,2,2, 0,1,2,3, 2,2,2,2, 8,9,10,11};
+    const uint32x4_p amask = {1, 1, 1, 1};
+#endif
+
+    // subc sets the compliment of borrow, so we have to un-compliment
+    // the borrow using andc.
+    uint32x4_p bw = vec_subc(vec1, vec2);
+    bw = vec_andc(amask, bw);
+    bw = vec_perm(bw, bw, bmask);
+    return vec_sub(vec_sub(vec1, vec2), bw);
+#endif
+}</programlisting>
+    <para>While <systemitem>VecAdd64</systemitem> and <systemitem>VecSub64</systemitem> look inefficent they are profitable for some algorithms. For example, Simon-128 and Speck-128 run about 3x faster in the 32-bit Altivec unit compared to a C/C++ implementation in the integer unit.</para>
+  </section>
 </chapter>
