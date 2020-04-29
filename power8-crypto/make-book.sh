@@ -19,7 +19,9 @@ then
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if [[ -z "$(find /usr/share -name 'docbook.xsl' | head -n 1)" ]]
+DOCBOOK_XSL="$(find /usr/share -name 'docbook.xsl' | grep '/fo/' | head -n 1)"
+
+if [[ -z "$DOCBOOK_XSL" ]]
 then
     echo "docbook.xsl is not installed. Exiting."
     echo " You must install stylesheets for the program."
@@ -53,8 +55,8 @@ then
     done
 fi
 
-echo "Translating document..."
-if ! xsltproc --xinclude custom.xsl book.xml > "$BOOKNAME.fo"
+echo "Creating formatted object..."
+if ! xsltproc --xinclude "$DOCBOOK_XSL" book.xml > "$BOOKNAME.fo"
 then
     echo "Failed to create Formatted Object."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
