@@ -96,8 +96,8 @@ Success!
   </section>
   <section id="asm_darn">
     <title>DARN generator</title>
-    <para><indexterm><primary>DARN</primary></indexterm>POWER9 added the DARN random number generator. The DARN generator is a hardware based random number generator like <indexterm><primary>RDRAND</primary></indexterm><systemitem>RDRAND</systemitem> on Intel systems. The generator is accessed using builtins or assembly language.</para>
-    <para><indexterm><primary>__builtin_darn_32</primary></indexterm><systemitem>__builtin_darn_32</systemitem> and <indexterm><primary>__builtin_darn_64</primary></indexterm><systemitem>__builtin_darn_64</systemitem> are available on GCC 7.0 and above, but missing on XLC and Clang. To access the generator under most compilers you should use assembly language. To cover old compilers, like GCC 4.8.5, you can issue the instruction's byte codes.</para>
+    <para><indexterm><primary>DARN</primary></indexterm>POWER9 added the DARN random number generator. The DARN generator is a hardware based random number generator like <indexterm><primary>RDRAND</primary></indexterm><systemitem>RDRAND</systemitem> on Intel systems. The generator returns either 32-bits or 64-bits of random material.</para>
+    <para>The generator is accessed using builtins or assembly language. <indexterm><primary>__builtin_darn_32</primary></indexterm><systemitem>__builtin_darn_32</systemitem> and <indexterm><primary>__builtin_darn_64</primary></indexterm><systemitem>__builtin_darn_64</systemitem> are available on GCC 7.0 and above, but missing on XLC and Clang. To access the generator under most compilers you should use assembly language. To cover old compilers, like GCC 4.8.5, you can issue the instruction's byte codes.</para>
     <para>The code below provides a 32-bit random number. The while loop checks for error conditions. On failure <systemitem>0xffffffff:ffffffff</systemitem> is returned, but the Power ISA 3.0 specification recommends only checking the low 32-bit word.</para>
     <programlisting>inline void DARN32(uint32_t* output)
 {
