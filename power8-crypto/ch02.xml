@@ -23,7 +23,22 @@
   </section>
   <section id="clang_compiler" xreflabel="Clang Compiler">
     <title>Clang compiler</title>
-    <para>There are two LLVM components you should be aware of. First is the LLVM Clang compiler. The second is the LLVM front-end used by XLC 13.1 and above on Linux. The Clang compiler is what you normally think of. The compiler has its own set of builtins to use for crypto programming on POWER8. The Clang compiler was not tested because the <link linkend="intro_cfarm">compile farm </link> lacks a Clang installation.</para>
+    <para>There are two LLVM components you should be aware of. First is the LLVM Clang compiler. The compiler has its own set of builtins to use for crypto programming on POWER8. The Clang compiler was not tested because the <link linkend="intro_cfarm">compile farm </link> lacks a Clang installation.</para>
+    <para><indexterm><primary>LLVM</primary></indexterm><indexterm><primary>Clang</primary></indexterm>IBM switched to an LLVM front-end for the Linux compiler at version 13.1 as discussed in <xref linkend="xlc_compiler"/>. Be mindful of how you use preprocessor macros when LLVM is the front-end because the compiler claims to be three different compilers — GCC, Clang and XLC.</para>
+    <programlisting>$ xlc -qxlcompatmacros -qshowmacros -E test.cxx | \
+  egrep -i -E 'xlc|clang|llvm|gnuc'
+#define __GNUC_GNU_INLINE__ 1
+#define __GNUC_MINOR__ 2
+#define __GNUC_PATCHLEVEL__ 1
+#define __GNUC__ 4
+#define __clang__ 1
+#define __clang_major__ 4
+#define __clang_minor__ 0
+#define __clang_patchlevel__ 1
+#define __llvm__ 1
+#define __xlC__ 0x0d01
+#define __xlC_ver__ 0x00000601</programlisting>
+    <para>The front-end change triggered <ulink url="http://bugs.llvm.org/show_bug.cgi?id=38378">LLVM Issue 38378</ulink> for one project because the compiler entered GCC code paths but it cannot consume GCC POWER8 builtins.</para>
     <para>Clang uses pointer math to calculate the effective memory addresses from a memory address and offset. That is, if you have an array <systemitem>uint32_t vals = {0,1,2,3,4,5,6,7}</systemitem>, and you call <systemitem>uint32x4_p v = vec_xl(vals, 4)</systemitem>, then the vector will have the value <systemitem>{4,5,6,7}</systemitem>. That is, Clang uses the address of <systemitem>vals</systemitem> and adds <systemitem>4*sizeof(uint32_t)</systemitem> to it. Effective addresses are discussed in <xref linkend="effective_address"/>, and loads and stores are discussed in <xref linkend="altivec_aligned_ld_st"/>.</para>
     <para>If you use the Clang compiler then be sure it is version 7.1 or above due to <ulink url="https://bugs.llvm.org/show_bug.cgi?id=39704">Bug 39704</ulink>. The 39704 bug is due to Clang discarding code it believed was illegal due to an unaligned Altivec load. The code was legal because POWER7 and VSX provides the load of data using natural alignment. The code should not have been removed.</para>
   </section>
@@ -76,21 +91,6 @@ __vector unsigned int v = {0,0,0,0};</programlisting>
         </para>
       </listitem>
     </itemizedlist>
-    <para><indexterm><primary>LLVM</primary></indexterm><indexterm><primary>Clang</primary></indexterm>IBM switched to an LLVM front-end for the Linux compiler at version 13.1 as discussed in <xref linkend="xlc_compiler"/>. Be mindful of how you use preprocessor macros when LLVM is the front-end because the compiler claims to be three different compilers (GCC, Clang and XLC).</para>
-    <programlisting>$ xlc -qxlcompatmacros -qshowmacros -E test.cxx | \
-  egrep -i -E 'xlc|clang|llvm|gnuc'
-#define __GNUC_GNU_INLINE__ 1
-#define __GNUC_MINOR__ 2
-#define __GNUC_PATCHLEVEL__ 1
-#define __GNUC__ 4
-#define __clang__ 1
-#define __clang_major__ 4
-#define __clang_minor__ 0
-#define __clang_patchlevel__ 1
-#define __llvm__ 1
-#define __xlC__ 0x0d01
-#define __xlC_ver__ 0x00000601</programlisting>
-    <para>The front-end change triggered <ulink url="http://bugs.llvm.org/show_bug.cgi?id=38378">LLVM Issue 38378</ulink> for one project because the compiler entered GCC code paths but it cannot consume GCC POWER8 builtins.</para>
   </section>
   <section id="power8_endianess" xreflabel="Machine Endianness">
     <title>Machine endianness</title>
