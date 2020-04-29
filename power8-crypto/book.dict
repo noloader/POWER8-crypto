@@ -2,6 +2,9 @@ API
 APIs
 ABI
 ABIs
+CPU
+CPUs
+ISA
 
 Botan
 Crypto++
@@ -10,6 +13,7 @@ DocBook
 administrivia
 Cfarm
 GitHub
+GitHubs
 FIPS
 NIST
 OpenSSL
@@ -28,11 +32,14 @@ Linux
 
 Aarch32
 Aarch64
-PowerPC
+SPARC
+SPARCv8
 ARM
+NEON
+ARMv8
 MIPS
 MIPS64
-NEON
+PowerPC
 PPC
 PPC64
 x86
@@ -87,21 +94,39 @@ altivec
 posix
 qarch
 calloc
+malloc
 cpb
 vmx
 vsx
 andup
 crypto
+cryptographic
 vcrypto
+encrypted
+encrypting
+decrypted
+decrypting
 cputable
+checksums
 systemcfg
 datatypes
 fallback
+benchmarked
+benchmarking
+preprocessor
+detection
+detections
+typedef
+typedefs
 epi8
 inline
+runtime
 
 cpu
 cpu0
+cpu1
+cpu2
+cpu3
 asm
 m4
 endian
@@ -109,10 +134,13 @@ endianness
 gcc112
 gcc119
 constexpr
+intrinsic
+intrinsics
 online
 powersave
 coprocessor
 builtin
+builtins
 fallback
 S822
 
@@ -168,6 +196,8 @@ vshasigmaw
 
 vec
 sld
+vpmsumd
+clmulepi64
 
 gcc
 clang
@@ -177,6 +207,8 @@ clang++
 xlC
 
 GCC
+GNUC
+DNSSEC
 LLVM
 Clang
 XLC's
@@ -212,6 +244,10 @@ VecLoad64x2
 VecLoad64x2u
 VecLoadMsg32x4
 VecLoadMsg64x2
+VecGetHigh
+VecGetLow
+VecPolyMult00
+VecPolyMultiply
 
 VecCh
 VecMaj
@@ -269,6 +305,7 @@ memalign
 
 TODO
 
+MB
 MiB
+GB
 GiB
-
