@@ -25,7 +25,7 @@
     <title>Clang compiler</title>
     <para>Compiling a test program with LLVM's Clang will generally look like below. The important part is <systemitem>-mcpu=power8</systemitem> which selects the POWER8 Instruction Set Architecture (ISA). The minimum architecture required for Altivec with Clang is unknown. The Clang compiler was not tested because the <link linkend="intro_cfarm">compile farm </link> lacks a Clang installation.</para>
     <programlisting>$ g++ -mcpu=power8 -maltivec test.cxx -o test.exe</programlisting>
-    <para>GCC consumes <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem>.</para>
+    <para>Clang consumes <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem>.</para>
     <para><indexterm><primary>LLVM</primary></indexterm><indexterm><primary>Clang</primary></indexterm>IBM switched to an LLVM front-end for the Linux compiler at version 13.1 as discussed in <xref linkend="xlc_compiler"/>. Be mindful of how you use preprocessor macros when LLVM is the front-end because the compiler claims to be three different compilers — GCC, Clang and XLC.</para>
     <programlisting>$ xlc -qxlcompatmacros -qshowmacros -E test.cxx | \
   egrep -i -E 'xlc|clang|llvm|gnuc'
