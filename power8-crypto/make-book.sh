@@ -56,7 +56,7 @@ then
 fi
 
 echo "Creating formatted object..."
-if ! xsltproc --xinclude "$DOCBOOK_XSL" book.xml > "$BOOKNAME.fo"
+if ! xsltproc --xinclude custom.xsl book.xml > "$BOOKNAME.fo"
 then
     echo "Failed to create Formatted Object."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
