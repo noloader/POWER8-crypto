@@ -3,9 +3,10 @@
 <chapter id="ch07">
   <title>Assembly language</title>
   <para><indexterm><primary>Assembly language</primary></indexterm>This chapter shows you how to build and link against a POWER8 SHA assembly language routine. The function is Cryptogams SHA-256 compression function.</para>
-  <para><indexterm><primary>Cryptogams</primary></indexterm><indexterm><primary>Andy Polyakov</primary></indexterm><indexterm><primary>Cryptogams</primary><secondary>Andy Polyakov</secondary></indexterm><ulink url="https://www.openssl.org/~appro/cryptogams/">Cryptogams</ulink> is the incubator used by Andy Polyakov to develop assembly language routines for OpenSSL. Andy dual licenses his implementations and a more permissive license is available for his assembly language source code.</para>
+  <para>A second example of PowerPC assembly language is provided for the DARN random number generator. The generator is available on POWER9 machines, but the compiler intrinsics and builtins to access the generator are mostly missing.</para>
   <section id="asm_cryptogams">
     <title>Cryptogams</title>
+    <para><indexterm><primary>Cryptogams</primary></indexterm><indexterm><primary>Andy Polyakov</primary></indexterm><indexterm><primary>Cryptogams</primary><secondary>Andy Polyakov</secondary></indexterm><ulink url="https://www.openssl.org/~appro/cryptogams/">Cryptogams</ulink> is the incubator used by Andy Polyakov to develop assembly language routines for OpenSSL. Andy dual licenses his implementations and a more permissive license is available for his assembly language source code.</para>
     <para>The steps that follow were carried out on <systemitem>gcc112</systemitem>, which is ppc64-le. Andy's GitHub is located at <ulink url="https://github.com/dot-asm">dot-asm</ulink>, so clone the project and read the README.</para>
     <screen>$ git clone https://github.com/dot-asm/cryptogams
 $ cd cryptogams
