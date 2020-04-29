@@ -5,7 +5,7 @@
   <para><indexterm><primary>Polynomial multiplication</primary></indexterm>This chapter discusses polynomial multiplication used with CRC codes and the GCM mode of operation for AES.</para>
   <section id="poly_crc">
     <title>CRC-32 and CRC-32C</title>
-    <para><indexterm><primary>CRC-32</primary></indexterm><indexterm><primary>Polynomial multiplication</primary><secondary>CRC-32</secondary></indexterm>CRC checksums on POWER8 are nothing like the SSE4 or Aarch64 CRC instructions. Please refer to Anton Blanchard's GitHub at <ulink url="https://github.com/antonblanchard/crc32-vpmsum">CRC32/vpmsum</ulink> for the discussion and sample code.</para>
+    <para><indexterm><primary>CRC-32</primary></indexterm><indexterm><primary>Polynomial multiplication</primary><secondary>CRC-32</secondary></indexterm>CRC checksums on POWER8 are nothing like the SSE4 or Aarch64 CRC instructions. <indexterm><primary>Anton Blanchard</primary></indexterm>Please refer to Anton Blanchard's GitHub at <ulink url="https://github.com/antonblanchard/crc32-vpmsum">CRC32/vpmsum</ulink> for the discussion and sample code.</para>
   </section>
   <section id="poly_gcm">
     <title>GCM mode</title>
