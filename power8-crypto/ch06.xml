@@ -39,7 +39,7 @@ Breakpoint 1, main (argc=0x1, argv=0x2ff22bb8) at test.cxx:11
 11        return 0;
 (gdb) p c
 $1 = {0x0, 0x100}</programlisting>
-    <para>Three helper functions are needed for GCM mode. The first two are <systemitem>VecGetHigh</systemitem> and <systemitem>VecGetLow</systemitem>. The functions extract the high and low 64-bit double words and return them in a vector. The third is <systemitem>SwapWords</systemitem>. <systemitem>SwapWords</systemitem> exchanges 64-bit double words on little-endian systems after the multiplication.</para>
+    <para>Three helper functions are needed for GCM mode. The first two are <systemitem>VecGetHigh</systemitem> and <systemitem>VecGetLow</systemitem>. The functions extract the high and low 64-bit double words and return them in a vector. The third is <systemitem>VecSwapWords</systemitem>. <systemitem>VecSwapWords</systemitem> exchanges 64-bit double words on little-endian systems after the multiplication.</para>
     <para><systemitem>VecGetHigh</systemitem> and <systemitem>VecGetLow</systemitem> return a vector padded on the left with 0's. That means the return vector already has one of the terms set to 0 so <systemitem>vpmsumd</systemitem> will behave like ARM's <indexterm><primary>pmull_p64</primary></indexterm><systemitem>pmull_p64</systemitem> or Intel's <indexterm><primary>_mm_clmulepi64_si128</primary></indexterm><systemitem>_mm_clmulepi64_si128</systemitem>.</para>
     <para>The source code for the three functions are shown below. Shifts and rotates are preferred over permutes or masks because shifts are generally faster and use fewer instructions.</para>
     <programlisting><indexterm><primary>VecGetHigh</primary></indexterm>uint64x2_p VecGetHigh(uint64x2_p val)
@@ -52,8 +52,8 @@ $1 = {0x0, 0x100}</programlisting>
     return VecShiftRight&lt;8&gt;(VecShiftLeft&lt;8&gt;(val));
 }
 
-<indexterm><primary>SwapWords</primary></indexterm>template &lt;class T&gt;
-SwapWords(const T val)
+<indexterm><primary>VecSwapWords</primary></indexterm>template &lt;class T&gt;
+VecSwapWords(const T val)
 {
     return (T)VecRotateLeft&lt;8&gt;(val);
 }</programlisting>
@@ -65,14 +65,14 @@ VecPolyMultiply(uint64x2_p a, uint64x2_p b)
 #  if __BIG_ENDIAN__
      return __vpmsumd(VecGetLow(a), VecGetLow(b));
 #  else
-     return SwapWords(__vpmsumd(VecGetLow(a), VecGetLow(b)));
+     return VecSwapWords(__vpmsumd(VecGetLow(a), VecGetLow(b)));
 #  endif
 #else
 #  if __BIG_ENDIAN__
      return __builtin_crypto_vpmsumd(
                 VecGetLow(a), VecGetLow(b));
 #  else
-     return SwapWords(__builtin_crypto_vpmsumd(
+     return VecSwapWords(__builtin_crypto_vpmsumd(
                 VecGetLow(a), VecGetLow(b)));
 #  endif
 #endif

@@ -67,6 +67,8 @@ POWER7
 POWER8
 POWER9
 PowerISA
+PowerPC
+PowerPCs
 OpenPower
 OpenPOWER
 
@@ -76,6 +78,7 @@ getsystemcfg
 Glibc
 SIGBUS
 SIGILL
+AESKEYGENASSIST
 
 AES
 CRC
@@ -139,6 +142,7 @@ intrinsics
 online
 powersave
 coprocessor
+dereferences
 builtin
 builtins
 fallback
@@ -180,6 +184,10 @@ vs44
 vs45
 vs46
 vs47
+
+qcompatmacros
+qshowmacros
+qxlcompatmacros
 
 lxvd2x
 lxvw4x
@@ -226,6 +234,10 @@ uint8x16
 
 VecLoad
 VecLoadu
+VecAdd
+VecAdd64
+VecSub
+VecSub64
 VecRotateLeft
 VecShiftLeft
 VecStore
@@ -247,6 +259,10 @@ VecLoadMsg64x2
 VecGetHigh
 VecGetLow
 VecPolyMult00
+VecPolyMult01
+VecPolyMult10
+VecPolyMult11
+VecSwapWords
 VecPolyMultiply
 
 VecCh
