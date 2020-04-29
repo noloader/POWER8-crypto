@@ -10,6 +10,7 @@
     <para>Compiling a test program with GCC will generally look like below. The important part is <systemitem>-mcpu=power8</systemitem> which selects the POWER8 Instruction Set Architecture (ISA). The minimum architecture required for Altivec with GCC is <systemitem>-march=power4</systemitem>.</para>
     <programlisting>$ g++ -mcpu=power8 -maltivec test.cxx -o test.exe</programlisting>
     <para>GCC consumes <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem>.</para>
+    <para>GCC uses integer math to calculate the effective memory addresses from a memory address and offset. That is, if you have an array <systemitem>uint32_t vals = {0,1,2,3,4,5,6,7}</systemitem>, and you call <systemitem>uint32x4_p v = vec_xl(vals, 4)</systemitem>, then the vector will have the value <systemitem>{1,2,3,4}</systemitem>. That is, GCC uses the address of <systemitem>vals</systemitem> and simply adds <systemitem>4</systemitem> to it. Effective addresses are discussed in <xref linkend="effective_address"/>, and loads and stores are discussed in <xref linkend="altivec_aligned_ld_st"/>.</para>
     <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be mindful of the default GCC compiler. It may be GCC 4.8.5 which is a bit old and unsupported. You usually enjoy better code generation and performance with a modern GCC like 7.2. A newer compiler is usually located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
   </section>
   <section id="xlc_compiler" xreflabel="XLC Compiler">
@@ -17,11 +18,13 @@
     <para>Compiling a test program with IBM XL C/C++ will generally look like below. The important parts are the C++ compiler name of <systemitem>xlC</systemitem>, and <systemitem>-qarch=pwr8</systemitem> which selects the POWER8 ISA. The minimum architecture required for Altivec with XLC is <systemitem>-qarch=pwr6</systemitem>.</para>
     <programlisting>$ xlC -qarch=pwr8 -qaltivec test.cxx -o test.exe</programlisting>
     <para>XLC consumes <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-qpic</systemitem> for XLC.</para>
+    <para>XLC uses integer math to calculate the effective memory addresses from a memory address and offset. That is, if you have an array <systemitem>uint32_t vals = {0,1,2,3,4,5,6,7}</systemitem>, and you call <systemitem>uint32x4_p v = vec_xl(vals, 4)</systemitem>, then the vector will have the value <systemitem>{1,2,3,4}</systemitem>. That is, XLC uses the address of <systemitem>vals</systemitem> and simply adds <systemitem>4</systemitem> to it. Effective addresses are discussed in <xref linkend="effective_address"/>, and loads and stores are discussed in <xref linkend="altivec_aligned_ld_st"/>.</para>
     <para>IBM XLC switched to a LLVM front-end for the Linux compiler at version 13.1 (AIX still uses the IBM front-end). When compiling with XLC version 13.1 or higher on Linux you may need the <systemitem>-qcompatmacros</systemitem> compiler option. Without <systemitem>-qcompatmacros</systemitem> the samples fail to compile because XLC 13.1 does not define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. However, LLVM defines <systemitem>__GNUC__</systemitem> but compilation fails because the compiler cannot consume the GCC POWER8 builtins.<footnote><para>LLVM behavior is befuddling to some people. It is the XLC compiler but fails to define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. Then it defines <systemitem>__GNUC__</systemitem> but fails to consume the GCC POWER8 builtins.</para></footnote></para>
   </section>
   <section id="clang_compiler" xreflabel="Clang Compiler">
     <title>Clang compiler</title>
     <para>There are two LLVM components you should be aware of. First is the LLVM Clang compiler. The second is the LLVM front-end used by XLC 13.1 and above on Linux. The Clang compiler is what you normally think of. The compiler has its own set of builtins to use for crypto programming on POWER8. The Clang compiler was not tested because the <link linkend="intro_cfarm">compile farm </link> lacks a Clang installation.</para>
+    <para>Clang uses pointer math to calculate the effective memory addresses from a memory address and offset. That is, if you have an array <systemitem>uint32_t vals = {0,1,2,3,4,5,6,7}</systemitem>, and you call <systemitem>uint32x4_p v = vec_xl(vals, 4)</systemitem>, then the vector will have the value <systemitem>{4,5,6,7}</systemitem>. That is, Clang uses the address of <systemitem>vals</systemitem> and adds <systemitem>4*sizeof(uint32_t)</systemitem> to it. Effective addresses are discussed in <xref linkend="effective_address"/>, and loads and stores are discussed in <xref linkend="altivec_aligned_ld_st"/>.</para>
     <para>If you use the Clang compiler then be sure it is version 7.1 or above due to <ulink url="https://bugs.llvm.org/show_bug.cgi?id=39704">Bug 39704</ulink>. The 39704 bug is due to Clang discarding code it believed was illegal due to an unaligned Altivec load. The code was legal because POWER7 and VSX provides the load of data using natural alignment. The code should not have been removed.</para>
   </section>
   <section id="altivec_header" xreflabel="Altivec Headers">
@@ -213,7 +216,7 @@ uint32x4_p c = vec_perm(a, b, m);</programlisting>
       </textobject>
     </mediaobject>
   </section>
-  <section id="power8_eff_addr" xreflabel="Effective Addresses">
+  <section id="effective_address" xreflabel="Effective Addresses">
     <title>Effective addresses</title>
     <para>Some vector operations, like loads and stores, can be sensitive to the alignment of a memory address. Operations like <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive, and the documentation clearly states it.</para>
     <para>The effective address is a simple sum consisting of the memory address plus the offset into the address with the result rounded down to a multiple of 16. Effective addresses follow integer arithmetic and not pointer arithmetic.</para>
@@ -237,13 +240,13 @@ uint8x16_p r1 = vec_ld(off1, ptr1);
 uint8_t* ptr2 = 0x401010;
 int off2 = 4;
 uint8x16_p r2 = vec_ld(off2, ptr2);</programlisting>
-    <para>The application of effective addresses are discussed more below in <xref linkend="power8_aligned_ld_st"/> and <xref linkend="power8_unaligned_ld_st"/>.</para>
+    <para>The application of effective addresses are discussed more below in <xref linkend="altivec_aligned_ld_st"/> and <xref linkend="vsx_unaligned_ld_st"/>.</para>
   </section>
-  <section id="power8_aligned_ld_st" xreflabel="Aligned Data References">
+  <section id="altivec_aligned_ld_st" xreflabel="Aligned Data References">
     <title>Aligned data references</title>
-    <para>Altivec loads and stores have traditionally been performed using <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> since at least the POWER4 days in the early 2000s. <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive to alignment of the effective address. Effective addresses were discussed in <xref linkend="power8_eff_addr"/>.</para>
+    <para>Altivec loads and stores have traditionally been performed using <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> since at least the POWER4 days in the early 2000s. <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive to alignment of the effective address. Effective addresses were discussed in <xref linkend="effective_address"/>.</para>
     <para>Altivec <emphasis>does not</emphasis> raise a <systemitem>SIGBUS</systemitem> to indicate a misaligned load or store. Instead, the bottom 4 bits of the sum <systemitem>address+offset</systemitem> are masked-off and then the memory at the effective address is loaded.</para>
-    <para>You can use the Altivec loads and stores when you <emphasis>control</emphasis> buffers and ensure they are 16-byte aligned, like an AES key schedule table. Otherwise just use <link linkend="power8_unaligned_ld_st">unaligned loads and stores</link> to avoid trouble.</para>
+    <para>You can use the Altivec loads and stores when you <emphasis>control</emphasis> buffers and ensure they are 16-byte aligned, like an AES key schedule table. Otherwise just use <link linkend="vsx_unaligned_ld_st">unaligned loads and stores</link> to avoid trouble.</para>
     <para>The C/C++ code to perform a load using <indexterm><primary>vec_ld</primary></indexterm><systemitem>vec_ld</systemitem> should look similar to below. Notice the <systemitem>assert</systemitem> to warn you of problems in debug builds.</para>
     <programlisting><indexterm><primary>VecLoad</primary></indexterm><indexterm><primary>vec_ld</primary></indexterm>template &lt;class T&gt;
 uint32x4_p VecLoad(const T* mem_addr, int offset)
@@ -271,10 +274,11 @@ void VecStore(const uint32x4_p val, T* mem_addr, int offset)
     vec_st((uint8x16_p)val, offset, mem_addr);
 }</programlisting>
   </section>
-  <section id="power8_unaligned_ld_st" xreflabel="Unaligned Data References">
+  <section id="vsx_unaligned_ld_st" xreflabel="Unaligned Data References">
     <title>Unaligned data references</title>
-    <para>POWER7 introduced unaligned loads and stores that avoid the aligned memory requirements. The preferred builtin functions for unaligned loads and stores are <indexterm><primary>vec_xl</primary></indexterm><systemitem>vec_xl</systemitem> and <indexterm><primary>vec_xst</primary></indexterm><systemitem>vec_xst</systemitem>. The builtins are available on all currently supported versions of GCC and XLC. However, older versions of GCC such as those installed on many enterprise Linux distributions do not supply them. For compatibility with these older compilers you may use <indexterm><primary>vec_vsx_ld</primary></indexterm><systemitem>vec_vsx_ld</systemitem> and <indexterm><primary>vec_vsx_st</primary></indexterm><systemitem>vec_vsx_st</systemitem> for GCC.</para>
-    <para>You should use the POWER7 loads and stores whenever you <emphasis>do not control</emphasis> buffers or their alignments, like a message in a buffer supplied by the user.</para>
+    <para>POWER7 and VSX introduced unaligned loads and stores for 32-bit and 64-bit datatypes that avoid the 16-byte aligned memory requirements. POWER9 introduced unaligned loads and stores for 8-bit and 16-bit datatypes. While POWER9 allows you to load a byte array, POWER7 and POWER8 limits your to 32-bit and 64-bit arrays. If you have a byte array on POWER7, then it must be at least 32-bit aligned or you have to use the Altivec load.</para>
+    <para>The preferred builtin functions for 32-bit and 64-bit unaligned loads and stores are <indexterm><primary>vec_xl</primary></indexterm><systemitem>vec_xl</systemitem> and <indexterm><primary>vec_xst</primary></indexterm><systemitem>vec_xst</systemitem>. The builtins are available on all currently supported versions of GCC and XLC. However, older versions of GCC such as those installed on many enterprise Linux distributions do not supply them. For compatibility with these older compilers you may use <indexterm><primary>vec_vsx_ld</primary></indexterm><systemitem>vec_vsx_ld</systemitem> and <indexterm><primary>vec_vsx_st</primary></indexterm><systemitem>vec_vsx_st</systemitem> for GCC.</para>
+    <para>You should use the POWER7 and VSX loads and stores whenever you <emphasis>do not control</emphasis> buffers or their alignments, like a message in a buffer supplied by the user.</para>
     <para>The C/C++ code to perform a load using <systemitem>vec_xl</systemitem> and <systemitem>vec_vsx_ld</systemitem> should look similar to below. The function name has a <systemitem>u</systemitem> added to indicate unaligned.</para>
     <programlisting><indexterm><primary>VecLoad</primary></indexterm><indexterm><primary>vec_xl</primary></indexterm><indexterm><primary>vec_vsx_ld</primary></indexterm>template &lt;class T&gt;
 uint32x4_p VecLoadu(const T* mem_addr, int offset)
@@ -300,7 +304,7 @@ void VecStoreu(const uint32x4_p val, T* mem_addr, int offset)
   <section id="power8_vec_deref" xreflabel="Vector Dereferences">
     <title>Vector dereferences</title>
     <para>
-      The <ulink url="https://openpowerfoundation.org/?resource_lib=64-bit-elf-v2-abi-specification-power-architecture">OpenPOWER ELF V2 ABI Specification</ulink>, version 1.4, incorrectly states that accessing vectors on Power should preferably be done with vector pointers and the dereference operator *.  However, this is only permitted for aligned vector references.  Examples in Chapter 6 of the ABI document show use of casting operations that represent undefined behavior according to the C standard.  An errata document that corrects the ABI may be found <ulink url="https://openpowerfoundation.org/?resource_lib=openpower-elfv2-errata-elfv2-abi-version-1-4">at the OpenPOWER Foundation website</ulink>.  Subsequent sections describe the proper way to use loads and stores of aligned and unaligned data.
+      The <ulink url="https://openpowerfoundation.org/?resource_lib=64-bit-elf-v2-abi-specification-power-architecture">OpenPOWER ELF V2 ABI Specification</ulink>, version 1.4, incorrectly states that accessing vectors on Power should preferably be done with vector pointers and the dereference <systemitem>operator *</systemitem>. However, this is only permitted for aligned vector references.  Examples in Chapter 6 of the ABI document show use of casting operations that represent undefined behavior according to the C standard.  An errata document that corrects the ABI may be found <ulink url="https://openpowerfoundation.org/?resource_lib=openpower-elfv2-errata-elfv2-abi-version-1-4">at the OpenPOWER Foundation website</ulink>. Subsequent sections describe the proper way to use loads and stores of aligned and unaligned data.
     </para>
   </section>
 </chapter>

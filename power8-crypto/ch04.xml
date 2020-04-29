@@ -15,7 +15,7 @@
   </section>
   <section id="aes_endianness" xreflabel="AES Endianness">
     <title>Endianness</title>
-    <para>The AES hardware operates in big-endian mode. On little-endian systems like <systemitem>gcc112</systemitem> you have to convert from little-endian to big-endian during loads and stores. The code to perform the conversion is shown below. Also recall from <xref linkend="power8_unaligned_ld_st"/> POWER7 provides unaligned loads and stores so POWER8 has them available.</para>
+    <para>The AES hardware operates in big-endian mode. On little-endian systems like <systemitem>gcc112</systemitem> you have to convert from little-endian to big-endian during loads and stores. The code to perform the conversion is shown below. Also recall from <xref linkend="vsx_unaligned_ld_st"/> POWER7 provides unaligned loads and stores so POWER8 has them available.</para>
     <programlisting>uint8x16_p VecReverse8x16(const uint8x16_p src)
 {
     uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
