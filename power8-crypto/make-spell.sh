@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-if [[ ! $(command -v hunspell) ]]
+if [[ ! "$(command -v hunspell)" ]]
 then
     echo "hunspell is not installed. Exiting."
     echo "  You can install hunspell for the program."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-fi 
+fi
 
 for file in *.xml
 do
@@ -19,4 +19,3 @@ do
 done
 
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
-

@@ -6,27 +6,34 @@
 # Name without extensions. The final artifact include PDF.
 BOOKNAME=power8-crypto
 
-if [[ ! $(command -v xmllint) ]]
+if [[ ! "$(command -v xmllint)" ]]
 then
     echo "xmllint is not installed. Skipping validation."
     echo "  You can install libxml2-utils for the program."
-fi 
+fi
 
-if [[ ! $(command -v xsltproc) ]]
+if [[ ! "$(command -v xsltproc)" ]]
 then
     echo "xsltproc is not installed. Exiting."
     echo "  You must install xsltproc for the program."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-fi 
+fi
 
-if [[ ! $(command -v fop) ]]
+if [[ -z "$(find /usr/share -name 'docbook.xsl' | head -n 1)" ]]
+then
+    echo "docbook.xsl is not installed. Exiting."
+    echo " You must install stylesheets for the program."
+    [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+fi
+
+if [[ ! "$(command -v fop)" ]]
 then
     echo "fop is not installed. Exiting."
     echo " You must install fop for the program."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-fi 
+fi
 
-if [[ $(command -v xmllint) ]]
+if [[ "$(command -v xmllint)" ]]
 then
 
     echo "Validating book..."
