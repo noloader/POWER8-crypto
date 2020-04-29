@@ -10,21 +10,21 @@ if [[ ! $(command -v xmllint) ]]
 then
     echo "xmllint is not installed. Skipping validation."
     echo "  You can install libxml2-util for the program."
-fi 
+fi
 
 if [[ ! $(command -v xsltproc) ]]
 then
     echo "xsltproc is not installed. Exiting."
     echo "  You must install libxml2-util for the program."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-fi 
+fi
 
 if [[ ! $(command -v fop) ]]
 then
     echo "fop is not installed. Exiting."
     echo " You must install fop for the program."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-fi 
+fi
 
 if [[ $(command -v xmllint) ]]
 then
