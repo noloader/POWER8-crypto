@@ -13,7 +13,7 @@
   </section>
   <section id="intro_openpower">
     <title>OpenPOWER Foundation</title>
-    <para>The <ulink url="https://openpowerfoundation.org">OpenPOWER Foundation</ulink> is an open technical community based on the POWER architecture. Its mission is to create an open ecosystem, using the POWER architecture to share expertise, investment, and server-class intellectual property to serve the evolving needs of customers and industry. The Foundation publishes many technical documents for the POWER architectures in its <ulink url="https://openpowerfoundation.org/technical/resource-catalog/">Resource Catalog</ulink>, including POWER8 and ISA 2.07B. Change flags in the document show the content added relative to POWER7 and ISA 2.06B, which predates the OpenPOWER Foundation.</para>
+    <para>The <ulink url="https://openpowerfoundation.org">OpenPOWER Foundation</ulink> is an open technical community based on the POWER architecture. Its mission is to create an open ecosystem, using the POWER architecture to share expertise, investment, and server-class intellectual property to serve the evolving needs of customers and industry.</para><para>The Foundation publishes many technical documents for the POWER architectures in its <ulink url="https://openpowerfoundation.org/technical/resource-catalog/">Resource Catalog</ulink>, including POWER8 and ISA 2.07B. Change flags in the document show the content added relative to POWER7 and ISA 2.06B, which predates the OpenPOWER Foundation.</para>
   </section>
   <section id="intro_compilers">
     <title>Compilers</title>
