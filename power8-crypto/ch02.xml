@@ -330,7 +330,7 @@ uint32x4_p c = vec_perm(a, b, m);</programlisting>
   <section id="altivec_32" xreflabel="32-bit Altivec">
     <title>32-bit Altivec</title>
     <para>Most PowerPCs, from the early days through POWER7, provide an Altivec unit that is only capable of packed 32-bit operations. POWER7 and VSX added <systemitem>__vector unsigned long long</systemitem>, and POWER8 added 64-bit operations like add and subtract, but none of them are available on older Altivec. Some algorithms you implement may need 64-bit datatypes on the older units. The algorithms include <indexterm><primary>Salsa</primary></indexterm>Salsa, <indexterm><primary>ChaCha</primary></indexterm>ChaCha, <indexterm><primary>Simon-128</primary></indexterm>Simon-128 and <indexterm><primary>Speck-128</primary></indexterm>Speck-128. In this case you can implement your own <indexterm><primary>VecAdd64</primary></indexterm><systemitem>VecAdd64</systemitem> and <indexterm><primary>VecSub64</primary></indexterm><systemitem>VecSub64</systemitem> using 32-bit datatypes.</para>
-    <para>The code below provides 64-bit add using 32-bit vectors. The code has a small optimization — it avoids a zero <systemitem>vector {0,0,0,0}</systemitem> and an extra load by using an element that is always 0 in the carry. Bytes 1,2, 5,6, 9,10, 13,14 are zero in the carry because of the <systemitem>vector unsigned int</systemitem>. The code below uses byte 2 for the 0 value.</para>
+    <para>The code below provides 64-bit add using 32-bit vectors.</para>
     <programlisting>inline uint32x4_p
 VecAdd64(const uint32x4_p vec1, const uint32x4_p vec2)
 {
@@ -357,7 +357,7 @@ VecAdd64(const uint32x4_p vec1, const uint32x4_p vec2)
     return vec_add(res, cy);
 #endif
 }</programlisting>
-    <para>The code below provides 64-bit subtract using 32-bit vectors. The code is a little more complex than <systemitem>VecAdd64</systemitem> because the borrow is generated as a compliment. The code has the same small optimization as <systemitem>VecAdd64</systemitem>.</para>
+    <para>The code below provides 64-bit subtract using 32-bit vectors. The code is slightly more complex than <systemitem>VecAdd64</systemitem> because the borrow is generated as a compliment.</para>
     <programlisting>inline uint32x4_p
 VecSub64(const uint32x4_p vec1, const uint32x4_p vec2)
 {
