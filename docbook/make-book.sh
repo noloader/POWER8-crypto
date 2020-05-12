@@ -24,9 +24,9 @@ then
     DOCBOOK_XSL="$(find /usr/share -name 'docbook.xsl' 2>/dev/null | grep '/fo/' | head -n 1)"
 fi
 
-if [[ -z "$DOCBOOK_XSL" ]]
+if [[ ! -e "$DOCBOOK_XSL" ]]
 then
-    echo "docbook.xsl is not installed. Exiting."
+    echo "docbook.xsl was not found. Exiting."
     echo " You must install stylesheets for the program."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
