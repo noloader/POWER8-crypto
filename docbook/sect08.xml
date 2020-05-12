@@ -18,8 +18,12 @@ $ sudo mv fop-2.4 /usr/local/bin
   <programlisting>$ cat /usr/local/bin/fop
 #!/usr/bin/env bash
 
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+if [[ -z "$JAVA_HOME" ]]; then
+    JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+	export JAVA_HOME
+fi
 export CLASSPATH=/usr/local/bin/fop-2.4:/usr/local/bin/fop-2.4/lib
+
 /usr/local/bin/fop-2.4/fop/fop $*
 </programlisting>
   <para>After you install the processor you should run <systemitem>hash -r</systemitem> to clear Bash's program cache.</para>
