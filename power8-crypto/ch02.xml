@@ -384,6 +384,6 @@ VecSub64(const uint32x4_p vec1, const uint32x4_p vec2)
     return vec_sub(res, bw);
 #endif
 }</programlisting>
-    <para>While <systemitem>VecAdd64</systemitem> and <systemitem>VecSub64</systemitem> look inefficient they are profitable for some algorithms. For example, Simon-128 and Speck-128 run about 2.5x faster in the 32-bit Altivec unit compared to a C/C++ implementation in the integer unit.</para>
+    <para>While <systemitem>VecAdd64</systemitem> and <systemitem>VecSub64</systemitem> look inefficient they are profitable for some algorithms. For example, on a PowerMac G5, Simon-128 and Speck-128 run about 6x faster in the 32-bit Altivec unit compared to a C/C++ implementation in the integer unit.</para>
   </section>
 </chapter>
