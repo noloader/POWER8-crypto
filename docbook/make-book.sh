@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# Spell checker
-# reset && hunspell -l -X chXX.xml | sort | uniq -i
+# Run the Spell Checker with make-spell.sh
 
 # Name without extensions. The final artifact includes the PDF extension.
 BOOKNAME=docbook
@@ -19,7 +18,11 @@ then
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-DOCBOOK_XSL="$(find /usr/share -name 'docbook.xsl' 2>/dev/null | grep '/fo/' | head -n 1)"
+# Find docbook.xsl if it is not specified
+if [[ -z "$DOCBOOK_XSL" ]]
+then
+    DOCBOOK_XSL="$(find /usr/share -name 'docbook.xsl' 2>/dev/null | grep '/fo/' | head -n 1)"
+fi
 
 if [[ -z "$DOCBOOK_XSL" ]]
 then
@@ -48,7 +51,7 @@ then
     echo "Foramtting source code..."
     for file in *.xml
     do
-	if xmllint --format "$file" --output "$file.format"
+        if xmllint --format "$file" --output "$file.format"
         then
             mv "$file.format" "$file"
         fi
@@ -68,10 +71,10 @@ then
     echo "Failed to create PDF."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 else
-    rm "$BOOKNAME.fo" &>/dev/null
+    rm -f "$BOOKNAME.fo" &>/dev/null
 fi
 
 echo "Created PDF $BOOKNAME.pdf."
-cp "$BOOKNAME.pdf" ../
+mv "$BOOKNAME.pdf" ../
 
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0

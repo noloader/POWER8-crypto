@@ -18,7 +18,11 @@ then
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-DOCBOOK_XSL="$(find /usr/share -name 'docbook.xsl' 2>/dev/null | grep '/fo/' | head -n 1)"
+# Find docbook.xsl if it is not specified
+if [[ -z "$DOCBOOK_XSL" ]]
+then
+    DOCBOOK_XSL="$(find /usr/share -name 'docbook.xsl' 2>/dev/null | grep '/fo/' | head -n 1)"
+fi
 
 if [[ -z "$DOCBOOK_XSL" ]]
 then
@@ -26,6 +30,10 @@ then
     echo " You must install stylesheets for the program."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
+
+# This magic allows us to build the DocBook on Ubuntu and Fedora.
+# Ubuntu and Fedora use different paths to docbook.xsl.
+sed "s|!!DOCBOOK_XSL_FILE!!|$DOCBOOK_XSL|g" custom.xsl.in > custom.xsl
 
 if [[ ! "$(command -v fop)" ]]
 then
@@ -47,7 +55,7 @@ then
     echo "Formatting source code..."
     for file in *.xml
     do
-	if xmllint --format "$file" --output "$file.format"
+        if xmllint --format "$file" --output "$file.format"
         then
             mv "$file.format" "$file"
         fi
@@ -67,10 +75,14 @@ then
     echo "Failed to create PDF."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 else
-    rm "$BOOKNAME.fo" &>/dev/null
+    rm -f "$BOOKNAME.fo" &>/dev/null
+fi
+
+if [[ -f custom.xsl ]]; then
+    rm -f custom.xsl
 fi
 
 echo "Created PDF $BOOKNAME.pdf."
-cp "$BOOKNAME.pdf" ../
+mv "$BOOKNAME.pdf" ../
 
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
