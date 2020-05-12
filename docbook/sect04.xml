@@ -5,7 +5,7 @@
   <para>The DockBook XSL provides stylesheets. It is provided by the <systemitem>docbook-xsl</systemitem> and <systemitem>docbook-xsl-doc-pdf</systemitem> packages. To install the packages issue the following.</para>
   <programlisting>$ sudo apt-get install docbook-xsl docbook-xsl-doc-pdf
 </programlisting>
-  <para>The stylesheets are installed in <systemitem>/usr/share</systemitem>.</para>
+  <para>The stylesheets are installed in <systemitem>/usr/share/.../fo/</systemitem> directory. The important one is <systemitem>docbook.xsl</systemitem>.</para>
   <programlisting>$ ls /usr/share/xml/docbook/stylesheet/docbook-xsl/fo/
 admon.xsl           division.xsl   info.xsl             refentry.xsl
 annotations.xsl     docbook.xsl    inline.xsl           sections.xsl
