@@ -339,19 +339,22 @@ VecAdd64(const uint32x4_p vec1, const uint32x4_p vec2)
 #if defined(_ARCH_PWR8)
     return (uint32x4_p)vec_add((uint64x2_p)vec1, (uint64x2_p)vec2);
 #else
-    // The carry mask selects carries for elements 1 and 3 and
-    // sets remaining elements to 0. The mask also shifts the
-    // carried values left by 4 bytes so the carries are added
-    // to elements 0 and 2.
+    // The carry mask selects carrys for elements 1 and 3 and sets
+    // remaining elements to 0. The results is then shifted so the
+    // carried values are added to elements 0 and 2.
 #if defined(__BIG_ENDIAN__)
-    uint8x16_p cmask = {4,5,6,7, 2,2,2,2, 12,13,14,15, 2,2,2,2};
+    const uint32x4_p zero = {0, 0, 0, 0};
+    const uint32x4_p mask = {0, 1, 0, 1};
 #else
-    uint8x16_p cmask = {2,2,2,2, 0,1,2,3, 2,2,2,2, 8,9,10,11};
+    const uint32x4_p zero = {0, 0, 0, 0};
+    const uint32x4_p mask = {1, 0, 1, 0};
 #endif
 
     uint32x4_p cy = vec_addc(vec1, vec2);
-    cy = vec_perm(cy, cy, cmask);
-    return vec_add(vec_add(vec1, vec2), cy);
+    uint32x4_p res = vec_add(vec1, vec2);
+    cy = vec_and(mask, cy);
+    cy = vec_sld (cy, zero, 4);
+    return vec_add(res, cy);
 #endif
 }</programlisting>
     <para>The code below provides 64-bit subtract using 32-bit vectors. The code is a little more complex than <systemitem>VecAdd64</systemitem> because the borrow is generated as a compliment. The code has the same small optimization as <systemitem>VecAdd64</systemitem>.</para>
@@ -363,24 +366,22 @@ VecSub64(const uint32x4_p vec1, const uint32x4_p vec2)
     // but subudm requires POWER8
     return (uint32x4_p)vec_sub((uint64x2_p)vec1, (uint64x2_p)vec2);
 #else
-    // The borrow mask selects borrows for elements 1 and 3 and
-    // sets remaining elements to 0. The mask also shifts the
-    // borrowed values left by 4 bytes so the borrows are
-    // subtracted from elements 0 and 2.
+    // The borrow mask selects borrows for elements 1 and 3 and sets
+    // remaining elements to 0. The results is then shifted so the
+    // borrowed values are subtracted from elements 0 and 2.
 #if defined(__BIG_ENDIAN__)
-    uint8x16_p bmask = {4,5,6,7, 2,2,2,2, 12,13,14,15, 2,2,2,2};
-    uint32x4_p amask = {1, 1, 1, 1};
+    const uint32x4_p zero = {0, 0, 0, 0};
+    const uint32x4_p mask = {0, 1, 0, 1};
 #else
-    uint8x16_p bmask = {2,2,2,2, 0,1,2,3, 2,2,2,2, 8,9,10,11};
-    uint32x4_p amask = {1, 1, 1, 1};
+    const uint32x4_p zero = {0, 0, 0, 0};
+    const uint32x4_p mask = {1, 0, 1, 0};
 #endif
 
-    // subc sets the compliment of borrow, so we have to
-    // un-compliment the borrow using andc.
     uint32x4_p bw = vec_subc(vec1, vec2);
-    bw = vec_andc(amask, bw);
-    bw = vec_perm(bw, bw, bmask);
-    return vec_sub(vec_sub(vec1, vec2), bw);
+    uint32x4_p res = vec_sub(vec1, vec2);
+    bw = vec_andc(mask, bw);
+    bw = vec_sld (bw, zero, 4);
+    return vec_sub(res, bw);
 #endif
 }</programlisting>
     <para>While <systemitem>VecAdd64</systemitem> and <systemitem>VecSub64</systemitem> look inefficient they are profitable for some algorithms. For example, Simon-128 and Speck-128 run about 2.5x faster in the 32-bit Altivec unit compared to a C/C++ implementation in the integer unit.</para>
