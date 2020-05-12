@@ -20,7 +20,7 @@ $ sudo mv fop-2.4 /usr/local/bin
 
 if [[ -z "$JAVA_HOME" ]]; then
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-	export JAVA_HOME
+    export JAVA_HOME
 fi
 export CLASSPATH=/usr/local/bin/fop-2.4:/usr/local/bin/fop-2.4/lib
 
