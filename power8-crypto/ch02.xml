@@ -353,7 +353,7 @@ VecAdd64(const uint32x4_p vec1, const uint32x4_p vec2)
     uint32x4_p cy = vec_addc(vec1, vec2);
     uint32x4_p res = vec_add(vec1, vec2);
     cy = vec_and(mask, cy);
-    cy = vec_sld (cy, zero, 4);
+    cy = vec_sld(cy, zero, 4);
     return vec_add(res, cy);
 #endif
 }</programlisting>
@@ -380,7 +380,7 @@ VecSub64(const uint32x4_p vec1, const uint32x4_p vec2)
     uint32x4_p bw = vec_subc(vec1, vec2);
     uint32x4_p res = vec_sub(vec1, vec2);
     bw = vec_andc(mask, bw);
-    bw = vec_sld (bw, zero, 4);
+    bw = vec_sld(bw, zero, 4);
     return vec_sub(res, bw);
 #endif
 }</programlisting>
