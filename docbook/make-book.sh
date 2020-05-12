@@ -63,7 +63,7 @@ then
 fi
 
 echo "Creating PDF..."
-if ! fop -fo "$BOOKNAME.fo" -pdf "$BOOKNAME.pdf"
+if ! fop -fo "$BOOKNAME.fo" -dpi 75 -pdf "$BOOKNAME.pdf"
 then
     echo "Failed to create PDF."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
