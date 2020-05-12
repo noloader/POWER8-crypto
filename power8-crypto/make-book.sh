@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
-# Spell checker
-# reset && hunspell -l -X chXX.xml | sort | uniq -i
+# Run the Spell Checker with make-spell.sh
 
-# Name without extensions. The final artifact include PDF.
+# Name without extensions. The final artifact includes the PDF extension.
 BOOKNAME=power8-crypto
 
 if [[ ! "$(command -v xmllint)" ]]
@@ -19,7 +18,7 @@ then
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-DOCBOOK_XSL="$(find /usr/share -name 'docbook.xsl' | grep '/fo/' | head -n 1)"
+DOCBOOK_XSL="$(find /usr/share -name 'docbook.xsl' 2>/dev/null | grep '/fo/' | head -n 1)"
 
 if [[ -z "$DOCBOOK_XSL" ]]
 then
