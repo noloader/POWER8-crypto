@@ -16,6 +16,9 @@
    <xsl:param name="body.font.family" select="'arial'"/>
    <xsl:param name="body.font.size" select="11"/>
 
+   <!-- https://stackoverflow.com/q/52918048 -->
+   <xsl:param name="monospace.font.family" select="'courier'"/>
+
    <!-- https://stackoverflow.com/questions/17237093 -->
    <xsl:param name="body.start.indent">0.25in</xsl:param>
 

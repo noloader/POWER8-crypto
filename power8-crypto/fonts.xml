@@ -22,6 +22,21 @@
         <font embed-url="arialbi.ttf" embedding-mode="subset">
           <font-triplet name="arial" style="italic" weight="bold"/>
         </font>
+        <font embed-url="cour.ttf" embedding-mode="subset">
+          <font-triplet name="courier" style="normal" weight="normal"/>
+        </font>
+        <font embed-url="cour.ttf" embedding-mode="subset">
+          <font-triplet name="courier" style="normal" weight="normal"/>
+        </font>
+        <font embed-url="couri.ttf" embedding-mode="subset">
+          <font-triplet name="courier" style="italic" weight="normal"/>
+        </font>
+        <font embed-url="courbd.ttf" embedding-mode="subset">
+          <font-triplet name="courier" style="normal" weight="bold"/>
+        </font>
+        <font embed-url="courbi.ttf" embedding-mode="subset">
+          <font-triplet name="courier" style="italic" weight="bold"/>
+        </font>
       </fonts>
     </renderer>
   </renderers>
