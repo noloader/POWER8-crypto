@@ -37,6 +37,20 @@
         <font embed-url="courbi.ttf" embedding-mode="subset">
           <font-triplet name="courier" style="italic" weight="bold"/>
         </font>
+        <!-- We don't use or carry these in our sources. We just     -->
+        <!-- provide the triplet to squash the spurious FOP warning. -->
+        <font embed-url="symbol.ttf" embedding-mode="subset">
+          <font-triplet name="Symbol" style="normal" weight="normal"/>
+        </font>
+        <font embed-url="symbol.ttf" embedding-mode="subset">
+          <font-triplet name="Symbol" style="normal" weight="bold"/>
+        </font>
+        <font embed-url="zapfding.ttf" embedding-mode="subset">
+          <font-triplet name="ZapfDingbats" style="normal" weight="normal"/>
+        </font>
+        <font embed-url="zapfding.ttf" embedding-mode="subset">
+          <font-triplet name="ZapfDingbats" style="normal" weight="bold"/>
+        </font>
       </fonts>
     </renderer>
   </renderers>

@@ -49,6 +49,13 @@ then
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
+if [[ ! "$(command -v gs)" ]]
+then
+    echo "GhostScript is not installed. Exiting."
+    echo " You must install GhostScript for the program."
+    [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+fi
+
 if [[ "$(command -v xmllint)" ]]
 then
 
@@ -77,12 +84,21 @@ then
 fi
 
 echo "Creating PDF..."
-if ! fop -fo "$BOOKNAME.fo" -c fonts.xml -dpi 75 -pdf "$BOOKNAME.pdf"
+if ! fop -fo "$BOOKNAME.fo" -c fonts.xml -dpi 75 -pdf "$BOOKNAME-pre.pdf"
 then
     echo "Failed to create PDF."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 else
     rm -f "$BOOKNAME.fo" &>/dev/null
+fi
+
+echo "Optimizing PDF..."
+if ! gs -q -o "$BOOKNAME.pdf" -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress "$BOOKNAME-pre.pdf"
+then
+    echo "Failed to optimize PDF."
+    [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+else
+    mv "$BOOKNAME-pre.pdf" "$BOOKNAME.pdf"
 fi
 
 if [[ -f custom.xsl ]]; then
