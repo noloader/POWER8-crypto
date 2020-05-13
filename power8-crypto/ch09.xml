@@ -51,6 +51,14 @@
       <listitem>
         <para>
           <indexterm>
+            <primary>Steven Munroe</primary>
+          </indexterm>
+          <ulink url="https://github.com/munroesj52/pveclib">PVECLIB</ulink>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <indexterm>
             <primary>Anton Blanchard</primary>
           </indexterm>
           <ulink url="https://github.com/antonblanchard/crc32-vpmsum">CRC32/vpmsum</ulink>
