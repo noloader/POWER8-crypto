@@ -35,17 +35,17 @@
       <listitem>
         <para>
           <indexterm>
-            <primary>Jeffrey Walton</primary>
+            <primary>Andy Polyakov</primary>
           </indexterm>
-          <ulink url="https://github.com/noloader/SHA-Intrinsics">SHA Intrinsics</ulink>
+          <ulink url="https://github.com/dot-asm/cryptogams">Cryptogams</ulink>
         </para>
       </listitem>
       <listitem>
         <para>
           <indexterm>
-            <primary>Andy Polyakov</primary>
+            <primary>Anton Blanchard</primary>
           </indexterm>
-          <ulink url="https://github.com/dot-asm/cryptogams">Cryptogams</ulink>
+          <ulink url="https://github.com/antonblanchard/crc32-vpmsum">CRC32</ulink>
         </para>
       </listitem>
       <listitem>
@@ -59,9 +59,9 @@
       <listitem>
         <para>
           <indexterm>
-            <primary>Anton Blanchard</primary>
+            <primary>Jeffrey Walton</primary>
           </indexterm>
-          <ulink url="https://github.com/antonblanchard/crc32-vpmsum">CRC32/vpmsum</ulink>
+          <ulink url="https://github.com/noloader/SHA-Intrinsics">SHA Intrinsics</ulink>
         </para>
       </listitem>
     </itemizedlist>
