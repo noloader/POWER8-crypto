@@ -5,6 +5,13 @@
 # Name without extensions. The final artifact includes the PDF extension.
 BOOKNAME=docbook
 
+# This works around a bug in FOP. fonts.xml says the fonts base
+# directory is ../, but FOP can only consume ./.
+if [[ ! -d ./fonts/ ]]; then
+    echo "Copying fonts..."
+    cp -r ../fonts ./
+fi
+
 if [[ ! "$(command -v xmllint)" ]]
 then
     echo "xmllint is not installed. Skipping validation."
@@ -31,6 +38,10 @@ then
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
+# This magic allows us to build the DocBook on Ubuntu and Fedora.
+# Ubuntu and Fedora use different paths to docbook.xsl.
+sed "s|!!DOCBOOK_XSL_FILE!!|$DOCBOOK_XSL|g" custom.xsl.in > custom.xsl
+
 if [[ ! "$(command -v fop)" ]]
 then
     echo "fop is not installed. Exiting."
@@ -48,7 +59,7 @@ then
         [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
     fi
 
-    echo "Foramtting source code..."
+    echo "Formatting source code..."
     for file in *.xml
     do
         if xmllint --format "$file" --output "$file.format"
@@ -59,19 +70,23 @@ then
 fi
 
 echo "Creating formatted object..."
-if ! xsltproc --xinclude "$DOCBOOK_XSL" book.xml > "$BOOKNAME.fo"
+if ! xsltproc --xinclude custom.xsl book.xml > "$BOOKNAME.fo"
 then
     echo "Failed to create Formatted Object."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
 echo "Creating PDF..."
-if ! fop -fo "$BOOKNAME.fo" -dpi 75 -pdf "$BOOKNAME.pdf"
+if ! fop -fo "$BOOKNAME.fo" -c fonts.xml -dpi 75 -pdf "$BOOKNAME.pdf"
 then
     echo "Failed to create PDF."
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 else
     rm -f "$BOOKNAME.fo" &>/dev/null
+fi
+
+if [[ -f custom.xsl ]]; then
+    rm -f custom.xsl
 fi
 
 echo "Created PDF $BOOKNAME.pdf."
