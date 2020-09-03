@@ -84,7 +84,7 @@ then
 fi
 
 echo "Creating PDF..."
-if ! fop -fo "$BOOKNAME.fo" -c fonts.xml -dpi 75 -pdf "$BOOKNAME-pre.pdf"
+if ! fop -fo "$BOOKNAME.fo" -c fonts.xml -dpi 75 -pdf "$BOOKNAME.pdf"
 then
     echo "Failed to create PDF."
     exit 1
@@ -93,12 +93,12 @@ else
 fi
 
 echo "Optimizing PDF..."
-if ! gs -q -o "$BOOKNAME.pdf" -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress "$BOOKNAME-pre.pdf"
+if ! gs -q -o "$BOOKNAME.pdf.opt" -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress "$BOOKNAME.pdf"
 then
     echo "Failed to optimize PDF."
-    exit 1
+    # Not a hard failure. The unoptimized PDF is available.
 else
-    mv "$BOOKNAME-pre.pdf" "$BOOKNAME.pdf"
+    mv "$BOOKNAME.pdf.opt" "$BOOKNAME.pdf"
 fi
 
 if [[ -f custom.xsl ]]; then
