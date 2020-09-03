@@ -1,6 +1,6 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-   <!-- make-book.in will replace "!!DOCBOOK_XSL_FILE!!"  -->
+   <!-- make-book.sh will replace "!!DOCBOOK_XSL_FILE!!"  -->
    <!-- with a path to docbook.xsl. The extra indirection -->
    <!-- allows the book to build on Fedora and Ubuntu     -->
 
