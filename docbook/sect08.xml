@@ -9,22 +9,22 @@
   <para>If you are happy with Ubuntu's version of FOP then you are finished. You can move on to the next section.</para>
   <para>Alternatively, you can install the latest Apache FOP by downloading the binary from the Apache website. This can be useful if Ubuntu's version of FOP has trouble. To manually install FOP perform the following.</para>
   <programlisting>$ wget https://mirror.cogentco.com/pub/apache/xmlgraphics/
-  fop/binaries/fop-2.4-bin.tar.gz
-$ tar -xzf fop-2.4-bin.tar.gz
-$ chmod +x fop-2.4/fop/fop
-$ sudo mv fop-2.4 /usr/local/bin
+  fop/binaries/fop-2.5-bin.tar.gz
+$ tar -xzf fop-2.5-bin.tar.gz
+$ chmod +x fop-2.5/fop/fop
+$ sudo mv fop-2.5 /usr/local/bin
 </programlisting>
-  <para>Once <systemitem>fop</systemitem> is installed locally, add a wrapper script to execute it. In the <systemitem>cat</systemitem> below, <systemitem>JAVA_HOME</systemitem> is setup for Ubuntu 16. If you are using Ubuntu 18, then use <systemitem>/usr/lib/jvm/java-11-openjdk-amd64</systemitem>.</para>
+  <para>Once <systemitem>fop</systemitem> is installed locally, add a wrapper script to execute it. In the <systemitem>cat</systemitem> below, <systemitem>JAVA_HOME</systemitem> is setup for Ubuntu 18. If you are using Ubuntu 16, then use <systemitem>/usr/lib/jvm/java-8-openjdk-amd64</systemitem>.</para>
   <programlisting>$ cat /usr/local/bin/fop
 #!/usr/bin/env bash
 
 if [[ -z "$JAVA_HOME" ]]; then
-    JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
     export JAVA_HOME
 fi
-export CLASSPATH=/usr/local/bin/fop-2.4:/usr/local/bin/fop-2.4/lib
+export CLASSPATH=/usr/local/bin/fop-2.5:/usr/local/bin/fop-2.5/lib
 
-/usr/local/bin/fop-2.4/fop/fop $*
+/usr/local/bin/fop-2.5/fop/fop $*
 </programlisting>
   <para>After you install the processor you should run <systemitem>hash -r</systemitem> to clear Bash's program cache.</para>
 </section>

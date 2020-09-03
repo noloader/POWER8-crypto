@@ -5,13 +5,13 @@
   <para>The Java runtime enviroment is needed by Apache FOP. It is provided by the <systemitem>openjdk-8-jdk</systemitem> package on Ubuntu 16, and <systemitem>openjdk-11-jdk</systemitem> on Ubuntu 18. To install the package on Ubuntu 16 issue the following.</para>
   <programlisting>$ sudo apt-get install openjdk-8-jdk
 </programlisting>
-  <para>After installing the JRE you can export <systemitem>JAVA_HOME</systemitem> from your login script. If you are using Ubuntu 18, then <systemitem>JAVA_HOME</systemitem> is <systemitem>/usr/lib/jvm/java-11-openjdk-amd64</systemitem>.</para>
+  <para>After installing the JRE you can export <systemitem>JAVA_HOME</systemitem> from your login script.  In the code below, <systemitem>JAVA_HOME</systemitem> is setup for Ubuntu 18. If you are using Ubuntu 16, then <systemitem>JAVA_HOME</systemitem> is <systemitem>/usr/lib/jvm/java-8-openjdk-amd64</systemitem>.</para>
   <programlisting># .bashrc or .bash_profile
-$ export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+$ export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 $ source ~/.bash_profile
 
 $ echo $JAVA_HOME
-/usr/lib/jvm/java-8-openjdk-amd64
+/usr/lib/jvm/java-11-openjdk-amd64
 </programlisting>
   <para>At the time of this writing Ubuntu's Java 9 is unstable. It could cause unexplained crashes. You should not use the <systemitem>openjdk-9-jdk</systemitem> package.</para>
   <para>After you install Java you should run <systemitem>hash -r</systemitem> to clear Bash's program cache.</para>
