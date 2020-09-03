@@ -93,7 +93,8 @@ else
 fi
 
 echo "Optimizing PDF..."
-if ! gs -q -o "$BOOKNAME.pdf.opt" -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress "$BOOKNAME.pdf"
+# https://stackoverflow.com/q/10450120
+if ! gs -q -o "$BOOKNAME.pdf.opt" -sDEVICE=pdfwrite -dPDFSETTINGS=/screen -dCompatibilityLevel=1.4 "$BOOKNAME.pdf"
 then
     echo "Failed to optimize PDF."
     # Not a hard failure. The unoptimized PDF is available.
