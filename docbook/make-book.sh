@@ -94,12 +94,20 @@ fi
 
 echo "Optimizing PDF..."
 # https://stackoverflow.com/q/10450120
-if ! gs -q -o "${BOOKNAME}.pdf.opt" -sDEVICE=pdfwrite -dPDFSETTINGS=/screen -dCompatibilityLevel=1.4 "${BOOKNAME}.pdf"
+if ! gs -q -o "${BOOKNAME}.opt.pdf" -sDEVICE=pdfwrite -dPDFSETTINGS=/screen -dCompatibilityLevel=1.4 "${BOOKNAME}.pdf"
 then
     echo "Failed to optimize PDF."
     # Not a hard failure. The unoptimized PDF is available.
-else
-    mv "${BOOKNAME}.pdf.opt" "${BOOKNAME}.pdf"
+fi
+
+# Calculate savings and print the message
+old_file_size=$(wc -c "${BOOKNAME}.pdf" | awk '{print $1}')
+new_file_size=$(wc -c "${BOOKNAME}.opt.pdf" | awk '{print $1}')
+diff_size="$((${old_file_size}-${new_file_size}))"
+echo "PDF file size is ${new_file_size}, trimmed ${diff_size} bytes."
+
+if [[ -e "${BOOKNAME}.opt.pdf" ]]; then
+    mv "${BOOKNAME}.opt.pdf" "${BOOKNAME}.pdf"
 fi
 
 if [[ "$(command -v qpdf 2>/dev/null)" ]]
