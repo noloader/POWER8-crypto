@@ -4,7 +4,7 @@
   <title>Java JDK</title>
   <para>The Java runtime enviroment is needed by Apache FOP. You can use the Runtime Environment (JRE) or the Development Kit (JDK). It is provided by the <systemitem>openjdk-8-jre</systemitem> or <systemitem>openjdk-8-jdk</systemitem> package on Ubuntu 16, and <systemitem>openjdk-11-jre</systemitem> or <systemitem>openjdk-11-jdk</systemitem> on Ubuntu 18.</para>
   <para>To determine what is available on a Ubuntu system issue the following command.</para>
-  <programlisting>$ $ apt-cache search '^openjdk' | grep -E '\-jre|\-jdk'
+  <programlisting>$ apt-cache search '^openjdk' | grep -E '\-jre|\-jdk'
 openjdk-11-jdk - OpenJDK Development Kit (JDK)
 openjdk-11-jdk-headless - OpenJDK Development Kit (JDK)
 openjdk-11-jre - OpenJDK Java runtime, using Hotspot JIT
