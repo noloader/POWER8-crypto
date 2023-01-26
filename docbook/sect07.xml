@@ -14,7 +14,7 @@ openjdk-11-jre-headless - OpenJDK Java runtime, using Hotspot JIT
 openjdk-11-jre-zero - Alternative JVM for OpenJDK, using Zero
 ...
 </programlisting>
-  <para>After installing the JRE you can export <systemitem>JAVA_HOME</systemitem> from your login script. In the code below, <systemitem>JAVA_HOME</systemitem> is setup for Ubuntu 18. If you are using Ubuntu 16, then <systemitem>JAVA_HOME</systemitem> is <systemitem>/usr/lib/jvm/java-8-openjdk-amd64</systemitem>.</para>
+  <para>After installing the JRE or JDK you can export <systemitem>JAVA_HOME</systemitem> from your login script. In the code below, <systemitem>JAVA_HOME</systemitem> is setup for Ubuntu 18. If you are using Ubuntu 16, then <systemitem>JAVA_HOME</systemitem> is <systemitem>/usr/lib/jvm/java-8-openjdk-amd64</systemitem>.</para>
   <programlisting># .bashrc or .bash_profile
 JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 export JAVA_HOME
