@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
-<section id="docbook_test">
-  <title>Testing</title>
-  <para>You should test the installation using <systemitem>command -v</systemitem>. The Posix command is the standard way to check availability of a program.</para>
-  <programlisting>$ command -v xmllint
-/usr/bin/xmllint
-$ command -v xsltproc
-/usr/bin/xsltproc
-$ command -v fop
-/usr/local/bin/fop
+<section id="docbook_qpdf">
+  <title>QPDF</title>
+  <para>The QPDF package is used to validate the PDF created by DocBook and GhostScript. To install the package on Ubuntu 16 issue the following.</para>
+  <programlisting>$ sudo apt-get install qpdf
 </programlisting>
-  <para>You should also verify the version of <systemitem>fop</systemitem>.</para>
-  <programlisting>$ fop -version
-FOP Version 2.7
-</programlisting>
-  <para>If the version is unexpected then verify the shell script located in <systemitem>/usr/local/bin/fop</systemitem>, and ensure it is executable. If the script is correct then run <systemitem>hash -r</systemitem> to clear the Bash program cache.</para>
+  <para>After you install the program you should run <systemitem>hash -r</systemitem> to clear Bash's program cache.</para>
 </section>
