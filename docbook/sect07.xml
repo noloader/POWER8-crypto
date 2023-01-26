@@ -16,11 +16,17 @@ openjdk-11-jre-zero - Alternative JVM for OpenJDK, using Zero
 </programlisting>
   <para>After installing the JRE you can export <systemitem>JAVA_HOME</systemitem> from your login script. In the code below, <systemitem>JAVA_HOME</systemitem> is setup for Ubuntu 18. If you are using Ubuntu 16, then <systemitem>JAVA_HOME</systemitem> is <systemitem>/usr/lib/jvm/java-8-openjdk-amd64</systemitem>.</para>
   <programlisting># .bashrc or .bash_profile
-$ export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-$ source ~/.bash_profile
-
+JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export JAVA_HOME
+</programlisting>
+  <para>After setting <systemitem>JAVA_HOME</systemitem> in the Bash startup file, <systemitem>source</systemitem> it to make the changes take effect now.</para>
+  <programlisting>$ source ~/.bash_profile
 $ echo $JAVA_HOME
 /usr/lib/jvm/java-11-openjdk-amd64
+</programlisting>
+  <para>If you wish to automate the setting of <systemitem>JAVA_HOME</systemitem>, then the following can be used in <systemitem>.bashrc</systemitem> or <systemitem>.bash_profile</systemitem>.</para>
+  <programlisting>JAVA_HOME=$(readlink -f $(command -v java) | sed "s|/bin/java||")
+export JAVA_HOME
 </programlisting>
   <para>After you install Java you should run <systemitem>hash -r</systemitem> to clear Bash's program cache.</para>
 </section>
