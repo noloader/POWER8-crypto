@@ -25,7 +25,7 @@ $ echo $JAVA_HOME
 /usr/lib/jvm/java-11-openjdk-amd64
 </programlisting>
   <para>If you wish to automate the setting of <systemitem>JAVA_HOME</systemitem>, then the following can be used in <systemitem>.bashrc</systemitem> or <systemitem>.bash_profile</systemitem>.</para>
-  <programlisting>JAVA_HOME=$(readlink -f $(command -v java) | sed "s|/bin/java||")
+  <programlisting>JAVA_HOME=$(readlink -f $(command -v java) | sed "s|/bin/java$||")
 export JAVA_HOME
 </programlisting>
   <para>After you install Java you should run <systemitem>hash -r</systemitem> to clear Bash's program cache.</para>
