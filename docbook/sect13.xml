@@ -14,10 +14,10 @@ if [[ -z "$JAVA_HOME" ]]; then
     export JAVA_HOME
 fi
 
-CLASSPATH=/usr/local/bin/fop-2.7:/usr/local/bin/fop-2.7/lib
+CLASSPATH=/usr/local/bin/fop-2.8:/usr/local/bin/fop-2.8/lib
 export CLASSPATH
 
-/usr/local/bin/fop-2.7/fop/fop $*
+/usr/local/bin/fop-2.8/fop/fop $*
 </programlisting>
   <para>Running the script will set <systemitem>JAVA_HOME</systemitem> to the current version of the JVM.</para>
   <programlisting>$ find /usr/lib/jvm -name 'java-11-openjdk-*' | head -n 1

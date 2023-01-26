@@ -2,7 +2,7 @@
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section id="docbook_jre">
   <title>Java runtime</title>
-  <para>The Java runtime enviroment is needed by Apache FOP. It is provided by the <systemitem>openjdk-8-jdk</systemitem> package on Ubuntu 16, and <systemitem>openjdk-11-jdk</systemitem> on Ubuntu 18. To install the package on Ubuntu 16 issue the following.</para>
+  <para>The Java runtime enviroment is needed by Apache FOP. It is provided by the <systemitem>openjdk-8-jdk</systemitem> package on Ubuntu 16, and <systemitem>openjdk-11-jdk</systemitem> on Ubuntu 18. To install the package on Ubuntu issue the following.</para>
   <programlisting>$ sudo apt-get install openjdk-8-jdk
 </programlisting>
   <para>After installing the JRE you can export <systemitem>JAVA_HOME</systemitem> from your login script.  In the code below, <systemitem>JAVA_HOME</systemitem> is setup for Ubuntu 18. If you are using Ubuntu 16, then <systemitem>JAVA_HOME</systemitem> is <systemitem>/usr/lib/jvm/java-8-openjdk-amd64</systemitem>.</para>
