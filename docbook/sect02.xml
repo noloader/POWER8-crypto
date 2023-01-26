@@ -27,10 +27,10 @@
       <para>FOP-HYPH – used by FOP to hyphenate words in a DocBook</para>
     </listitem>
     <listitem>
-      <para>GhostScript – used to optimize a PDF produced DocBook</para>
+      <para>GhostScript – used to optimize a PDF produced by DocBook</para>
     </listitem>
     <listitem>
-      <para>QPDF – used to validate a PDF produced DocBook or GhostScript</para>
+      <para>QPDF – used to validate a PDF produced by DocBook or GhostScript</para>
     </listitem>
   </orderedlist>
 </section>
