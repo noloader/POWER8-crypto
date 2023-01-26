@@ -12,13 +12,13 @@ if [[ ! -d ./fonts/ ]]; then
     cp -r ../fonts ./
 fi
 
-if [[ ! "$(command -v xmllint)" ]]
+if [[ ! "$(command -v xmllint 2>/dev/null)" ]]
 then
     echo "xmllint is not installed. Skipping validation."
     echo "  You can install libxml2-utils for the program."
 fi
 
-if [[ ! "$(command -v xsltproc)" ]]
+if [[ ! "$(command -v xsltproc 2>/dev/null)" ]]
 then
     echo "xsltproc is not installed. Exiting."
     echo "  You must install xsltproc for the program."
@@ -34,7 +34,7 @@ fi
 if [[ ! -e "$DOCBOOK_XSL" ]]
 then
     echo "docbook.xsl was not found. Exiting."
-    echo " You must install stylesheets for the program."
+    echo "  You must install stylesheets for the program."
     exit 1
 fi
 
@@ -42,21 +42,21 @@ fi
 # Ubuntu and Fedora use different paths to docbook.xsl.
 sed "s|!!DOCBOOK_XSL_FILE!!|$DOCBOOK_XSL|g" custom.xsl.in > custom.xsl
 
-if [[ ! "$(command -v fop)" ]]
+if [[ ! "$(command -v fop 2>/dev/null)" ]]
 then
     echo "fop is not installed. Exiting."
-    echo " You must install fop for the program."
+    echo "  You must install fop for the program."
     exit 1
 fi
 
-if [[ ! "$(command -v gs)" ]]
+if [[ ! "$(command -v gs 2>/dev/null)" ]]
 then
     echo "GhostScript is not installed. Exiting."
-    echo " You must install GhostScript for the program."
+    echo "  You must install GhostScript for the program."
     exit 1
 fi
 
-if [[ "$(command -v xmllint)" ]]
+if [[ "$(command -v xmllint 2>/dev/null)" ]]
 then
 
     echo "Validating book..."
@@ -102,11 +102,27 @@ else
     mv "$BOOKNAME.pdf.opt" "$BOOKNAME.pdf"
 fi
 
+if [[ "$(command -v qpdf 2>/dev/null)" ]]
+then
+    echo "Performing qa check..."
+    if qpdf --check "${BOOKNAME}.pdf" 1>/dev/null
+    then
+        echo "Book is well formed."
+    else
+        echo "Book is damaged or corrupt."
+    fi
+else
+    echo "Skipping qa check..."
+    echo "  You can install qpdf for the program."
+fi
+
 if [[ -f custom.xsl ]]; then
     rm -f custom.xsl
 fi
 
-echo "Created PDF $BOOKNAME.pdf."
-mv "$BOOKNAME.pdf" ../
+# Move book to top level directory
+echo "Created PDF ${BOOKNAME}.pdf."
+mv "${BOOKNAME}.pdf" ../
 
 exit 0
+
