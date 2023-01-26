@@ -7,7 +7,7 @@
   <para>The new location will depend on the package you install. The location <systemitem>/usr/share/sgml/...</systemitem> is due to installing the Fedora package <systemitem>docbook-style-xsl</systemitem>, which is Norman Walsh's XSL stylesheets for DocBook.</para>
   <para>Fedora also uses a <systemitem>JAVA_HOME</systemitem> path that changes over time. The current <systemitem>JAVA_HOME</systemitem> path for Fedora 32 is <systemitem>/usr/lib/jvm/jre-11-openjdk-11.0.8.10-2.fc32.x86_64/</systemitem>. Since <systemitem>JAVA_HOME</systemitem> changes over time, the <systemitem>fop</systemitem> script is more robust when it is crafted like shown below.</para>
   <programlisting>$ cat /usr/local/bin/fop
-#!/usr/local/bin/env bash
+#!/usr/bin/env bash
 
 if [[ -z "$JAVA_HOME" ]]; then
     JAVA_HOME=$(find /usr/lib/jvm -name 'java-11-openjdk-*' | head -n 1)

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <section id="docbook_jre">
-  <title>Java JDK</title>
-  <para>The Java runtime enviroment is needed by Apache FOP. You can use the Runtime Environment (JRE) or the Development Kit (JDK). It is provided by the <systemitem>openjdk-8-jre</systemitem> or <systemitem>openjdk-8-jdk</systemitem> package on Ubuntu 16, and <systemitem>openjdk-11-jre</systemitem> or <systemitem>openjdk-11-jdk</systemitem> on Ubuntu 18.</para>
+  <title>Java JRE &amp; JDK</title>
+  <para>The Java runtime enviroment is needed by Apache FOP. You can use the Runtime Environment (JRE) or the Development Kit (JDK). They are provided by the <systemitem>openjdk-8-jre</systemitem> or <systemitem>openjdk-8-jdk</systemitem> package on Ubuntu 16, and the <systemitem>openjdk-11-jre</systemitem> or <systemitem>openjdk-11-jdk</systemitem> package on Ubuntu 18.</para>
   <para>To determine what is available on a Ubuntu system issue the following command.</para>
   <programlisting>$ apt-cache search '^openjdk' | grep -E '\-jre|\-jdk'
 openjdk-11-jdk - OpenJDK Development Kit (JDK)
