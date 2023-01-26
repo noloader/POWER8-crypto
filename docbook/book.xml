@@ -20,4 +20,5 @@
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sect09.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sect10.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sect11.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sect12.xml"/>
 </article>
