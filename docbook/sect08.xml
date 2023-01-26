@@ -14,7 +14,7 @@ $ tar -xzf fop-2.8-bin.tar.gz
 $ chmod +x fop-2.8/fop/fop
 $ sudo mv fop-2.8 /usr/local/bin
 </programlisting>
-  <para>Once <systemitem>fop</systemitem> is installed locally, add a wrapper script to execute it. In the <systemitem>cat</systemitem> below, <systemitem>JAVA_HOME</systemitem> is setup for Ubuntu 18. If you are using Ubuntu 16, then use <systemitem>/usr/lib/jvm/java-8-openjdk-amd64</systemitem>.</para>
+  <para>Once <systemitem>fop</systemitem> is installed locally, add a wrapper script to execute it. In the <systemitem>cat</systemitem> below, <systemitem>JAVA_HOME</systemitem> is setup dynamically. If you wish, you can hard-code <systemitem>/usr/lib/jvm/java-11-openjdk-amd64</systemitem> for Ubuntu 18 or <systemitem>/usr/lib/jvm/java-8-openjdk-amd64</systemitem> for Ubuntu 16.</para>
   <programlisting>$ cat /usr/local/bin/fop
 #!/usr/bin/env bash
 
