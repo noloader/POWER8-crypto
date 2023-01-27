@@ -4,6 +4,10 @@
   <articleinfo>
     <title>DocBook Installation for Ubuntu</title>
     <subtitle>Ubuntu 16.04, 18.04 and 20.04</subtitle>
+    <pubdate>
+      <!-- format is July 1, 2022 -->
+      <?dbtimestamp format="B d, Y"?>
+    </pubdate>
     <author>
       <firstname>Jeffrey</firstname>
       <surname>Walton</surname>

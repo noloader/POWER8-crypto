@@ -5,6 +5,10 @@
   <subtitle>The Unofficial Guide</subtitle>
   <bookinfo>
     <edition>1</edition>
+    <pubdate>
+      <!-- format is July 1, 2022 -->
+      <?dbtimestamp format="B d, Y"?>
+    </pubdate>
     <authorgroup>
       <author>
         <firstname>Jeffrey</firstname>
