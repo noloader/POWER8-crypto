@@ -27,7 +27,7 @@
       <para>FOP-HYPH – hyphenates words in a DocBook, used by FOP</para>
     </listitem>
     <listitem>
-      <para>GhostScript – optimized a PDF produced by DocBook</para>
+      <para>GhostScript – optimizes a PDF produced by DocBook</para>
     </listitem>
     <listitem>
       <para>QPDF – validates a PDF produced by DocBook or GhostScript</para>
