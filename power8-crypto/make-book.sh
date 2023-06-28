@@ -26,12 +26,12 @@ then
 fi
 
 # Find docbook.xsl if it is not specified
-if [[ -z "$DOCBOOK_XSL" ]]
+if [[ -z "${DOCBOOK_XSL}" ]]
 then
     DOCBOOK_XSL="$(find /usr/share -name 'docbook.xsl' 2>/dev/null | grep -E '/fo/docbook.xsl$' | head -n 1)"
 fi
 
-if [[ ! -e "$DOCBOOK_XSL" ]]
+if [[ ! -e "${DOCBOOK_XSL}" ]]
 then
     echo "docbook.xsl was not found. Exiting."
     echo "  You must install stylesheets for the program."
@@ -85,19 +85,19 @@ then
 fi
 
 echo "Creating formatted object..."
-if ! xsltproc --xinclude custom.xsl book.xml > "$BOOKNAME.fo"
+if ! xsltproc --xinclude custom.xsl book.xml > "${BOOKNAME}.fo"
 then
     echo "Failed to create Formatted Object."
     exit 1
 fi
 
 echo "Creating PDF..."
-if ! fop -fo "$BOOKNAME.fo" -c fonts.xml -dpi 75 -pdf "$BOOKNAME.pdf"
+if ! fop -fo "${BOOKNAME}.fo" -c fonts.xml -dpi 75 -pdf "$BOOKNAME.pdf"
 then
     echo "Failed to create PDF."
     exit 1
 else
-    rm -f "$BOOKNAME.fo" &>/dev/null
+    rm -f "${BOOKNAME}.fo" &>/dev/null
 fi
 
 echo "Optimizing PDF..."
