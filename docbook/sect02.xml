@@ -21,16 +21,16 @@
       <para>Java – Runtime environment for Apache FOP</para>
     </listitem>
     <listitem>
-      <para>FOP – Apache's Formatted Object Processor which transforms FOs to output file types such as HTML, PS, and PDF</para>
+      <para>FOP – Apache's Formatted Object Processor (FOP) which transforms FOs to output file types such as HTML, PS, and PDF</para>
     </listitem>
     <listitem>
-      <para>FOP-HYPH – used by FOP to hyphenate words in a DocBook</para>
+      <para>FOP-HYPH – hyphenates words in a DocBook, used by FOP</para>
     </listitem>
     <listitem>
-      <para>GhostScript – used to optimize a PDF produced by DocBook</para>
+      <para>GhostScript – optimized a PDF produced by DocBook</para>
     </listitem>
     <listitem>
-      <para>QPDF – used to validate a PDF produced by DocBook or GhostScript</para>
+      <para>QPDF – validates a PDF produced by DocBook or GhostScript</para>
     </listitem>
   </orderedlist>
 </section>
