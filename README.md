@@ -4,4 +4,4 @@ If you want to contribute to the book then clone the repository, make pull reque
 
 If you only want the field notes then download power8-crypto.pdf. It is the compiled book with information that is missing from the IBM documents. If you find errors or omissions then make pull requests and open bug reports.
 
-The book is built using DocBook. The instructions to setup DocBook on Ubuntu 16.04, 18.04 and 20.04 with Apache FOP 2.7 are in docbook-install.pdf. Once DocBook is setup just run `make-book.sh` to create the book.
+The book is built using DocBook. The instructions to setup DocBook on Ubuntu 16.04, 18.04 and 20.04 with Apache FOP 2.8 are available at https://github.com/noloader/Dockbook-Install.
