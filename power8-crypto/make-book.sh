@@ -56,6 +56,14 @@ then
     exit 1
 fi
 
+# Delete trailing whitespace in sources
+if [[ $(uname -s | grep -c -q 'Darwin') -eq 0 ]]
+then
+    sed -i -E 's/[ '$'\t'']+$//' ./*.xml
+else
+    sed -i '' -E 's/[ '$'\t'']+$//' ./*.xml
+fi
+
 if [[ "$(command -v xmllint 2>/dev/null)" ]]
 then
 
