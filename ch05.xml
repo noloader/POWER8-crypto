@@ -16,7 +16,7 @@
     <para>Fourth, the eight working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> each get their own vector register. The one you care about is located at element 0, the remainder of the elements in the vector are "don't care" elements.</para>
     <para>It does not matter if you rotate the working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem> in the caller or in the callee. Both designs have nearly the same performance characteristics.</para>
     <para>Since you are operating on <systemitem>X[16]</systemitem> in a rolling fashion instead of <systemitem>W[64]</systemitem> or <systemitem>W[80]</systemitem> the main body of your compression function will look similar to below.</para>
-    <programlisting><?db-font-size 75% ?>// SHA-256 partial compression function
+    <programlisting><?code-font-size 75% ?>// SHA-256 partial compression function
 uint32x4_p X[16];
 ...
 
@@ -37,7 +37,7 @@ for (i = 16; i &lt; 64; i++)
   <section id="sha_ch" xreflabel="Ch Function">
     <title>Ch function</title>
     <para><indexterm><primary>SHA</primary><secondary>Ch function</secondary></indexterm>The SHA <systemitem>Ch</systemitem> function is implemented in POWER systems using the <systemitem>vsel</systemitem> instruction or the <systemitem>vec_sel</systemitem> builtin. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p</systemitem> arguments. The important piece of information is <systemitem>x</systemitem> used as the selector.</para>
-    <programlisting><?db-font-size 75% ?>uint32x4_p
+    <programlisting><?code-font-size 75% ?>uint32x4_p
 VecCh(uint32x4_p x, uint32x4_p y, uint32x4_p z)
 {
     return vec_sel(z, y, x);
@@ -46,7 +46,7 @@ VecCh(uint32x4_p x, uint32x4_p y, uint32x4_p z)
   <section id="sha_maj" xreflabel="Maj Function">
     <title>Maj function</title>
     <para><indexterm><primary>SHA</primary><secondary>Maj function</secondary></indexterm>The SHA <systemitem>Maj</systemitem> function is implemented in POWER systems using the <systemitem>vsel</systemitem> instruction or the <systemitem>vec_sel</systemitem> builtin. The implementation for the 32x4 arrangement is shown below. The code is the same for the 64x2 arrangement, but the function takes <systemitem>uint64x2_p</systemitem> arguments. The important piece of information is <systemitem>x^y</systemitem> used as the selector.</para>
-    <programlisting><?db-font-size 75% ?>uint32x4_p
+    <programlisting><?code-font-size 75% ?>uint32x4_p
 VecCh(uint32x4_p x, uint32x4_p y, uint32x4_p z)
 {
     return vec_sel(y, z, vec_xor(x, y));
@@ -56,7 +56,7 @@ VecCh(uint32x4_p x, uint32x4_p y, uint32x4_p z)
     <title>Sigma functions</title>
     <para><indexterm><primary>SHA</primary><secondary>Sigma functions</secondary></indexterm>POWER8 provides the <systemitem>vshasigmaw</systemitem> and <systemitem>vshasigmad</systemitem> instructions to accelerate SHA calculations for 32-bit and 64-bit words, respectively. The instructions take two integer arguments and the constants are used to select among <systemitem>Sigma0</systemitem>, <systemitem>Sigma1</systemitem>, <systemitem>sigma0</systemitem> and <systemitem>sigma1</systemitem>.</para>
     <para><indexterm><primary>__builtin_crypto_vshasigmaw</primary></indexterm><indexterm><primary>__builtin_crypto_vshasigmad</primary></indexterm><indexterm><primary>__vshasigmaw</primary></indexterm><indexterm><primary>__vshasigmad</primary></indexterm>The builtin GCC functions for the instructions are <systemitem>__builtin_crypto_vshasigmaw</systemitem> and <systemitem>__builtin_crypto_vshasigmad</systemitem>. The XLC functions for the instructions are <systemitem>__vshasigmaw</systemitem> and <systemitem>__vshasigmad</systemitem>. The C/C++ wrapper for the SHA-256 functions should look similar to below.</para>
-    <programlisting><?db-font-size 75% ?>uint32x4_p Vec_sigma0(const uint32x4_p val)
+    <programlisting><?code-font-size 75% ?>uint32x4_p Vec_sigma0(const uint32x4_p val)
 {
 #if defined(__xlc__) || defined(__xlC__)
     return __vshasigmaw(val, 0, 0);
@@ -96,7 +96,7 @@ uint32x4_p VecSigma1(const uint32x4_p val)
     <title>SHA-256</title>
     <para><indexterm><primary>SHA</primary><secondary>SHA-256</secondary></indexterm>The SHA-256 implementation has four parts. The first part is loads the existing state and creates working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem>. The second part loads the message and performs the first 16 rounds. The third part performs the remaining rounds. The final part stores the new state.</para>
     <para><emphasis role="bold">Part 1.</emphasis> Load the existing state and create working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem>.</para>
-    <programlisting><?db-font-size 75% ?>uint32x4_p abcd = VecLoad32x4u(state+0, 0);
+    <programlisting><?code-font-size 75% ?>uint32x4_p abcd = VecLoad32x4u(state+0, 0);
 uint32x4_p efgh = VecLoad32x4u(state+4, 0);
 
 enum {A=0,B=1,C,D,E,F,G,H};
@@ -111,7 +111,7 @@ S[D] = VecShiftLeft&lt;4&gt;(S[C]);
 S[H] = VecShiftLeft&lt;4&gt;(S[G]);
 </programlisting>
     <para><emphasis role="bold">Part 2.</emphasis> Load the message and perform the first 16 rounds.</para>
-    <programlisting><?db-font-size 75% ?>const uint32_t* k = reinterpret_cast&lt;const uint32_t*&gt;(KEY256);
+    <programlisting><?code-font-size 75% ?>const uint32_t* k = reinterpret_cast&lt;const uint32_t*&gt;(KEY256);
 const uint32_t* m = reinterpret_cast&lt;const uint32_t*&gt;(data);
 
 uint32x4_p vm, vk;
@@ -151,7 +151,7 @@ offset+=16;
 </programlisting>
     <para><emphasis role="bold">Part 3.</emphasis> Perform the remaining rounds.
     </para>
-    <programlisting><?db-font-size 75% ?>for (i=16; i&lt;64; i+=16)
+    <programlisting><?code-font-size 75% ?>for (i=16; i&lt;64; i+=16)
 {
     vk = VecLoad32x4(k, offset);
     SHA256_ROUND2&lt;0&gt;(X,S, vk);
@@ -183,7 +183,7 @@ offset+=16;
 }
 </programlisting>
     <para><emphasis role="bold">Part 4.</emphasis> Repack and store the new state.</para>
-    <programlisting><?db-font-size 75% ?>abcd += VecPack(S[A],S[B],S[C],S[D]);
+    <programlisting><?code-font-size 75% ?>abcd += VecPack(S[A],S[B],S[C],S[D]);
 efgh += VecPack(S[E],S[F],S[G],S[H]);
 
 VecStore32x4u(abcd, state+0, 0);
@@ -191,7 +191,7 @@ VecStore32x4u(efgh, state+4, 0);
 </programlisting>
     <para><emphasis role="bold">VecLoadMsg32x4.</emphasis> Perform an endian-aware load of a user message into a word.
     </para>
-    <programlisting><?db-font-size 75% ?>template &lt;class T&gt;
+    <programlisting><?code-font-size 75% ?>template &lt;class T&gt;
 uint32x4_p VecLoadMsg32x4(const T* data, int offset)
 {
 #if __LITTLE_ENDIAN__
@@ -205,7 +205,7 @@ uint32x4_p VecLoadMsg32x4(const T* data, int offset)
 </programlisting>
     <para><emphasis role="bold">SHA256_ROUND1.</emphasis> Mix state with a round key and user message.
     </para>
-    <programlisting><?db-font-size 75% ?>template &lt;unsigned int R&gt;
+    <programlisting><?code-font-size 75% ?>template &lt;unsigned int R&gt;
 void SHA256_ROUND1(uint32x4_p X[16], uint32x4_p S[8],
                    const uint32x4_p K, const uint32x4_p M)
 {
@@ -224,7 +224,7 @@ void SHA256_ROUND1(uint32x4_p X[16], uint32x4_p S[8],
 </programlisting>
     <para><emphasis role="bold">SHA256_ROUND2.</emphasis> Mix state with a round key.
     </para>
-    <programlisting><?db-font-size 75% ?>template &lt;unsigned int R&gt;
+    <programlisting><?code-font-size 75% ?>template &lt;unsigned int R&gt;
 void SHA256_ROUND2(uint32x4_p X[16], uint32x4_p S[8],
                    const uint32x4_p K)
 {
@@ -247,7 +247,7 @@ void SHA256_ROUND2(uint32x4_p X[16], uint32x4_p S[8],
 </programlisting>
     <para><emphasis role="bold">VecPack.</emphasis> Repack working variables.
     </para>
-    <programlisting><?db-font-size 75% ?>uint32x4_p VecPack(const uint32x4_p a, const uint32x4_p b,
+    <programlisting><?code-font-size 75% ?>uint32x4_p VecPack(const uint32x4_p a, const uint32x4_p b,
                     const uint32x4_p c, const uint32x4_p d)
 {
     uint8x16_p m1 = {0,1,2,3, 16,17,18,19, 0,0,0,0, 0,0,0,0};
@@ -260,7 +260,7 @@ void SHA256_ROUND2(uint32x4_p X[16], uint32x4_p S[8],
     <title>SHA-512</title>
     <para><indexterm><primary>SHA</primary><secondary>SHA-512</secondary></indexterm>The SHA-512 implementation is like SHA-256 and has four parts. The first part is loads the existing state and creates working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem>. The second part loads the message and performs the first 16 rounds. The third part performs the remaining rounds. The final part stores the new state.</para>
     <para><emphasis role="bold">Part 1.</emphasis> Load the existing state and create working variables <systemitem>{A,B,C,D,E,F,G,H}</systemitem>.</para>
-    <programlisting><?db-font-size 75% ?>uint64x2_p ab = VecLoad64x2u(state+0, 0);
+    <programlisting><?code-font-size 75% ?>uint64x2_p ab = VecLoad64x2u(state+0, 0);
 uint64x2_p cd = VecLoad64x2u(state+2, 0);
 uint64x2_p ef = VecLoad64x2u(state+4, 0);
 uint64x2_p gh = VecLoad64x2u(state+6, 0);
@@ -277,7 +277,7 @@ S[F] = VecShiftLeft&lt;8&gt;(S[E]);
 S[H] = VecShiftLeft&lt;8&gt;(S[G]);
 </programlisting>
     <para><emphasis role="bold">Part 2.</emphasis> Load the message and perform the first 16 rounds.</para>
-    <programlisting><?db-font-size 75% ?>const uint64_t* k = reinterpret_cast&lt;const uint64_t*&gt;(KEY512);
+    <programlisting><?code-font-size 75% ?>const uint64_t* k = reinterpret_cast&lt;const uint64_t*&gt;(KEY512);
 const uint64_t* m = reinterpret_cast&lt;const uint64_t*&gt;(data);
 
 vk = VecLoad64x2(k, offset);
@@ -330,7 +330,7 @@ offset+=16;
 </programlisting>
     <para><emphasis role="bold">Part 3.</emphasis> Perform the remaining rounds.
     </para>
-    <programlisting><?db-font-size 75% ?>for (i=16; i&lt;80; i+=16)
+    <programlisting><?code-font-size 75% ?>for (i=16; i&lt;80; i+=16)
 {
     vk = VecLoad64x2(k, offset);
     SHA512_ROUND2&lt;0&gt;(X,S, vk);
@@ -375,7 +375,7 @@ offset+=16;
 </programlisting>
     <para><emphasis role="bold">Part 4.</emphasis> Repack and store the new state.
     </para>
-    <programlisting><?db-font-size 75% ?>ab += VecPack(S[A],S[B]);
+    <programlisting><?code-font-size 75% ?>ab += VecPack(S[A],S[B]);
 cd += VecPack(S[C],S[D]);
 ef += VecPack(S[E],S[F]);
 gh += VecPack(S[G],S[H]);
@@ -387,7 +387,7 @@ VecStore64x2u(gh, state+6, 0);
 </programlisting>
     <para><emphasis role="bold">VecLoadMsg64x2.</emphasis> Perform an endian-aware load of a user message into a word.
     </para>
-    <programlisting><?db-font-size 75% ?>template &lt;class T&gt;
+    <programlisting><?code-font-size 75% ?>template &lt;class T&gt;
 uint32x4_p VecLoadMsg64x2(const T* data, int offset)
 {
 #if __LITTLE_ENDIAN__
@@ -401,7 +401,7 @@ uint32x4_p VecLoadMsg64x2(const T* data, int offset)
 </programlisting>
     <para><emphasis role="bold">SHA512_ROUND1.</emphasis> Mix state with a round key and user message.
     </para>
-    <programlisting><?db-font-size 75% ?>template &lt;unsigned int R&gt;
+    <programlisting><?code-font-size 75% ?>template &lt;unsigned int R&gt;
 void SHA512_ROUND1(uint64x2_p X[16], uint64x2_p S[8],
                    const uint64x2_p K, const uint64x2_p M)
 {
@@ -420,7 +420,7 @@ void SHA512_ROUND1(uint64x2_p X[16], uint64x2_p S[8],
 </programlisting>
     <para><emphasis role="bold">SHA512_ROUND2.</emphasis> Mix state with a round key.
     </para>
-    <programlisting><?db-font-size 75% ?>template &lt;unsigned int R&gt;
+    <programlisting><?code-font-size 75% ?>template &lt;unsigned int R&gt;
 void SHA512_ROUND2(uint64x2_p X[16], uint64x2_p S[8],
                    const uint64x2_p K)
 {
@@ -443,28 +443,28 @@ void SHA512_ROUND2(uint64x2_p X[16], uint64x2_p S[8],
 </programlisting>
     <para><emphasis role="bold">VecPack.</emphasis> Repack working variables.
     </para>
-    <programlisting><?db-font-size 75% ?>uint64x2_p VecPack(const uint64x2_p x, const uint64x2_p y)
+    <programlisting><?code-font-size 75% ?>uint64x2_p VecPack(const uint64x2_p x, const uint64x2_p y)
 {
     const uint8x16_p m = {0,1,2,3, 4,5,6,7, 16,17,18,19, 20,21,22,23};
     return vec_perm(x,y,m);
 }
 </programlisting>
     <para>The SHA-512 implementation uses the same functions as SHA-256, but SHA-512 uses a 64x2 arrangement rather than the 32x4 arrangement. You should copy/paste/replace as required for SHA-512. For example, below is the SHA <systemitem>Ch</systemitem> for the 64x2 arrangement.</para>
-    <programlisting><?db-font-size 75% ?>uint64x2_p
+    <programlisting><?code-font-size 75% ?>uint64x2_p
 VecCh(uint64x2_p x, uint64x2_p y, uint64x2_p z)
 {
     return vec_sel(z,y,x);
 }
 </programlisting>
     <para>In fact, since this is C++ code, a template function works nicely. The language will use the template to instantiate <systemitem>VecCh</systemitem> using both <systemitem>uint32x4_p</systemitem> and <systemitem>uint64x2_p</systemitem>.</para>
-    <programlisting><?db-font-size 75% ?>template &lt;class T&gt;
+    <programlisting><?code-font-size 75% ?>template &lt;class T&gt;
 T VecCh(T x, T y, T z)
 {
     return vec_sel(z,y,x);
 }
 </programlisting>
     <para>Templates do not work the Sigma functions and you will have to supply C++ overloaded functions as shown below.</para>
-    <programlisting><?db-font-size 75% ?>uint64x2_p Vec_sigma0(const uint64x2_p val)
+    <programlisting><?code-font-size 75% ?>uint64x2_p Vec_sigma0(const uint64x2_p val)
 {
 #if defined(__xlc__) || defined(__xlC__)
     return __vshasigmad(val, 0, 0);

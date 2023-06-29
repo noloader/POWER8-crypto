@@ -16,7 +16,7 @@
   <section id="aes_endianness" xreflabel="AES Endianness">
     <title>Endianness</title>
     <para>The AES hardware operates in big-endian mode. On little-endian systems like <systemitem>gcc112</systemitem> you have to convert from little-endian to big-endian during loads and stores. The code to perform the conversion is shown below. Also recall from <xref linkend="vsx_unaligned_ld_st"/> POWER7 provides unaligned loads and stores so POWER8 has them available.</para>
-    <programlisting><?db-font-size 75% ?>uint8x16_p VecReverse8x16(const uint8x16_p src)
+    <programlisting><?code-font-size 75% ?>uint8x16_p VecReverse8x16(const uint8x16_p src)
 {
     uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
     return vec_perm(src, src, mask);
@@ -85,7 +85,7 @@ void VecStore64x2(const uint64x2_p src, uint8_t dest[16])
     <title>Functions</title>
     <para>GCC and IBM XL C/C++ uses different intrinsics and different datatypes for encryption and decryption. GCC uses a 64x2 vector arrangement while IBM XL CC++ uses a 8x16 arrangement. An intrinsics based implementation should wrap two functions for encryption and two functions for decryption.</para>
     <para>For the encryption operation POWER8 provides a standard round function and a function to encrypt the last round. Source code should look similar to below.</para>
-    <programlisting><?db-font-size 75% ?>template &lt;class T&gt;
+    <programlisting><?code-font-size 75% ?>template &lt;class T&gt;
 T VecEncrypt(const T state, const T rkey)
 {
 #if defined(__xlc__) || defined(__xlC__)
@@ -113,7 +113,7 @@ T VecEncryptLast(const T state, const T rkey)
 #endif
 }</programlisting>
     <para>And the corresponding decryption functions are shown below.</para>
-    <programlisting><?db-font-size 75% ?>template &lt;class T&gt;
+    <programlisting><?code-font-size 75% ?>template &lt;class T&gt;
 T VecDecrypt(const T state, const T rkey)
 {
 #if defined(__xlc__) || defined(__xlC__)
@@ -145,12 +145,12 @@ T VecDecryptLast(const T state, const T rkey)
     <title>Golden key</title>
     <para>FIPS 197 Appendix B provides a user key expanded into round keys. We refer to it as the "golden key" and it allows us to independently test round key derivation, encryption and decryption. The sections <xref linkend="aes_encryption"/> and <xref linkend="aes_decryption"/> use the golden key to simplify the discussions.</para>
     <para>Appendix B provides two key parameters. The first is the AES key supplied by the user. The second is the expanded subkey or round key table. Below is the user key supplied by Appendix B.</para>
-    <programlisting><?db-font-size 75% ?>const uint8_t key[16] = {
+    <programlisting><?code-font-size 75% ?>const uint8_t key[16] = {
      0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d,
      0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34
 };</programlisting>
     <para>The round keys for AES-128 are as follows. Since we control the round key buffer we can make it aligned. The aligned loads will save a tiny amount of time during each load of a round key.</para>
-    <programlisting><?db-font-size 75% ?>__attribute__((aligned(16)))
+    <programlisting><?code-font-size 75% ?>__attribute__((aligned(16)))
 const uint8_t subkeys[10][16] = {
      {0xA0, 0xFA, 0xFE, 0x17, 0x88, 0x54, 0x2c, 0xb1,
         0x23, 0xa3, 0x39, 0x39, 0x2a, 0x6c, 0x76, 0x05},
@@ -191,13 +191,13 @@ const uint8_t subkeys[10][16] = {
     </indexterm>
     <para>AES encryption consists of three steps. First, the user's message is loaded into a state buffer. On little-endian machines the byte order will be reversed. Second, a round key is loaded and the AES round function is applied. The second part is repeated a required number of times. For example, AES with 128-bit key applies the round function 10 times. The third part stores the result of encrypting the state, which is the encrypted block. On little-endian machines the byte order will be reversed.</para>
     <para><emphasis role="bold">Part 1.</emphasis> Load the user message into the state vector. <systemitem>VecLoad64x2</systemitem> swaps endianness as required. The 64x2 arrangement tells this is a GCC code path.</para>
-    <programlisting><?db-font-size 75% ?>uint64x2_p s = VecLoad64x2(input);
+    <programlisting><?code-font-size 75% ?>uint64x2_p s = VecLoad64x2(input);
 uint64x2_p k = VecLoad64x2(key);
 s = VecXor(s, k);</programlisting>
     <para><emphasis role="bold">Part 2.</emphasis> Load a subkey and encrypt the state buffer. The round key does not need an endian swap. Lather, rinse and repeat the required number of times.</para>
     <para>In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__builtin_crypto_vcipher</primary></indexterm>
       <indexterm><primary>__builtin_crypto_vcipherlast</primary></indexterm></para>
-    <programlisting><?db-font-size 75% ?>k = VecLoad64x2(subkeys[0]);
+    <programlisting><?code-font-size 75% ?>k = VecLoad64x2(subkeys[0]);
 s = VecEncrypt(s, k);
 
 k = VecLoad64x2(subkeys[1]);
@@ -217,10 +217,10 @@ s = VecEncrypt(s, k);
 k = VecLoad64x2(subkeys[9]);
 s = VecEncryptLast(s, k);</programlisting>
     <para><emphasis role="bold">Part 3.</emphasis> Store the new state which is the encrypted block. <systemitem>VecStore64x2</systemitem> swaps endianness as required.</para>
-    <programlisting><?db-font-size 75% ?>VecStore64x2(s, output);</programlisting>
+    <programlisting><?code-font-size 75% ?>VecStore64x2(s, output);</programlisting>
     <para>The AES-128 code shown above demonstrates a GCC code path using the 64x2 arrangement. Below is the IBM XL C/C++ code path using an 8x16 arrangement. In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__vcipher</primary></indexterm>
       <indexterm><primary>__vcipherlast</primary></indexterm></para>
-    <programlisting><?db-font-size 75% ?>uint8x16_p s = VecLoad8x16(input);
+    <programlisting><?code-font-size 75% ?>uint8x16_p s = VecLoad8x16(input);
 uint8x16_p k = VecLoad8x16(key);
 s = VecXor(s, k);
 
@@ -256,7 +256,7 @@ VecStore8x16(s, output);</programlisting>
     <para>AES decryption has two minor differences from the encryption algorithm. First the round keys are iterated in reverse order. Second, the user or master key is used last instead of first.</para>
     <para>The code below demonstrates AES-128 using the GCC code path. GCC uses the 64x2 arrangement. In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__builtin_crypto_vncipher</primary></indexterm>
       <indexterm><primary>__builtin_crypto_vncipherlast</primary></indexterm></para>
-    <programlisting><?db-font-size 75% ?>uint64x2_p s = VecLoad64x2(input);
+    <programlisting><?code-font-size 75% ?>uint64x2_p s = VecLoad64x2(input);
 uint64x2_p k = VecLoad64x2(subkeys[9]);
 s = VecXor(s, k);
 
@@ -283,7 +283,7 @@ s = VecDecryptLast(s, k);
 VecStore8x16(s, output);</programlisting>
     <para>As with AES encryption there is a different code path for IBM XL C/C++ using the 8x16 datatypes. The code below shows XL C/C++ decryption using the 8x16 datatype. In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__vncipher</primary></indexterm>
       <indexterm><primary>__vncipherlast</primary></indexterm></para>
-    <programlisting><?db-font-size 75% ?>uint8x16_p s = VecLoad8x16(input);
+    <programlisting><?code-font-size 75% ?>uint8x16_p s = VecLoad8x16(input);
 uint8x16_p k = VecLoad8x16(subkeys[9]);
 s = VecXor(s, k);
 
@@ -320,7 +320,7 @@ VecStore8x16(s, output);</programlisting>
     <para>The code below processes 16*8 or 128-bytes of data at a time using the GCC code path. The IBM code path would be similar.</para>
     <para>In the code below remember that <systemitem>subkeys</systemitem> is <systemitem>subkeys[10][16]</systemitem>. The expression <systemitem>subkeys[i]</systemitem> is a byte pointer and indexes into the i-th 16-byte round key.<indexterm><primary>__builtin_crypto_vcipher</primary></indexterm>
       <indexterm><primary>__builtin_crypto_vcipherlast</primary></indexterm></para>
-    <programlisting><?db-font-size 75% ?>uint64x2_p k = VecLoad64x2(key);
+    <programlisting><?code-font-size 75% ?>uint64x2_p k = VecLoad64x2(key);
 
 uint64x2_p s0 = VecLoad64x2(input+0);
 uint64x2_p s1 = VecLoad64x2(input+16);

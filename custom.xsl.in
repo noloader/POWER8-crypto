@@ -22,6 +22,17 @@
    <!-- https://stackoverflow.com/questions/17237093 -->
    <xsl:param name="body.start.indent">0.25in</xsl:param>
 
+   <!-- http://www.sagehill.net/docbookxsl/FittingText.html -->
+   <xsl:attribute-set name="monospace.verbatim.properties">
+     <xsl:attribute name="font-size">
+       <xsl:choose>
+         <xsl:when test="processing-instruction('code-font-size')"><xsl:value-of
+              select="processing-instruction('code-font-size')"/></xsl:when>
+         <xsl:otherwise>inherit</xsl:otherwise>
+       </xsl:choose>
+     </xsl:attribute>
+   </xsl:attribute-set>
+
    <!--
    <xsl:param name="body.margin.left">0.75in</xsl:param>
    <xsl:param name="body.margin.left">0.75in</xsl:param>
