@@ -12,7 +12,7 @@
     <para><indexterm><primary>GCM mode</primary></indexterm><indexterm><primary>Polynomial multiplication</primary><secondary>GCM mode</secondary></indexterm>POWER8 GCM mode is implemented using the <systemitem>vpmsumd</systemitem> instruction. GCM uses the double-word variant and to perform 64x64 → 128-bit polynomial multiplies. The GCC builtin is <indexterm><primary>__builtin_crypto_vpmsumd</primary></indexterm><systemitem>__builtin_crypto_vpmsumd</systemitem>, and the XLC intrinsic is <indexterm><primary>__vpmsumd</primary></indexterm><systemitem>__vpmsumd</systemitem>.</para>
     <para><systemitem>vpmsumd</systemitem> creates two 128-bit products and xor's them together. One product is from the multiplication of the low dwords, and the second product is from the multiplication of the high dwords. The trick to using <systemitem>vpmsumd</systemitem> is to ensure one of the products is 0. You can ensure one of the products is 0 by setting one of the 64-bit dwords to 0.</para>
     <para>The output of <systemitem>vpmsumd</systemitem> is endian sensitive like the <systemitem>vec_sld</systemitem> instruction. On big-endian systems the result of a multiply is <systemitem>{a,b}</systemitem>, where <systemitem>a</systemitem> and <systemitem>b</systemitem> are double words in a vector. The same multiplication on a little-endian system produces <systemitem>{b,a}</systemitem>. The swapping can be seen with the test program below.</para>
-    <programlisting>$ cat test.cxx
+    <programlisting><?db-font-size 75% ?>$ cat test.cxx
 #include &lt;altivec.h&gt;
 #undef vector
 typedef __vector unsigned long long uint64x2_p;
@@ -26,14 +26,14 @@ int main(int argc, char* argv[])
   return 0;
 }</programlisting>
     <para>Running the program on <systemitem>gcc112</systemitem>, which is <systemitem>ppc64-le</systemitem>, results in the following output. Notice the output is <systemitem>{0x100, 0x0}</systemitem>.</para>
-    <programlisting>(gdb) r
+    <programlisting><?db-font-size 75% ?>(gdb) r
 Starting program: /home/test/test.exe
 Breakpoint 1, main (argc=0x1, argv=0x3ffffffff4b8) at test.cxx:11
 11        return 0;
 (gdb) p c
 $1 = {0x100, 0x0}</programlisting>
     <para>And running the program on <systemitem>gcc119</systemitem>, which is <systemitem>ppc64-be</systemitem>, results in the following output. Notice the output is <systemitem>{0x0, 0x100}</systemitem>.</para>
-    <programlisting>(gdb) r
+    <programlisting><?db-font-size 75% ?>(gdb) r
 Starting program: /home/test/test.exe
 Breakpoint 1, main (argc=0x1, argv=0x2ff22bb8) at test.cxx:11
 11        return 0;
@@ -42,7 +42,7 @@ $1 = {0x0, 0x100}</programlisting>
     <para>Three helper functions are needed for GCM mode. The first two are <systemitem>VecGetHigh</systemitem> and <systemitem>VecGetLow</systemitem>. The functions extract the high and low 64-bit double words and return them in a vector. The third is <systemitem>VecSwapWords</systemitem>. <systemitem>VecSwapWords</systemitem> exchanges 64-bit double words on little-endian systems after the multiplication.</para>
     <para><systemitem>VecGetHigh</systemitem> and <systemitem>VecGetLow</systemitem> return a vector padded on the left with 0's. That means the return vector already has one of the terms set to 0 so <systemitem>vpmsumd</systemitem> will behave like ARM's <indexterm><primary>pmull_p64</primary></indexterm><systemitem>pmull_p64</systemitem> or Intel's <indexterm><primary>_mm_clmulepi64_si128</primary></indexterm><systemitem>_mm_clmulepi64_si128</systemitem>.</para>
     <para>The source code for the three functions are shown below. Shifts and rotates are preferred over permutes or masks because shifts are generally faster and use fewer instructions.</para>
-    <programlisting><indexterm><primary>VecGetHigh</primary></indexterm>uint64x2_p VecGetHigh(uint64x2_p val)
+    <programlisting><?db-font-size 75% ?><indexterm><primary>VecGetHigh</primary></indexterm>uint64x2_p VecGetHigh(uint64x2_p val)
 {
     return VecShiftRight&lt;8&gt;(val);
 }
@@ -58,7 +58,7 @@ VecSwapWords(const T val)
     return (T)VecRotateLeft&lt;8&gt;(val);
 }</programlisting>
     <para>Using <systemitem>VecGetHigh</systemitem> and <systemitem>VecGetLow</systemitem> the function <systemitem>VecPolyMultiply</systemitem> can be implemented as follows using the <systemitem>vpmsumd</systemitem> builtin.</para>
-    <programlisting><indexterm><primary>VecPolyMultiply</primary></indexterm>uint64x2_p
+    <programlisting><?db-font-size 75% ?><indexterm><primary>VecPolyMultiply</primary></indexterm>uint64x2_p
 VecPolyMultiply(uint64x2_p a, uint64x2_p b)
 {
 #if defined(__xlc__) || defined(__xlC__)
@@ -139,7 +139,7 @@ VecPolyMultiply(uint64x2_p a, uint64x2_p b)
       </tgroup>
     </informaltable>
     <para>The next steps are implement the GCM multiplication and reduction routines. The code for multiplication is easy and shown below. The code for reduction is the tricky one and left as an exercise to the reader.</para>
-    <programlisting><indexterm><primary>GCM_Multiply</primary></indexterm><indexterm><primary>GCM_Reduce</primary></indexterm>uint64x2_p
+    <programlisting><?db-font-size 75% ?><indexterm><primary>GCM_Multiply</primary></indexterm><indexterm><primary>GCM_Reduce</primary></indexterm>uint64x2_p
 GCM_Multiply(uint64x2_p x, uint64x2_p h)
 {
     uint64x2_p c0 = VecPolyMult00(x, h);

@@ -8,7 +8,7 @@
   <section id="gcc_compiler" xreflabel="GCC Compiler">
     <title>GCC compiler</title>
     <para><indexterm><primary>GCC</primary></indexterm>Compiling a test program with GCC will generally look like below. The important part is <systemitem>-mcpu=power8</systemitem> which selects the POWER8 Instruction Set Architecture (ISA). The minimum architecture required for Altivec with GCC is <systemitem>-march=power4</systemitem>.</para>
-    <programlisting>$ g++ -mcpu=power8 -maltivec test.cxx -o test.exe</programlisting>
+    <programlisting><?db-font-size 75% ?>$ g++ -mcpu=power8 -maltivec test.cxx -o test.exe</programlisting>
     <para>GCC consumes <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem>.</para>
     <para>GCC uses integer math to calculate the effective memory addresses from a memory address and offset. That is, if you have an array <systemitem>uint32_t vals = {0,1,2,3,4,5,6,7}</systemitem>, and you call <systemitem>uint32x4_p v = vec_xl(vals, 4)</systemitem>, then the vector will have the value <systemitem>{1,2,3,4}</systemitem>. That is, GCC uses the address of <systemitem>vals</systemitem> and simply adds <systemitem>4</systemitem> to it. Effective addresses are discussed in <xref linkend="effective_address"/>, and loads and stores are discussed in <xref linkend="altivec_aligned_ld_st"/>.</para>
     <para>If you work on the <link linkend="intro_cfarm">Compile Farm</link> then be mindful of the default GCC compiler. It may be GCC 4.8.5 which is a bit old and unsupported. You usually enjoy better code generation and performance with a modern GCC like 7.2. A newer compiler is usually located at <systemitem>/opt/cfarm/gcc-latest</systemitem>.</para>
@@ -16,7 +16,7 @@
   <section id="xlc_compiler" xreflabel="XLC Compiler">
     <title>XLC compiler</title>
     <para><indexterm><primary>IBM</primary></indexterm><indexterm><primary>XLC</primary></indexterm>Compiling a test program with IBM XL C/C++ will generally look like below. The important parts are the C++ compiler name of <systemitem>xlC</systemitem>, and <systemitem>-qarch=pwr8</systemitem> which selects the POWER8 ISA. The minimum architecture required for Altivec with XLC is <systemitem>-qarch=pwr6</systemitem>.</para>
-    <programlisting>$ xlC -qarch=pwr8 -qaltivec test.cxx -o test.exe</programlisting>
+    <programlisting><?db-font-size 75% ?>$ xlC -qarch=pwr8 -qaltivec test.cxx -o test.exe</programlisting>
     <para>XLC consumes <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-qpic</systemitem> for XLC.</para>
     <para>XLC uses integer math to calculate the effective memory addresses from a memory address and offset. That is, if you have an array <systemitem>uint32_t vals = {0,1,2,3,4,5,6,7}</systemitem>, and you call <systemitem>uint32x4_p v = vec_xl(vals, 4)</systemitem>, then the vector will have the value <systemitem>{1,2,3,4}</systemitem>. That is, XLC uses the address of <systemitem>vals</systemitem> and simply adds <systemitem>4</systemitem> to it. Effective addresses are discussed in <xref linkend="effective_address"/>, and loads and stores are discussed in <xref linkend="altivec_aligned_ld_st"/>.</para>
     <para>IBM XLC switched to a LLVM front-end for the Linux compiler at version 13.1 (AIX still uses the IBM front-end). When compiling with XLC version 13.1 or higher on Linux you may need the <systemitem>-qcompatmacros</systemitem> compiler option. Without <systemitem>-qcompatmacros</systemitem> the samples fail to compile because XLC 13.1 does not define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. However, LLVM defines <systemitem>__GNUC__</systemitem> but compilation fails because the compiler cannot consume the GCC POWER8 builtins.<footnote><para>LLVM behavior is befuddling to some people. It is the XLC compiler but fails to define <systemitem>__xlc__</systemitem> or <systemitem>__xlC__</systemitem>. Then it defines <systemitem>__GNUC__</systemitem> but fails to consume the GCC POWER8 builtins.</para></footnote></para>
@@ -24,10 +24,10 @@
   <section id="clang_compiler" xreflabel="Clang Compiler">
     <title>Clang compiler</title>
     <para><indexterm><primary>LLVM</primary></indexterm><indexterm><primary>Clang</primary></indexterm>Compiling a test program with LLVM's Clang will generally look like below. The important part is <systemitem>-mcpu=power8</systemitem> which selects the POWER8 Instruction Set Architecture (ISA). The minimum architecture required for Altivec with Clang is unknown. The Clang compiler was not tested because the <link linkend="intro_cfarm">compile farm </link> lacks a Clang installation.</para>
-    <programlisting>$ g++ -mcpu=power8 -maltivec test.cxx -o test.exe</programlisting>
+    <programlisting><?db-font-size 75% ?>$ g++ -mcpu=power8 -maltivec test.cxx -o test.exe</programlisting>
     <para>Clang consumes <systemitem>-g</systemitem> and <systemitem>-O3</systemitem>. If you want Position Independent Code then use <systemitem>-fPIC</systemitem>.</para>
     <para><indexterm><primary>-qxlcompatmacros</primary></indexterm><indexterm><primary>-qshowmacros</primary></indexterm>IBM switched to an LLVM front-end for the Linux compiler at version 13.1 as discussed in <xref linkend="xlc_compiler"/>. Be mindful of how you use preprocessor macros when LLVM is the front-end because the compiler claims to be three different compilers — GCC, Clang and XLC.</para>
-    <programlisting>$ xlc -qxlcompatmacros -qshowmacros -E test.cxx | \
+    <programlisting><?db-font-size 75% ?>$ xlc -qxlcompatmacros -qshowmacros -E test.cxx | \
   egrep -i -E 'xlc|clang|llvm|gnuc'
 #define __GNUC_GNU_INLINE__ 1
 #define __GNUC_MINOR__ 2
@@ -48,7 +48,7 @@
     <title>Altivec headers</title>
     <para>The header file required for datatypes and functions is <systemitem>&lt;altivec.h&gt;</systemitem>. You must enable Altivec using compiler options <systemitem>-maltivec</systemitem> or <systemitem>-qaltivec</systemitem> as discussed in <xref linkend="gcc_compiler"/> and <xref linkend="xlc_compiler"/>.</para>
     <para>To support C++ projects and compilers the <systemitem>__vector</systemitem> keyword is used rather than <systemitem>vector</systemitem>. A typical Altivec include looks as shown below.</para>
-    <programlisting>#if defined(__ALTIVEC__)
+    <programlisting><?db-font-size 75% ?>#if defined(__ALTIVEC__)
 # include &lt;altivec.h&gt;
 # undef vector
 # undef pixel
@@ -56,7 +56,7 @@
 #endif</programlisting>
     <para>The <systemitem>__ALTIVEC__</systemitem> preprocessor macro will be defined when using <systemitem>-qaltivec</systemitem> or <systemitem>-maltivec</systemitem> compiler options as discussed in <xref linkend="gcc_compiler"/> and <xref linkend="xlc_compiler"/>. Macros and definitions are discussed more in <xref linkend="preprocessor_macros"/>.</para>
     <para>When you need to use the vector datatypes you use the <systemitem>__vector</systemitem> keyword as discussed in the section <xref linkend="power8_datatypes"/>.</para>
-    <programlisting>/* A vector with four elements initialized to 0 */
+    <programlisting><?db-font-size 75% ?>/* A vector with four elements initialized to 0 */
 __vector unsigned int v = {0,0,0,0};</programlisting>
   </section>
   <section id="preprocessor_macros" xreflabel="Preprocessor Macros">
@@ -97,7 +97,7 @@ __vector unsigned int v = {0,0,0,0};</programlisting>
     <title>Machine endianness</title>
     <para><indexterm><primary>__BYTE_ORDER__</primary></indexterm><indexterm><primary>__ORDER_LITTLE_ENDIAN__</primary></indexterm><indexterm><primary>__ORDER_BIG_ENDIAN__</primary></indexterm><indexterm><primary>__LITTLE_ENDIAN__</primary></indexterm><indexterm><primary>__BIG_ENDIAN__</primary></indexterm>You will experience both little-endian and big-endian machines in the field when working with a modern PowerPC architecture. Linux is generally little-endian, while AIX is big-endian.</para>
     <para>When writing portable source code you should check the value of preprocessor macros <systemitem>__LITTLE_ENDIAN__</systemitem> or <systemitem>__BIG_ENDIAN__</systemitem> to determine the configuration. The value of the macros <systemitem>__BIG_ENDIAN__</systemitem> and <systemitem>__LITTLE_ENDIAN__</systemitem> are defined to non-0 when in effect. Source code checking endianness should look similar to the code shown below.</para>
-    <programlisting>#if __LITTLE_ENDIAN__
+    <programlisting><?db-font-size 75% ?>#if __LITTLE_ENDIAN__
 # pragma message "Little-endian system"
 #elif __BIG_ENDIAN__
 # pragma message "Big-endian system"
@@ -134,7 +134,7 @@ __vector unsigned int v = {0,0,0,0};</programlisting>
 </screen>
     <para><indexterm><primary>SPARCv8</primary></indexterm>PowerPC is not the only architecture to have the <systemitem>__BIG_ENDIAN__</systemitem> and <systemitem>__LITTLE_ENDIAN__</systemitem> trap. The trap is also laid on SPARCv8, and caused BIND users on NetBSD-8 to fail to validate DNSSEC keys. The problem was the endianness tests used <systemitem>__ORDER_BIG_ENDIAN__</systemitem> and <systemitem>__ORDER_LITTLE_ENDIAN__</systemitem>. Also see <ulink url="https://mail-index.netbsd.org/netbsd-users/2020/04/16/msg024529.html">DNSSEC vs netbsd-8/sparc?</ulink>.</para>
     <para>If you wish to use the GCC macros for endianness test, then you should craft your test like below. The tests below will perform properly with Clang, GCC and XLC.</para>
-    <programlisting>
+    <programlisting><?db-font-size 75% ?>
 #if (defined(__BYTE_ORDER__ ) &amp;&amp; \
     (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)) || \
      defined(__LITTLE_ENDIAN__)
@@ -187,11 +187,11 @@ __vector unsigned int v = {0,0,0,0};</programlisting>
     <para>Some vector operations, like loads and stores, can be sensitive to the alignment of a memory address. Operations like <systemitem>vec_ld</systemitem> and <systemitem>vec_st</systemitem> are sensitive, and the documentation clearly states it.</para>
     <para>The effective address is a simple sum consisting of the memory address plus the offset into the address with the result rounded down to a multiple of 16. Effective addresses follow integer arithmetic and not pointer arithmetic.</para>
     <para>You can calculate an effective address using the following code. Notice the bottom 4 bits are masked after calculating the sum to yield a multiple of 16.</para>
-    <programlisting>uintptr_t maddr = (uintptr_t)mem_addr;
+    <programlisting><?db-font-size 75% ?>uintptr_t maddr = (uintptr_t)mem_addr;
 uintptr_t mask = ~(uintptr_t)0xf;
 uintptr_t eaddr = (maddr+offset) &amp; mask;</programlisting>
     <para><systemitem>vec_ld</systemitem> takes a pointer and an offset to load a value into a VSX register. Each of the following yield the same VSX register value because the effective addresses are the same. (Old x86 programmers should reminisce on  segmented memory).</para>
-    <programlisting><indexterm><primary>vec_ld</primary></indexterm>uint8_t* ptr1 = 0x401000;
+    <programlisting><?db-font-size 75% ?><indexterm><primary>vec_ld</primary></indexterm>uint8_t* ptr1 = 0x401000;
 int off1 = 32;
 uint8x16_p r1 = vec_ld(off1, ptr1);
 
@@ -199,7 +199,7 @@ uint8_t* ptr2 = 0x401010;
 int off2 = 16;
 uint8x16_p r2 = vec_ld(off2, ptr2);</programlisting>
     <para>The following also yields the same VSX register value because the effective address is the same. If you truly wanted to load 4 bytes beyond <systemitem>ptr</systemitem> then you loaded the wrong value because <systemitem>(0x401010+4)&amp;0xfffffff0 = 0x401010</systemitem>.</para>
-    <programlisting><indexterm><primary>vec_ld</primary></indexterm>uint8_t* ptr1 = 0x401000;
+    <programlisting><?db-font-size 75% ?><indexterm><primary>vec_ld</primary></indexterm>uint8_t* ptr1 = 0x401000;
 int off1 = 16;
 uint8x16_p r1 = vec_ld(off1, ptr1);
 
@@ -214,7 +214,7 @@ uint8x16_p r2 = vec_ld(off2, ptr2);</programlisting>
     <para>Altivec <emphasis>does not</emphasis> raise a <indexterm><primary>SIGBUS</primary></indexterm><systemitem>SIGBUS</systemitem> to indicate a misaligned load or store. Instead, the bottom 4 bits of the sum <systemitem>address+offset</systemitem> are masked-off and then the memory at the effective address is loaded.</para>
     <para>You can use the Altivec loads and stores when you <emphasis>control</emphasis> buffers and ensure they are 16-byte aligned, like an AES key schedule table. Otherwise just use <link linkend="vsx_unaligned_ld_st">unaligned loads and stores</link> to avoid trouble.</para>
     <para>The C/C++ code to perform a load using <indexterm><primary>vec_ld</primary></indexterm><systemitem>vec_ld</systemitem> should look similar to below. Notice the <systemitem>assert</systemitem> to warn you of problems in debug builds.</para>
-    <programlisting><indexterm><primary>VecLoad</primary></indexterm><indexterm><primary>vec_ld</primary></indexterm>template &lt;class T&gt;
+    <programlisting><?db-font-size 75% ?><indexterm><primary>VecLoad</primary></indexterm><indexterm><primary>vec_ld</primary></indexterm>template &lt;class T&gt;
 uint32x4_p VecLoad(const T* mem_addr, int offset)
 {
 #ifndef NDEBUG
@@ -227,7 +227,7 @@ uint32x4_p VecLoad(const T* mem_addr, int offset)
     return (uint32x4_p)vec_ld(offset, mem_addr);
 }</programlisting>
     <para>The C/C++ code to perform a store using <indexterm><primary>vec_st</primary></indexterm><systemitem>vec_st</systemitem> should look similar to below.</para>
-    <programlisting><indexterm><primary>VecStore</primary></indexterm><indexterm><primary>vec_st</primary></indexterm>template &lt;class T&gt;
+    <programlisting><?db-font-size 75% ?><indexterm><primary>VecStore</primary></indexterm><indexterm><primary>vec_st</primary></indexterm>template &lt;class T&gt;
 void VecStore(const uint32x4_p val, T* mem_addr, int offset)
 {
 #ifndef NDEBUG
@@ -246,7 +246,7 @@ void VecStore(const uint32x4_p val, T* mem_addr, int offset)
     <para>The preferred builtin functions for 32-bit and 64-bit datatype loads and stores are <indexterm><primary>vec_xl</primary></indexterm><systemitem>vec_xl</systemitem> and <indexterm><primary>vec_xst</primary></indexterm><systemitem>vec_xst</systemitem>. The builtins are available on all currently supported versions of GCC and XLC. However, older versions of GCC such as those installed on many enterprise Linux distributions do not supply them. For compatibility with these older compilers you may use <indexterm><primary>vec_vsx_ld</primary></indexterm><systemitem>vec_vsx_ld</systemitem> and <indexterm><primary>vec_vsx_st</primary></indexterm><systemitem>vec_vsx_st</systemitem> for GCC.</para>
     <para>You should use the POWER7 and VSX loads and stores whenever you <emphasis>do not control</emphasis> buffers or their alignments, like a message in a buffer supplied by the user.</para>
     <para>The C/C++ code to perform a load using <systemitem>vec_xl</systemitem> and <systemitem>vec_vsx_ld</systemitem> should look similar to below. The function name has a <systemitem>u</systemitem> added to indicate unaligned.</para>
-    <programlisting><indexterm><primary>VecLoadu</primary></indexterm><indexterm><primary>vec_xl</primary></indexterm><indexterm><primary>vec_vsx_ld</primary></indexterm>template &lt;class T&gt;
+    <programlisting><?db-font-size 75% ?><indexterm><primary>VecLoadu</primary></indexterm><indexterm><primary>vec_xl</primary></indexterm><indexterm><primary>vec_vsx_ld</primary></indexterm>template &lt;class T&gt;
 uint32x4_p VecLoadu(const T* mem_addr, int offset)
 {
 #if defined(__xlc__) || defined(__xlC__)
@@ -256,7 +256,7 @@ uint32x4_p VecLoadu(const T* mem_addr, int offset)
 #endif
 }</programlisting>
     <para>The C/C++ code to perform a store using <systemitem>vec_xst</systemitem> and <systemitem>vec_vsx_st</systemitem> should look similar to below.</para>
-    <programlisting><indexterm><primary>VecStoreu</primary></indexterm><indexterm><primary>vec_xst</primary></indexterm><indexterm><primary>vec_vsx_st</primary></indexterm>template &lt;class T&gt;
+    <programlisting><?db-font-size 75% ?><indexterm><primary>VecStoreu</primary></indexterm><indexterm><primary>vec_xst</primary></indexterm><indexterm><primary>vec_vsx_st</primary></indexterm>template &lt;class T&gt;
 void VecStoreu(const uint32x4_p val, T* mem_addr, int offset)
 {
 #if defined(__xlc__) || defined(__xlC__)
@@ -278,7 +278,7 @@ void VecStoreu(const uint32x4_p val, T* mem_addr, int offset)
     <para>Altivec shifts and rotates are performed using <emphasis>Vector Shift Left Double by Octet Immediate</emphasis>. The vector shift and rotate builtin is <indexterm><primary>vec_sld</primary></indexterm><systemitem>vec_sld</systemitem> and it compiles/assembles to <indexterm><primary>vsldoi</primary></indexterm><systemitem>vsldoi</systemitem>. Both shift and rotate operate on a concatenation of two vectors. Bytes are shifted out on the left and shifted in on the right. The instructions need an integral constant in the range 0 - 15, inclusive.</para>
     <para>Vector shifts and rotates perform as expected on big-endian machines. Little-endian machines require special handling to produce correct results. The catch is, <ulink url="http://www.ibm.com/support/knowledgecenter/SSXVZZ_13.1.4/com.ibm.xlcpp1314.lelinux.doc/compiler_ref/vec_sld.html">IBM manuals don't tell you about it</ulink>.</para>
     <para>The issue is <ulink url="http://stackoverflow.com/q/46341923/608639">shifts and rotates are endian sensitive</ulink> and you have to use <systemitem>16-n</systemitem> integrals and swap vector arguments on little-endian systems. The C++ source code provides the following template function to compensate for the little-endian behavior.</para>
-    <programlisting><indexterm><primary>VecShiftLeft</primary></indexterm><indexterm><primary>vec_sld</primary></indexterm>template &lt;unsigned int N, class T&gt;
+    <programlisting><?db-font-size 75% ?><indexterm><primary>VecShiftLeft</primary></indexterm><indexterm><primary>vec_sld</primary></indexterm>template &lt;unsigned int N, class T&gt;
 T VecShiftLeft(const T val1, const T val2)
 {
 #if __LITTLE_ENDIAN__
@@ -290,7 +290,7 @@ T VecShiftLeft(const T val1, const T val2)
 #endif
 }</programlisting>
     <para>A <indexterm><primary>VecRotateLeft</primary></indexterm><systemitem>VecRotateLeft</systemitem> would be similar to the code below, if needed. Rotate is a special case of shift where both vector arguments are the same value.</para>
-    <programlisting><indexterm><primary>VecRotateLeft</primary></indexterm><indexterm><primary>vec_sld</primary></indexterm>template &lt;unsigned int N, class T&gt;
+    <programlisting><?db-font-size 75% ?><indexterm><primary>VecRotateLeft</primary></indexterm><indexterm><primary>vec_sld</primary></indexterm>template &lt;unsigned int N, class T&gt;
 T VecRotateLeft(const T val)
 {
 #if __LITTLE_ENDIAN__
@@ -307,11 +307,11 @@ T VecRotateLeft(const T val)
     <para>Vector permutes allow you to rearrange elements in a vector. The values to be permuted can be in any arrangement like 64x2 or 32x4, but the mask is always an octet mask using an 8x16 arrangement.</para>
     <para>The Altivec permute is very powerful and it stands out among architectures like ARM, Aarch64 and x86. The instruction allows you to select elements from two source vectors. When an index in the mask is in the range <systemitem>[0,15]</systemitem> then elements from the first vector are selected, and index values in the the range <systemitem>[16,31]</systemitem> select elements from the second vector.</para>
     <para>As an example, suppose you have a big-endian byte array like a message to be hashed using SHA-256. SHA operates on 32-bit words so the message needs a shuffle on little-endian systems. The code to perform the permute on a little-endian machine would look like below.</para>
-    <programlisting><indexterm><primary>vec_perm</primary></indexterm>uint32x4_p msg = vec_ld(/*load from memory*/);
+    <programlisting><?db-font-size 75% ?><indexterm><primary>vec_perm</primary></indexterm>uint32x4_p msg = vec_ld(/*load from memory*/);
 uint8x16_p mask = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
 msg = vec_perm(msg, msg, mask);</programlisting>
     <para>The previous example only needed one vector so it used <systemitem>msg</systemitem> twice in the call to <systemitem>vec_perm</systemitem>. The Altivec code is similar to <systemitem>_mm_shuffle_epi8</systemitem> on Intel machines. An example that interleaves two different vectors is shown below.</para>
-    <programlisting><indexterm><primary>vec_perm</primary></indexterm>uint32x4_p a = { 0,  0,  0,  0};  // All 0 bits
+    <programlisting><?db-font-size 75% ?><indexterm><primary>vec_perm</primary></indexterm>uint32x4_p a = { 0,  0,  0,  0};  // All 0 bits
 uint32x4_p b = {-1, -1, -1, -1};  // All 1 bits
 uint8x16_p m = {0,1,2,3, 16,17,18,19, 4,5,6,7, 20,21,22,23};
 uint32x4_p c = vec_perm(a, b, m);</programlisting>
@@ -331,7 +331,7 @@ uint32x4_p c = vec_perm(a, b, m);</programlisting>
     <title>32-bit Altivec</title>
     <para>Most PowerPCs, from the early days through POWER7, provide an Altivec unit that is only capable of packed 32-bit operations. POWER7 and VSX added <systemitem>__vector unsigned long long</systemitem>, and POWER8 added 64-bit operations like add and subtract, but none of them are available on older Altivec. Some algorithms you implement may need 64-bit datatypes on the older units. The algorithms include <indexterm><primary>Salsa</primary></indexterm>Salsa, <indexterm><primary>ChaCha</primary></indexterm>ChaCha, <indexterm><primary>Simon-128</primary></indexterm>Simon-128 and <indexterm><primary>Speck-128</primary></indexterm>Speck-128. In this case you can implement your own <indexterm><primary>VecAdd64</primary></indexterm><systemitem>VecAdd64</systemitem> and <indexterm><primary>VecSub64</primary></indexterm><systemitem>VecSub64</systemitem> using 32-bit datatypes.</para>
     <para>The code below provides 64-bit add using 32-bit vectors.</para>
-    <programlisting>inline uint32x4_p
+    <programlisting><?db-font-size 75% ?>inline uint32x4_p
 VecAdd64(const uint32x4_p vec1, const uint32x4_p vec2)
 {
     // 64-bit elements available at POWER7 with VSX,
@@ -358,7 +358,7 @@ VecAdd64(const uint32x4_p vec1, const uint32x4_p vec2)
 #endif
 }</programlisting>
     <para>The code below provides 64-bit subtract using 32-bit vectors. The code is slightly more complex than <systemitem>VecAdd64</systemitem> because the borrow is generated as a compliment.</para>
-    <programlisting>inline uint32x4_p
+    <programlisting><?db-font-size 75% ?>inline uint32x4_p
 VecSub64(const uint32x4_p vec1, const uint32x4_p vec2)
 {
 #if defined(_ARCH_PWR8)
