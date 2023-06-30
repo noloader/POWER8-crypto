@@ -94,8 +94,9 @@ else
 fi
 
 echo "Optimizing PDF..."
-# https://stackoverflow.com/q/10450120
-if ! gs -q -o "${BOOKNAME}.opt.pdf" -sDEVICE=pdfwrite -dPDFSETTINGS=/screen -dCompatibilityLevel=1.4 "${BOOKNAME}.pdf"
+# https://stackoverflow.com/q/10450120. But don't use -dPDFSETTINGS. It leads to crummy image down sampling. See
+# https://ghostscript.readthedocs.io/en/gs10.01.1/VectorDevices.html#controls-and-features-specific-to-postscript-and-pdf-input
+if ! gs -q -o "${BOOKNAME}.opt.pdf" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 "${BOOKNAME}.pdf"
 then
     echo "Failed to optimize PDF."
     # Not a hard failure. The unoptimized PDF is available.
